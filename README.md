@@ -3,6 +3,14 @@
 
 TikZiT is a graphical tool for rapidly creating graphs and string diagrams using PGF/TikZ. It was used, for example, to make all of the 2500+ diagrams in <a href="http://cambridge.org/pqp">this book</a>.
 
+## Repository layout
+
+This repository contains the original Qt/C++ desktop application (`src/`, `tikzit.pro`, `CMakeLists.txt`) alongside the documentation and reference corpus for a planned web-based rebuild:
+
+- `docs/sprints/_active/` — the active sprint roadmap for the Astro/TypeScript web application (TypeScript TikZ parser, Three.js canvas, DockView workbench, MCard persistence). These documents describe **planned work**, not implemented features.
+- `docs/examples/` — a 12-diagram ZX-calculus `.tikz` corpus with generated SVGs, stylesheet (`pqp-zx.tikzstyles`), manifest, and build script.
+- `docs/changelog/` — weekly changelog entries.
+
 ## Building on Windows
 
 TiKZiT can be built in Windows using Qt Creator (part of <a href="http://doc.qt.io/qt-5/windows-support.html">Qt for Windows</a>) or from the command line. In either case, it is recommended you compile with <a href="http://www.mingw.org/">mingw32</a>, which is included in the official Qt distribution. There is no reason, in principle, that you couldn't use mingw64 or MSVC, but these haven't been tested.
@@ -41,6 +49,17 @@ To get a portable directory, you can then (optionally) run:
 
 Building on other distributions should be similar. For Qt setup, you can find instructions for <a href="https://wiki.qt.io/Install_Qt_5_on_openSUSE">openSUSE</a> and <a href="https://wiki.archlinux.org/index.php/qt">Arch Linux</a> on the Qt wiki.
 
+
+## Building with CMake
+
+A CMake build is also supported (Qt 6 recommended). The application requires the Qt Core, Gui, Widgets, Network, and **Pdf** modules — `QPdfDocument` is used by the preview window, so QtPdf must be installed (it ships with the standard Qt distribution):
+
+    cmake -B build -DCMAKE_BUILD_TYPE=Release
+    cmake --build build
+
+On macOS with Qt installed via Homebrew, point CMake at the Qt prefix, e.g.:
+
+    cmake -B build -DCMAKE_PREFIX_PATH="$(brew --prefix qt)"
 
 ## Building on MacOS
 
