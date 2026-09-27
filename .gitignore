@@ -38,3 +38,27 @@ tikzlexer.h
 dist
 win32-deps
 
+/cmake-build-*/
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Testing/
+/tikzit_autogen/
+/node_modules/
+/.astro/
+/coverage/
+/playwright-report/
+/test-results/
+/blob-report/
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.toc
+*.out
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.dmg
+
