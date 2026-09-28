@@ -15,7 +15,7 @@ QMAKE ?= qmake
 UNITTESTS ?= $(BUILD_DIR_TEST)/UnitTests.app/Contents/MacOS/UnitTests
 
 .PHONY: all build build-web build-cpp build-qmake build-test-cpp \
-        test test-web test-cpp test-e2e verify-corpus clean clean-web clean-cpp lint check-independence
+        test test-web test-cpp test-e2e verify-corpus clean clean-web clean-cpp lint check-independence check-conformance
 
 all: build test
 
@@ -67,6 +67,10 @@ verify-corpus:
 check-independence:
 	@echo "Checking browser runtime independence (zero native C++ bindings in web bundle)..."
 	@node scripts/verify-browser-independence.mjs
+
+check-conformance:
+	@echo "Checking dual-system protocol conformance across 12 canonical ZX diagrams..."
+	@npx tsx scripts/verify-protocol-conformance.mjs
 
 ## --- Hygiene & Lint Targets ---
 
