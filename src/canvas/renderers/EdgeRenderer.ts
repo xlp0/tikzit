@@ -77,6 +77,8 @@ export class EdgeRenderer {
     const controls = computeEdgeControls({
       src: srcNode.position,
       target: targetNode.position,
+      sourceId: edge.sourceId,
+      targetId: edge.targetId,
       srcStyle,
       targetStyle,
       bend: edge.bend,
@@ -99,10 +101,11 @@ export class EdgeRenderer {
         try {
           strokeColorHex = new THREE.Color(explicitDraw).getHex();
         } catch {
-          strokeColorHex = this.currentTheme === 'light' ? 0x000000 : 0xf1f5f9;
+          strokeColorHex = 0x000000;
         }
       } else {
-        strokeColorHex = this.currentTheme === 'light' ? 0x000000 : 0xf1f5f9;
+        // Desktop TikZiT Parity (style.cpp:51-77): unstyled edges always solid black (#000000) on white paper
+        strokeColorHex = 0x000000;
       }
     }
 
@@ -131,7 +134,7 @@ export class EdgeRenderer {
       this.edgeLines.set(edge.id, line);
     } else {
       // Bold solid ribbon mesh (>= 2px visual stroke width, immune to WebGL 1px hairline limit)
-      const halfWidth = isSelected ? 0.024 : 0.015;
+      const halfWidth = isSelected ? 0.035 : 0.025;
       const ribbonVerts: number[] = [];
       for (let i = 0; i < segments; i++) {
         const p0 = sampledPoints[i];

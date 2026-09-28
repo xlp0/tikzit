@@ -30,6 +30,8 @@ export interface EdgeControls {
 export interface EdgeInput {
   src: Point2D;
   target: Point2D;
+  sourceId?: string;
+  targetId?: string;
   srcStyle?: string;
   targetStyle?: string;
   bend?: number;             // signed bend in degrees (e.g. -30 for bend left, +30 for bend right)
@@ -70,7 +72,11 @@ export function computeEdgeControls(input: EdgeInput): EdgeControls {
   const { src, target } = input;
   const dx = target.x - src.x;
   const dy = target.y - src.y;
-  const isSelfLoop = Math.abs(dx) < 1e-6 && Math.abs(dy) < 1e-6;
+  // Desktop TikZiT Parity (edge.cpp:34): evaluate self-loops by node identity (sourceId === targetId)
+  const isSelfLoop =
+    input.sourceId !== undefined && input.targetId !== undefined
+      ? input.sourceId === input.targetId
+      : Math.abs(dx) < 1e-6 && Math.abs(dy) < 1e-6;
 
   // Resolve properties
   let bend = input.bend ?? 0;

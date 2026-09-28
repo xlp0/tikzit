@@ -114,10 +114,11 @@ export class NodeRenderer {
       container.add(dotMesh);
 
       // 2. Visible dashed junction boundary ring (radius 0.20, QColor(180,180,220) -> #b4b4dc, width 2.0)
+      // Dash pattern: 0.05 dash / 0.10 gap in TikZ units (pen [1.0, 2.0] at widthF 2.0; nodeitem.cpp:172)
       const junctionMat = new THREE.LineDashedMaterial({
         color: 0xb4b4dc,
-        dashSize: 0.04,
-        gapSize: 0.06,
+        dashSize: 0.05,
+        gapSize: 0.10,
         linewidth: 2,
       });
       const junctionRing = new THREE.LineLoop(this.circleBorderGeom, junctionMat);
@@ -126,9 +127,16 @@ export class NodeRenderer {
       container.add(junctionRing);
 
       if (isSelected) {
-        const selRing = new THREE.LineLoop(this.circleBorderGeom, this.selectMaterial);
+        // Desktop TikZiT Parity (nodeitem.cpp:133-140): QColor(150, 200, 255, 100) halo
+        const haloMat = new THREE.LineBasicMaterial({
+          color: 0x96c8ff,
+          transparent: true,
+          opacity: 0.39,
+          linewidth: 2,
+        });
+        const selRing = new THREE.LineLoop(this.circleBorderGeom, haloMat);
         selRing.position.set(0, 0, 1);
-        selRing.scale.set(0.26, 0.26, 1);
+        selRing.scale.set(0.25, 0.25, 1);
         container.add(selRing);
         this.selectionRings.set(node.id, selRing);
       }

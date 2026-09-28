@@ -160,6 +160,13 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
           };
         },
         getStyles: () => (runtime ? runtime.stores.$stylesCatalog.get() : defaultStylesCatalog.get()),
+        setActiveStyle: (style: string) => {
+          if (runtime) {
+            runtime.stores.$activeStyle.set(style);
+          } else {
+            defaultActiveStyle.set(style);
+          }
+        },
         applyStyle: (elementId: string, styleName: string) => {
           if (runtime) {
             const ast = runtime.stores.$graphAST.get();
@@ -174,6 +181,7 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
           }
         },
         setSourceCode: (code: string) => window.TikzitApp.loadTikz(code),
+        getTikzCode: () => emitTikz(runtime ? runtime.stores.$graphAST.get() : defaultGraphAST.get()),
         loadTikz: (tikzCode: string) => {
           try {
             const ast = parseTikz(tikzCode);

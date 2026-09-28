@@ -100,16 +100,21 @@ export class EdgeTool implements CanvasTool {
     }
     const edgeId = `e_${edgeIndex}`;
 
-    // Desktop TikZiT Parity (edge.cpp:34-47, 289):
-    // Self-loops default to atom 'loop', in=135, out=45, weight=1.0 (vertical upward teardrop)
-    const edgeDataProps: GraphElementProperty[] = isSelfLoop
-      ? [
-          { key: 'loop' },
-          { key: 'style', value: edgeStyle },
-          { key: 'in', value: '135' },
-          { key: 'out', value: '45' },
-        ]
-      : [{ key: 'style', value: edgeStyle }];
+    // Desktop TikZiT Parity (edge.cpp:34-47, 289; graph.cpp:304-333):
+    // Canonical property ordering: [style=<name>?, in=135, out=45, loop], style=none omitted!
+    const edgeDataProps: GraphElementProperty[] = [];
+    if (edgeStyle && edgeStyle !== 'none') {
+      edgeDataProps.push({ key: 'style', value: edgeStyle });
+    }
+    if (isSelfLoop) {
+      edgeDataProps.push({ key: 'in', value: '135' });
+      edgeDataProps.push({ key: 'out', value: '45' });
+      edgeDataProps.push({ key: 'loop' });
+    } else {
+      if (edgeDataProps.length === 0) {
+        edgeDataProps.push({ key: 'style', value: edgeStyle });
+      }
+    }
 
     if (edgeStyle === 'dashed wire') {
       edgeDataProps.push({ key: 'dashed' });

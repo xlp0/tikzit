@@ -71,13 +71,14 @@ export class Stage {
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.setSize(width, height, false);
+    this.renderer.setClearColor(0xffffff, 1.0);
 
     // Scene
     this.scene = new THREE.Scene();
 
     // Camera
     this.cameraController = new CameraController({
-      baseScale: options.baseScale ?? 50,
+      baseScale: options.baseScale ?? 100,
       onCameraChange: (state) => {
         this.updateGrid();
         this.render();
@@ -89,7 +90,7 @@ export class Stage {
     this.raycaster = new Raycaster(this.cameraController);
 
     // Procedural Grid
-    this.gridMaterial = createGridMaterial(this.currentTheme);
+    this.gridMaterial = createGridMaterial('desktop');
     this.gridMesh = createGridMesh(this.gridMaterial);
     this.scene.add(this.gridMesh);
 
@@ -165,7 +166,7 @@ export class Stage {
       camState.position.x,
       camState.position.y,
       camState.pixelsPerUnit,
-      this.currentTheme
+      'desktop'
     );
   }
 

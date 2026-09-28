@@ -166,8 +166,24 @@ export function emitTikz(ast: GraphAST): string {
       if (emittedEdgeIds.has(e.id)) continue;
 
       out += '\t\t\\draw ';
-      if (e.data && e.data.length > 0) {
-        out += formatElementData(e.data) + ' ';
+      let edgeData = e.data || [];
+      if (e.sourceId === e.targetId) {
+        // Desktop TikZiT Parity (edge.cpp:255-297, graph.cpp:304-333):
+        // Omit style=none, order [style?, in=..., out=..., loop]
+        edgeData = edgeData.filter(p => !(p.key === 'style' && (p.value === 'none' || !p.value)));
+        edgeData = [...edgeData].sort((a, b) => {
+          const order = (key: string) => {
+            if (key === 'style') return 1;
+            if (key === 'in') return 2;
+            if (key === 'out') return 3;
+            if (key === 'loop') return 4;
+            return 5;
+          };
+          return order(a.key) - order(b.key);
+        });
+      }
+      if (edgeData.length > 0) {
+        out += formatElementData(edgeData) + ' ';
       }
 
       out += `(${e.sourceId}`;
