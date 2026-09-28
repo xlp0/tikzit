@@ -118,7 +118,7 @@ export const VersionPopover: React.FC<VersionPopoverProps> = ({
   return (
     <div
       data-testid="version-popover"
-      className="relative w-80 max-h-[460px] bg-neutral-900 border border-neutral-700/80 rounded-lg shadow-2xl p-3 flex flex-col text-neutral-200"
+      className="absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] bg-neutral-900 border border-neutral-700/80 rounded-lg shadow-2xl z-50 p-3 flex flex-col text-neutral-200 max-h-[85vh]"
     >
       <div data-testid="history-live-announcer" aria-live="polite" className="sr-only">
         {liveAnnouncement}

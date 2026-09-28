@@ -24,8 +24,9 @@ test.describe('Live Browser Inspection of TikZiT Web Spatial Workbench', () => {
     const workbenchRoot = page.locator('[data-testid="workbench-root"]');
     await expect(workbenchRoot).toBeVisible();
 
-    const macChrome = page.locator('.mac-window-chrome, [data-testid="workbench-chrome"]');
-    console.log('[Browser] Workbench shell is visible and active.');
+    const macChrome = page.locator('[data-testid="mac-window-chrome"]');
+    await expect(macChrome).toBeVisible();
+    console.log('[Browser] Mac Window Chrome is visible.');
 
     // 4. Verify Dockview Host and All 5 Core Panels
     const dockviewHost = page.locator('[data-testid="dockview-host"]');
@@ -37,7 +38,8 @@ test.describe('Live Browser Inspection of TikZiT Web Spatial Workbench', () => {
 
     const sourcePanel = page.locator('[data-testid="panel-source"]');
     await expect(sourcePanel).toBeVisible();
-    console.log('[Browser] Source Panel is mounted with active document:', await page.locator('[data-testid="source-doc-title"]').textContent());
+    const sourceTitle = await page.locator('[data-testid="source-doc-title"]').textContent();
+    console.log('[Browser] Source Panel is mounted with active document:', sourceTitle);
 
     const previewPanel = page.locator('[data-testid="panel-preview"]');
     await expect(previewPanel).toBeVisible();
@@ -69,16 +71,56 @@ test.describe('Live Browser Inspection of TikZiT Web Spatial Workbench', () => {
     await expect(statusBar).toContainText('Tool: SELECT');
     console.log('[Browser] Tool returned to SELECT via hotkey S.');
 
-    // 7. Verify Theme Toggle works smoothly
+    // 7. Verify Version History Popover
+    const versionBtn = page.locator('[data-testid="btn-version-history"]');
+    if (await versionBtn.isVisible()) {
+      await versionBtn.click();
+      const revisionsList = page.locator('[data-testid="revisions-list"]');
+      await expect(revisionsList).toBeVisible();
+      console.log('[Browser] Version History Popover opened successfully.');
+      const closeHistoryBtn = page.locator('[data-testid="btn-close-history"]');
+      if (await closeHistoryBtn.isVisible()) {
+        await closeHistoryBtn.click({ force: true });
+        await expect(revisionsList).toBeHidden();
+        console.log('[Browser] Version History Popover closed.');
+      }
+    }
+
+    // 8. Test Diagram Creation Workflow
+    const newDiagramBtn = page.locator('[data-testid="btn-new-diagram"]');
+    if (await newDiagramBtn.isVisible()) {
+      await newDiagramBtn.click();
+      const docTabTitle = page.locator('[data-testid="doc-tab-title"]');
+      await expect(docTabTitle).toBeVisible();
+      const newTitle = await docTabTitle.textContent();
+      console.log('[Browser] Created new diagram tab:', newTitle);
+    }
+
+    // 9. Verify Export Diagram Dialog
+    const exportBtn = page.locator('[data-testid="btn-export-diagram"]');
+    if (await exportBtn.isVisible()) {
+      await exportBtn.click();
+      const exportDialog = page.locator('[data-testid="export-diagram-dialog"]');
+      await expect(exportDialog).toBeVisible();
+      console.log('[Browser] Export Diagram dialog opened.');
+      const cancelBtn = page.locator('[data-testid="btn-cancel-export"]');
+      if (await cancelBtn.isVisible()) {
+        await cancelBtn.click();
+        await expect(exportDialog).toBeHidden();
+        console.log('[Browser] Export Diagram dialog closed cleanly.');
+      }
+    }
+
+    // 10. Verify Theme Toggle works smoothly
     const themeBtn = page.locator('[data-testid="btn-theme-toggle"]');
     if (await themeBtn.isVisible()) {
       await themeBtn.click();
-      console.log('[Browser] Theme toggled.');
+      console.log('[Browser] Theme toggled to light.');
       await themeBtn.click();
       console.log('[Browser] Theme restored to dark.');
     }
 
-    // 8. Capture Full-Page Screenshot for visual inspection
+    // 11. Capture Full-Page Screenshot for visual inspection
     const screenshotPath = path.join(artifactDir, 'tikzit_workbench_live.png');
     await page.screenshot({ path: screenshotPath, fullPage: true });
     console.log('[Browser] Full-page live workbench screenshot captured at:', screenshotPath);
