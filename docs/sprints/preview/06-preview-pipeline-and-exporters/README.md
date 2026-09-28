@@ -1,5 +1,5 @@
 # Sprint 06: Live TeX Preview & Exporters
-**Directory:** `docs/sprints/06-preview-pipeline-and-exporters`
+**Directory:** `docs/sprints/preview/06-preview-pipeline-and-exporters`
 
 ## Overview
 In-browser TeX/SVG compilation pipeline, interactive preview panel with zoom/pan, preamble manager, Markdown card viewlet, and multi-format exporters (SVG, PNG 1x/2x/4x, PDF, TikZ, standalone TeX).
@@ -7,9 +7,8 @@ In-browser TeX/SVG compilation pipeline, interactive preview panel with zoom/pan
 ---
 
 ## Status
-* **Lifecycle State:** 🟢 **Active / Implementation Complete**
-* **Active Working Specification:** [`SPRINT-06-PREVIEW-PIPELINE-AND-EXPORTERS.md`](./SPRINT-06-PREVIEW-PIPELINE-AND-EXPORTERS.md)
-* **Master Tracking:** [`../_active/SPRINT-06-PREVIEW-PIPELINE-AND-EXPORTERS.md`](../_active/SPRINT-06-PREVIEW-PIPELINE-AND-EXPORTERS.md)
+* **Lifecycle State:** ✅ **Completed & Graduated**
+* **Final Specification:** [`SPRINT-06-PREVIEW-PIPELINE-AND-EXPORTERS.md`](./SPRINT-06-PREVIEW-PIPELINE-AND-EXPORTERS.md)
 
 ---
 

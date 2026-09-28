@@ -1,6 +1,6 @@
 # Active Sprint Directory (`docs/sprints/_active`)
 
-This directory tracks the active execution of the **Desktop Parity & Media Sharing Series** (Sprints 09–14) plus the follow-on **Sovereign Corpus track** (Sprint 15), designed in collaboration with **Winston (System Architect)** and **Amelia (Senior Software Engineer)**.
+This directory tracks sprint working drafts in flight. The **Desktop Parity & Media Sharing Series** (Sprints 09–14) and the follow-on **Sovereign Corpus track** (Sprint 15) — designed in collaboration with **Winston (System Architect)** and **Amelia (Senior Software Engineer)** — are now **fully graduated**: their final specifications live in the category bins under `docs/sprints/` (see the table below and the [master index](../README.md)).
 
 ---
 
@@ -35,17 +35,17 @@ The core mission of this sprint series is to achieve exact visual, aesthetic, an
 
 ---
 
-## Active Sprint Series (Sprints 09–15)
+## Graduated Sprint Series (Sprints 09–15)
 
-| Sprint | Document | Focus & Scope | Lead Agents | Status |
-| :---: | :--- | :--- | :---: | :---: |
-| **09** | [`SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md`](./SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md) | Media Asset Pipeline, Shared C++ Icons, macOS Window Chrome & Green Tool Border | Winston & Amelia | ✅ **Completed & Graduated** |
-| **10** | [`SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md`](./SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md) | White Paper Canvas, Exact `#DCDCF0` Axes, Dashed Junctions & Teardrop Loops | Winston & Amelia | ✅ **Completed & Graduated** |
-| **11** | [`SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md`](./SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md) | 4-Icon Action Bar, Category Dropdown, Split Node/Edge 48x48 Swatches & Ingestion | Winston & Amelia | ✅ **Completed & Graduated** |
-| **12** | [`SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md`](./SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md) | Reference Screenshot Golden Tests, Cross-Browser Matrix & Master Sign-Off | Winston & Amelia | ✅ **Completed & Graduated** |
-| **13** | [`SPRINT-13-CANVAS-CENTRIC-TOOLBAR-AND-CHROME-REFINEMENT.md`](./SPRINT-13-CANVAS-CENTRIC-TOOLBAR-AND-CHROME-REFINEMENT.md) | Canvas-Centric Tool Placement, Traffic Light Removal & Chrome Refinement | Winston & Amelia | ✅ **Completed & Graduated** |
-| **14** | [`SPRINT-14-LIVE-TEX-PREVIEW-CURVATURE-SYNCHRONIZATION.md`](./SPRINT-14-LIVE-TEX-PREVIEW-CURVATURE-SYNCHRONIZATION.md) | Live TeX Preview Curvature & Edge Geometry Synchronization | Winston & Amelia | ✅ **Completed & Graduated** |
-| **15** | [`SPRINT-15-MCARD-BACKED-CORPUS-EXPLORER-AND-SOVEREIGN-EXPORT.md`](./SPRINT-15-MCARD-BACKED-CORPUS-EXPLORER-AND-SOVEREIGN-EXPORT.md) | MCard-Backed Corpus Explorer, SqlJsBackend Persistence & Sovereign `.db` Export | Winston & Amelia | 🟢 **Ready for Implementation** |
+| Sprint | Bin | Document | Focus & Scope | Lead Agents | Status |
+| :---: | :--- | :--- | :--- | :---: | :---: |
+| **09** | `desktop-parity` | [`SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md`](../desktop-parity/09-desktop-assets-and-chrome-harmonization/SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md) | Media Asset Pipeline, Shared C++ Icons, macOS Window Chrome & Green Tool Border | Winston & Amelia | ✅ **Completed & Graduated** |
+| **10** | `canvas` | [`SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md`](../canvas/10-canvas-visual-parity-and-self-loops/SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md) | White Paper Canvas, Exact `#DCDCF0` Axes, Dashed Junctions & Teardrop Loops | Winston & Amelia | ✅ **Completed & Graduated** |
+| **11** | `styles` | [`SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md`](../styles/11-desktop-style-palette-and-action-bar/SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md) | 4-Icon Action Bar, Category Dropdown, Split Node/Edge 48x48 Swatches & Ingestion | Winston & Amelia | ✅ **Completed & Graduated** |
+| **12** | `verification` | [`SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md`](../verification/12-visual-regression-and-final-parity/SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md) | Reference Screenshot Golden Tests, Cross-Browser Matrix & Master Sign-Off | Winston & Amelia | ✅ **Completed & Graduated** |
+| **13** | `desktop-parity` | [`SPRINT-13-CANVAS-CENTRIC-TOOLBAR-AND-CHROME-REFINEMENT.md`](../desktop-parity/13-canvas-centric-toolbar-and-chrome-refinement/SPRINT-13-CANVAS-CENTRIC-TOOLBAR-AND-CHROME-REFINEMENT.md) | Canvas-Centric Tool Placement, Traffic Light Removal & Chrome Refinement | Winston & Amelia | ✅ **Completed & Graduated** |
+| **14** | `preview` | [`SPRINT-14-LIVE-TEX-PREVIEW-CURVATURE-SYNCHRONIZATION.md`](../preview/14-live-tex-preview-curvature-synchronization/SPRINT-14-LIVE-TEX-PREVIEW-CURVATURE-SYNCHRONIZATION.md) | Live TeX Preview Curvature & Edge Geometry Synchronization | Winston & Amelia | ✅ **Completed & Graduated** |
+| **15** | `corpus` | [`SPRINT-15-MCARD-BACKED-CORPUS-EXPLORER-AND-SOVEREIGN-EXPORT.md`](../corpus/15-mcard-backed-corpus-explorer-and-sovereign-export/SPRINT-15-MCARD-BACKED-CORPUS-EXPLORER-AND-SOVEREIGN-EXPORT.md) | MCard-Backed Corpus Explorer, SqlJsBackend Persistence & Sovereign `.db` Export | Winston & Amelia | ✅ **Completed & Graduated** |
 
 ---
 

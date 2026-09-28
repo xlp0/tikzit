@@ -97,7 +97,7 @@ CLM is a traceability model, not a requirement to wrap every function or persist
 
 ## 2. Phase 0 / Dedicated Sprint 00-A: Canonical ZX-Diagram Reference Corpus & SVG Generation
 
-> *See dedicated execution specification in [SPRINT-00-ZX-DEMO-SVG-CORPUS.md](../00-zx-demo-svg-corpus/SPRINT-00-ZX-DEMO-SVG-CORPUS.md)*
+> *See dedicated execution specification in [SPRINT-00-ZX-DEMO-SVG-CORPUS.md](../../corpus/00-zx-demo-svg-corpus/SPRINT-00-ZX-DEMO-SVG-CORPUS.md)*
 
 Before constructing the web application, we establish a **Ground Truth Reference Corpus** of canonical ZX-calculus diagrams extracted directly from *Picturing Quantum Processes*. This reference corpus serves as:
 1. The **Visual Golden Master** for validating WebGL rendering and SVG exports.
@@ -107,28 +107,28 @@ Before constructing the web application, we establish a **Ground Truth Reference
 ### 2.1 Reference Corpus Location & Assets
 
 All reference diagrams, stylesheets, and compiled vector SVGs are archived in:
-📂 [`docs/examples/zx-calculus/`](../../examples/zx-calculus/)
+📂 [`docs/examples/zx-calculus/`](../../../examples/zx-calculus/)
 
 | Index | Diagram | File Link | Compiled SVG | Categorical / Physical Semantics in PQP |
 | :---: | :--- | :--- | :--- | :--- |
-| **00** | **PQP ZX Stylesheet** | [`pqp-zx.tikzstyles`](../../examples/zx-calculus/pqp-zx.tikzstyles) | *Stylesheet* | Canonical node styles (Z green, X red, H yellow box) and wire styles |
-| **01** | **Spider Fusion** | [`01_spider_fusion.tikz`](../../examples/zx-calculus/01_spider_fusion.tikz) | [View SVG](../../examples/zx-calculus/01_spider_fusion.svg) | $Z(\alpha) \circ Z(\beta) = Z(\alpha + \beta)$ connected along parallel curved wires |
-| **02** | **Identity Spiders** | [`02_identity_spiders.tikz`](../../examples/zx-calculus/02_identity_spiders.tikz) | [View SVG](../../examples/zx-calculus/02_identity_spiders.svg) | $Z(0) = \mathrm{id}$: phase-zero spiders collapse to plain wires |
-| **03** | **Yanking (Cup / Cap)** | [`03_yanking_cup_cap.tikz`](../../examples/zx-calculus/03_yanking_cup_cap.tikz) | [View SVG](../../examples/zx-calculus/03_yanking_cup_cap.svg) | Compact closed duality: snake / zig-zag identity $(\text{id} \otimes \epsilon) \circ (\eta \otimes \text{id}) = \text{id}$ |
-| **04** | **Cup / Cap Duality** | [`04_cup_cap_duality.tikz`](../../examples/zx-calculus/04_cup_cap_duality.tikz) | [View SVG](../../examples/zx-calculus/04_cup_cap_duality.svg) | Bell state preparation (cup) vs Bell effect measurement (cap) |
-| **05** | **Bialgebra Law** | [`05_bialgebra_law.tikz`](../../examples/zx-calculus/05_bialgebra_law.tikz) | [View SVG](../../examples/zx-calculus/05_bialgebra_law.svg) | Green copy spiders commute past red XOR spiders via bipartite rewiring |
-| **06** | **Hadamard Color Change** | [`06_hadamard_color_change.tikz`](../../examples/zx-calculus/06_hadamard_color_change.tikz) | [View SVG](../../examples/zx-calculus/06_hadamard_color_change.svg) | Color-change rule: $H \circ Z(\alpha) \circ H = X(\alpha)$ via yellow Hadamard boxes |
-| **07** | **CNOT Gate** | [`07_cnot_gate.tikz`](../../examples/zx-calculus/07_cnot_gate.tikz) | [View SVG](../../examples/zx-calculus/07_cnot_gate.svg) | Controlled-NOT quantum gate: green control dot connected to red target dot |
-| **08** | **CZ Gate** | [`08_cz_gate.tikz`](../../examples/zx-calculus/08_cz_gate.tikz) | [View SVG](../../examples/zx-calculus/08_cz_gate.svg) | Controlled-Z: two green dots joined by an edge bearing an H-box |
-| **09** | **Swap Gate** | [`09_swap_gate.tikz`](../../examples/zx-calculus/09_swap_gate.tikz) | [View SVG](../../examples/zx-calculus/09_swap_gate.svg) | Symmetric braiding: wire crossing as the symmetry isomorphism |
-| **10** | **Quantum Teleportation** | [`10_teleportation.tikz`](../../examples/zx-calculus/10_teleportation.tikz) | [View SVG](../../examples/zx-calculus/10_teleportation.svg) | Full protocol: Bell cup, Bell basis measurement, and classical feedforward wires |
-| **11** | **GHZ Tripartite State** | [`11_ghz_state.tikz`](../../examples/zx-calculus/11_ghz_state.tikz) | [View SVG](../../examples/zx-calculus/11_ghz_state.svg) | Maximally entangled 3-qubit Greenberger–Horne–Zeilinger state preparation |
-| **12** | **Entanglement Swapping** | [`12_entanglement_swapping.tikz`](../../examples/zx-calculus/12_entanglement_swapping.tikz) | [View SVG](../../examples/zx-calculus/12_entanglement_swapping.svg) | Bell measurement on inner qubits of two EPR pairs entangles the outer ends |
+| **00** | **PQP ZX Stylesheet** | [`pqp-zx.tikzstyles`](../../../examples/zx-calculus/pqp-zx.tikzstyles) | *Stylesheet* | Canonical node styles (Z green, X red, H yellow box) and wire styles |
+| **01** | **Spider Fusion** | [`01_spider_fusion.tikz`](../../../examples/zx-calculus/01_spider_fusion.tikz) | [View SVG](../../../examples/zx-calculus/01_spider_fusion.svg) | $Z(\alpha) \circ Z(\beta) = Z(\alpha + \beta)$ connected along parallel curved wires |
+| **02** | **Identity Spiders** | [`02_identity_spiders.tikz`](../../../examples/zx-calculus/02_identity_spiders.tikz) | [View SVG](../../../examples/zx-calculus/02_identity_spiders.svg) | $Z(0) = \mathrm{id}$: phase-zero spiders collapse to plain wires |
+| **03** | **Yanking (Cup / Cap)** | [`03_yanking_cup_cap.tikz`](../../../examples/zx-calculus/03_yanking_cup_cap.tikz) | [View SVG](../../../examples/zx-calculus/03_yanking_cup_cap.svg) | Compact closed duality: snake / zig-zag identity $(\text{id} \otimes \epsilon) \circ (\eta \otimes \text{id}) = \text{id}$ |
+| **04** | **Cup / Cap Duality** | [`04_cup_cap_duality.tikz`](../../../examples/zx-calculus/04_cup_cap_duality.tikz) | [View SVG](../../../examples/zx-calculus/04_cup_cap_duality.svg) | Bell state preparation (cup) vs Bell effect measurement (cap) |
+| **05** | **Bialgebra Law** | [`05_bialgebra_law.tikz`](../../../examples/zx-calculus/05_bialgebra_law.tikz) | [View SVG](../../../examples/zx-calculus/05_bialgebra_law.svg) | Green copy spiders commute past red XOR spiders via bipartite rewiring |
+| **06** | **Hadamard Color Change** | [`06_hadamard_color_change.tikz`](../../../examples/zx-calculus/06_hadamard_color_change.tikz) | [View SVG](../../../examples/zx-calculus/06_hadamard_color_change.svg) | Color-change rule: $H \circ Z(\alpha) \circ H = X(\alpha)$ via yellow Hadamard boxes |
+| **07** | **CNOT Gate** | [`07_cnot_gate.tikz`](../../../examples/zx-calculus/07_cnot_gate.tikz) | [View SVG](../../../examples/zx-calculus/07_cnot_gate.svg) | Controlled-NOT quantum gate: green control dot connected to red target dot |
+| **08** | **CZ Gate** | [`08_cz_gate.tikz`](../../../examples/zx-calculus/08_cz_gate.tikz) | [View SVG](../../../examples/zx-calculus/08_cz_gate.svg) | Controlled-Z: two green dots joined by an edge bearing an H-box |
+| **09** | **Swap Gate** | [`09_swap_gate.tikz`](../../../examples/zx-calculus/09_swap_gate.tikz) | [View SVG](../../../examples/zx-calculus/09_swap_gate.svg) | Symmetric braiding: wire crossing as the symmetry isomorphism |
+| **10** | **Quantum Teleportation** | [`10_teleportation.tikz`](../../../examples/zx-calculus/10_teleportation.tikz) | [View SVG](../../../examples/zx-calculus/10_teleportation.svg) | Full protocol: Bell cup, Bell basis measurement, and classical feedforward wires |
+| **11** | **GHZ Tripartite State** | [`11_ghz_state.tikz`](../../../examples/zx-calculus/11_ghz_state.tikz) | [View SVG](../../../examples/zx-calculus/11_ghz_state.svg) | Maximally entangled 3-qubit Greenberger–Horne–Zeilinger state preparation |
+| **12** | **Entanglement Swapping** | [`12_entanglement_swapping.tikz`](../../../examples/zx-calculus/12_entanglement_swapping.tikz) | [View SVG](../../../examples/zx-calculus/12_entanglement_swapping.svg) | Bell measurement on inner qubits of two EPR pairs entangles the outer ends |
 
-Machine-readable index: [`docs/examples/manifest.json`](../../examples/manifest.json) · Interactive gallery: [`docs/examples/index.html`](../../examples/index.html)
+Machine-readable index: [`docs/examples/manifest.json`](../../../examples/manifest.json) · Interactive gallery: [`docs/examples/index.html`](../../../examples/index.html)
 
 ### 2.2 Compilation Verification Pipeline
-Each diagram in the corpus is formally compiled from TikZ to PDF using `pdflatex` with standalone PGF layers (`nodelayer`, `edgelayer`), and then rendered into crisp, scalable SVG using `pdftocairo -svg`. Automation script: [`docs/examples/build_examples.py`](../../examples/build_examples.py).
+Each diagram in the corpus is formally compiled from TikZ to PDF using `pdflatex` with standalone PGF layers (`nodelayer`, `edgelayer`), and then rendered into crisp, scalable SVG using `pdftocairo -svg`. Automation script: [`docs/examples/build_examples.py`](../../../examples/build_examples.py).
 
 ```mermaid
 flowchart LR
@@ -233,7 +233,7 @@ The evaluation of state management libraries for TikZiT Web yielded **Nanostores
 | **Cordis Interoperability** | **Seamless**: `bindStoresToKernel(ctx)` wires Nanostores atoms to Cordis micro-kernel services with lightweight bidirectional event bridging. | Heavy: Requires custom Redux middleware or Zustand subscriber wrappers. | Incompatible. |
 
 #### 3.3.3 Core Store Topology
-The application defines six canonical state containers in [`src/stores/workbench.ts`](../../../src/stores/workbench.ts):
+The application defines six canonical state containers in [`src/stores/workbench.ts`](../../../../src/stores/workbench.ts):
 - `$toolMode`: `atom<ToolMode>('select')` — Active drawing tool (`select`, `vertex`, `edge`, `bbox`).
 - `$theme`: `atom<'dark' | 'light'>('dark')` — Synchronized with `localStorage` and `document.documentElement.classList`.
 - `$selectedElements`: `map<SelectionState>({ nodes: [], edges: [] })` — Active selection IDs supporting single, additive, and cleared selections.

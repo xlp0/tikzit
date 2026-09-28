@@ -1,5 +1,5 @@
 # Sprint 03: Three.js WebGL Canvas Engine & Procedural Grid
-**Directory:** `docs/sprints/03-threejs-webgl-canvas-engine`
+**Directory:** `docs/sprints/canvas/03-threejs-webgl-canvas-engine`
 **Status:** ✅ **Completed (Graduated)**
 **Graduated Date:** 2026-09-27
 **Specification:** [`SPRINT-03-THREEJS-WEBGL-CANVAS-ENGINE.md`](./SPRINT-03-THREEJS-WEBGL-CANVAS-ENGINE.md)
@@ -36,8 +36,8 @@ Sprint 03 delivered a high-performance, GPU-accelerated **Three.js WebGL canvas 
    - Dashed and dotted wire shaders.
 
 5. **Dockview & Harness Integration**:
-   - Integrated into [`src/components/workbench/panels/CanvasPanel.tsx`](../../../src/components/workbench/panels/CanvasPanel.tsx) with HUD readout (FPS, units, element count).
-   - Dedicated E2E runner harness at [`src/pages/test-harness/canvas-runner.astro`](../../../src/pages/test-harness/canvas-runner.astro).
+   - Integrated into [`src/components/workbench/panels/CanvasPanel.tsx`](../../../../src/components/workbench/panels/CanvasPanel.tsx) with HUD readout (FPS, units, element count).
+   - Dedicated E2E runner harness at [`src/pages/test-harness/canvas-runner.astro`](../../../../src/pages/test-harness/canvas-runner.astro).
 
 ---
 
@@ -45,14 +45,14 @@ Sprint 03 delivered a high-performance, GPU-accelerated **Three.js WebGL canvas 
 
 | Module | Source Location | Description |
 | :--- | :--- | :--- |
-| **Bézier Math Engine** | [`src/canvas/bezier.ts`](../../../src/canvas/bezier.ts) | Parity implementation of `Edge::updateControls`, cubic interpolation, and closed-form arrowhead tangents. |
-| **Procedural Grid Shader** | [`src/canvas/shaders/gridShader.ts`](../../../src/canvas/shaders/gridShader.ts) | GLSL fragment shader rendering infinite anti-aliased grid lines on a clip-space quad at Z = -100. |
-| **Camera Controller** | [`src/canvas/CameraController.ts`](../../../src/canvas/CameraController.ts) | Orthographic camera navigation with cursor-centered zoom, middle/space panning, and coordinate conversions. |
-| **Node Renderer** | [`src/canvas/renderers/NodeRenderer.ts`](../../../src/canvas/renderers/NodeRenderer.ts) | Meshes, borders, selection highlights, and billboard text sprites for circles, rectangles, diamonds, and dots. |
-| **Edge Renderer** | [`src/canvas/renderers/EdgeRenderer.ts`](../../../src/canvas/renderers/EdgeRenderer.ts) | Sampled cubic Bézier lines, directional arrowheads, and dashed/dotted stroke styles. |
-| **WebGL Stage** | [`src/canvas/Stage.ts`](../../../src/canvas/Stage.ts) | Central WebGL stage container managing Three.js scene graph, renderers, ResizeObserver, and context loss recovery. |
-| **Canvas Panel** | [`src/components/workbench/panels/CanvasPanel.tsx`](../../../src/components/workbench/panels/CanvasPanel.tsx) | Dockview panel host binding WebGL Stage to Nanostores `$graphAST`, `$theme`, and `$selectedElements`. |
-| **Canvas Test Harness** | [`src/pages/test-harness/canvas-runner.astro`](../../../src/pages/test-harness/canvas-runner.astro) | E2E browser harness exposing `window.TestCanvas` with pre-compiled PQP corpus diagrams. |
+| **Bézier Math Engine** | [`src/canvas/bezier.ts`](../../../../src/canvas/bezier.ts) | Parity implementation of `Edge::updateControls`, cubic interpolation, and closed-form arrowhead tangents. |
+| **Procedural Grid Shader** | [`src/canvas/shaders/gridShader.ts`](../../../../src/canvas/shaders/gridShader.ts) | GLSL fragment shader rendering infinite anti-aliased grid lines on a clip-space quad at Z = -100. |
+| **Camera Controller** | [`src/canvas/CameraController.ts`](../../../../src/canvas/CameraController.ts) | Orthographic camera navigation with cursor-centered zoom, middle/space panning, and coordinate conversions. |
+| **Node Renderer** | [`src/canvas/renderers/NodeRenderer.ts`](../../../../src/canvas/renderers/NodeRenderer.ts) | Meshes, borders, selection highlights, and billboard text sprites for circles, rectangles, diamonds, and dots. |
+| **Edge Renderer** | [`src/canvas/renderers/EdgeRenderer.ts`](../../../../src/canvas/renderers/EdgeRenderer.ts) | Sampled cubic Bézier lines, directional arrowheads, and dashed/dotted stroke styles. |
+| **WebGL Stage** | [`src/canvas/Stage.ts`](../../../../src/canvas/Stage.ts) | Central WebGL stage container managing Three.js scene graph, renderers, ResizeObserver, and context loss recovery. |
+| **Canvas Panel** | [`src/components/workbench/panels/CanvasPanel.tsx`](../../../../src/components/workbench/panels/CanvasPanel.tsx) | Dockview panel host binding WebGL Stage to Nanostores `$graphAST`, `$theme`, and `$selectedElements`. |
+| **Canvas Test Harness** | [`src/pages/test-harness/canvas-runner.astro`](../../../../src/pages/test-harness/canvas-runner.astro) | E2E browser harness exposing `window.TestCanvas` with pre-compiled PQP corpus diagrams. |
 
 ---
 
@@ -64,15 +64,15 @@ Sprint 03 delivered a high-performance, GPU-accelerated **Three.js WebGL canvas 
 
 ### 3.2 Unit & Integration Suites (Vitest)
 Ran via `npx vitest run`: **74 / 74 passing tests across 15 test files (100% green in ~290ms)**
-- [`tests/unit/canvas/bezier.test.ts`](../../../tests/unit/canvas/bezier.test.ts) (8 tests): Straight edges, bend left/right with 15° snapping, endpoint insets, advanced in/out angles, self-loops, and arrowhead tangents.
-- [`tests/unit/canvas/grid.test.ts`](../../../tests/unit/canvas/grid.test.ts) (3 tests): Shader uniform initialization, dynamic pan/zoom scaling, and dark/light theme switching.
-- [`tests/unit/canvas/camera.test.ts`](../../../tests/unit/canvas/camera.test.ts) (4 tests): Screen/world coordinate transformations, cursor-centered zoom invariance, and pan offsets.
-- [`tests/unit/canvas/disposal.test.ts`](../../../tests/unit/canvas/disposal.test.ts) (2 tests): 500-node and 500-edge lifecycle disposal and memory leak prevention.
+- [`tests/unit/canvas/bezier.test.ts`](../../../../tests/unit/canvas/bezier.test.ts) (8 tests): Straight edges, bend left/right with 15° snapping, endpoint insets, advanced in/out angles, self-loops, and arrowhead tangents.
+- [`tests/unit/canvas/grid.test.ts`](../../../../tests/unit/canvas/grid.test.ts) (3 tests): Shader uniform initialization, dynamic pan/zoom scaling, and dark/light theme switching.
+- [`tests/unit/canvas/camera.test.ts`](../../../../tests/unit/canvas/camera.test.ts) (4 tests): Screen/world coordinate transformations, cursor-centered zoom invariance, and pan offsets.
+- [`tests/unit/canvas/disposal.test.ts`](../../../../tests/unit/canvas/disposal.test.ts) (2 tests): 500-node and 500-edge lifecycle disposal and memory leak prevention.
 - All previous unit suites (shell, kernel, keybindings, runtime, triad, gated-commit, parser): **57 / 57 passing tests**.
 
 ### 3.3 Playwright End-to-End Suite
 Ran via `npx playwright test`: **26 / 26 passing tests (100% green in ~11s)**
-- [`e2e/sprint-03/webgl-canvas.spec.ts`](../../../e2e/sprint-03/webgl-canvas.spec.ts) (5 tests):
+- [`e2e/sprint-03/webgl-canvas.spec.ts`](../../../../e2e/sprint-03/webgl-canvas.spec.ts) (5 tests):
   - **03-E2E-01**: Mounts WebGL canvas and initializes rendering context (`webgl2` / `webgl`).
   - **03-E2E-02**: Loads and verifies all 12 canonical PQP corpus diagrams deterministically.
   - **03-E2E-03**: Interactive middle-mouse drag panning and wheel zooming with coordinate projection accuracy.

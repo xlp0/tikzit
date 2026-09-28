@@ -1,5 +1,5 @@
 # Sprint 07: Bidirectional State Synchronization & MCard Storage
-**Directory:** `docs/sprints/07-state-sync-and-mcard-storage`
+**Directory:** `docs/sprints/sync/07-state-sync-and-mcard-storage`
 
 ## Status: Graduated (2026-09-28)
 

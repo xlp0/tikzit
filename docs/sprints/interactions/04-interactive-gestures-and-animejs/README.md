@@ -1,5 +1,5 @@
 # Sprint 04: Interactive Gestures & Anime.js Motion Physics
-**Directory:** `docs/sprints/04-interactive-gestures-and-animejs`
+**Directory:** `docs/sprints/interactions/04-interactive-gestures-and-animejs`
 **Status:** ✅ **Completed (Graduated)**
 **Graduated Date:** 2026-09-27
 **Specification:** [`SPRINT-04-INTERACTIVE-GESTURES-AND-ANIMEJS-PHYSICS.md`](./SPRINT-04-INTERACTIVE-GESTURES-AND-ANIMEJS-PHYSICS.md)
@@ -51,20 +51,20 @@ Sprint 04 delivered direct-manipulation interactive tooling, precision raycastin
 
 | Module | Source Location | Description |
 | :--- | :--- | :--- |
-| **Pointer Raycaster** | [`src/canvas/input/Raycaster.ts`](../../../src/canvas/input/Raycaster.ts) | Screen-to-world mapping, 0.25-unit grid snapping, node/edge/handle hit testing, and marquee bounding box queries. |
-| **Gizmo Renderer** | [`src/canvas/renderers/GizmoRenderer.ts`](../../../src/canvas/renderers/GizmoRenderer.ts) | Three.js interactive overlay ($Z = 30$) rendering marquee boxes, rubberbands, curvature handles, and bounding boxes. |
-| **Motion Physics** | [`src/canvas/animation/Physics.ts`](../../../src/canvas/animation/Physics.ts) | Anime.js 4 spring physics animation for kinetic snap settling and reduced-motion fallback. |
-| **Tool Types & Interfaces** | [`src/canvas/tools/types.ts`](../../../src/canvas/tools/types.ts) | Contract for `CanvasTool`, `ToolContext`, and `SelectionStateIds`. |
-| **Select & Transform Tool** | [`src/canvas/tools/SelectTool.ts`](../../../src/canvas/tools/SelectTool.ts) | Node translation, marquee selection, curvature bending, arrow nudging, and keyboard deletion. |
-| **Vertex Creation Tool** | [`src/canvas/tools/VertexTool.ts`](../../../src/canvas/tools/VertexTool.ts) | Pointer-down node creation with 0.25-unit grid snapping and collision-free auto-naming. |
-| **Edge & Wire Tool** | [`src/canvas/tools/EdgeTool.ts`](../../../src/canvas/tools/EdgeTool.ts) | Rubberband wire creation between nodes, self-loop synthesis, and cancel-on-void mechanics. |
-| **Bounding Box Tool** | [`src/canvas/tools/BBoxTool.ts`](../../../src/canvas/tools/BBoxTool.ts) | Interactive diagram bounding box creation and resizing. |
-| **Tool Coordinator** | [`src/canvas/tools/ToolManager.ts`](../../../src/canvas/tools/ToolManager.ts) | Central tool dispatcher, keyboard shortcut router, and geometric reflection/rotation operator engine. |
-| **Canvas Panel Integration** | [`src/components/workbench/panels/CanvasPanel.tsx`](../../../src/components/workbench/panels/CanvasPanel.tsx) | Dockview panel host wiring `ToolManager` to Nanostores, Cordis runtime, and `window.TikzitApp` harness. |
-| **Raycaster Unit Tests** | [`tests/unit/gestures/raycaster.test.ts`](../../../tests/unit/gestures/raycaster.test.ts) | Vitest test suite verifying node, edge, and handle hit testing and grid snapping math. |
-| **Tools Unit Tests** | [`tests/unit/gestures/tools.test.ts`](../../../tests/unit/gestures/tools.test.ts) | Vitest test suite for Vertex, Edge, BBox, and Select tools and desktop reflection/rotation parity. |
-| **Physics Unit Tests** | [`tests/unit/gestures/physics.test.ts`](../../../tests/unit/gestures/physics.test.ts) | Vitest test suite verifying Anime.js 4 spring physics settling and reduced-motion handling. |
-| **Playwright E2E Suite** | [`e2e/sprint-04/interactive-gestures.spec.ts`](../../../e2e/sprint-04/interactive-gestures.spec.ts) | 5 end-to-end browser tests verifying gestures, wire creation, handle bending, marquee, and keyboard editing. |
+| **Pointer Raycaster** | [`src/canvas/input/Raycaster.ts`](../../../../src/canvas/input/Raycaster.ts) | Screen-to-world mapping, 0.25-unit grid snapping, node/edge/handle hit testing, and marquee bounding box queries. |
+| **Gizmo Renderer** | [`src/canvas/renderers/GizmoRenderer.ts`](../../../../src/canvas/renderers/GizmoRenderer.ts) | Three.js interactive overlay ($Z = 30$) rendering marquee boxes, rubberbands, curvature handles, and bounding boxes. |
+| **Motion Physics** | [`src/canvas/animation/Physics.ts`](../../../../src/canvas/animation/Physics.ts) | Anime.js 4 spring physics animation for kinetic snap settling and reduced-motion fallback. |
+| **Tool Types & Interfaces** | [`src/canvas/tools/types.ts`](../../../../src/canvas/tools/types.ts) | Contract for `CanvasTool`, `ToolContext`, and `SelectionStateIds`. |
+| **Select & Transform Tool** | [`src/canvas/tools/SelectTool.ts`](../../../../src/canvas/tools/SelectTool.ts) | Node translation, marquee selection, curvature bending, arrow nudging, and keyboard deletion. |
+| **Vertex Creation Tool** | [`src/canvas/tools/VertexTool.ts`](../../../../src/canvas/tools/VertexTool.ts) | Pointer-down node creation with 0.25-unit grid snapping and collision-free auto-naming. |
+| **Edge & Wire Tool** | [`src/canvas/tools/EdgeTool.ts`](../../../../src/canvas/tools/EdgeTool.ts) | Rubberband wire creation between nodes, self-loop synthesis, and cancel-on-void mechanics. |
+| **Bounding Box Tool** | [`src/canvas/tools/BBoxTool.ts`](../../../../src/canvas/tools/BBoxTool.ts) | Interactive diagram bounding box creation and resizing. |
+| **Tool Coordinator** | [`src/canvas/tools/ToolManager.ts`](../../../../src/canvas/tools/ToolManager.ts) | Central tool dispatcher, keyboard shortcut router, and geometric reflection/rotation operator engine. |
+| **Canvas Panel Integration** | [`src/components/workbench/panels/CanvasPanel.tsx`](../../../../src/components/workbench/panels/CanvasPanel.tsx) | Dockview panel host wiring `ToolManager` to Nanostores, Cordis runtime, and `window.TikzitApp` harness. |
+| **Raycaster Unit Tests** | [`tests/unit/gestures/raycaster.test.ts`](../../../../tests/unit/gestures/raycaster.test.ts) | Vitest test suite verifying node, edge, and handle hit testing and grid snapping math. |
+| **Tools Unit Tests** | [`tests/unit/gestures/tools.test.ts`](../../../../tests/unit/gestures/tools.test.ts) | Vitest test suite for Vertex, Edge, BBox, and Select tools and desktop reflection/rotation parity. |
+| **Physics Unit Tests** | [`tests/unit/gestures/physics.test.ts`](../../../../tests/unit/gestures/physics.test.ts) | Vitest test suite verifying Anime.js 4 spring physics settling and reduced-motion handling. |
+| **Playwright E2E Suite** | [`e2e/sprint-04/interactive-gestures.spec.ts`](../../../../e2e/sprint-04/interactive-gestures.spec.ts) | 5 end-to-end browser tests verifying gestures, wire creation, handle bending, marquee, and keyboard editing. |
 
 ---
 

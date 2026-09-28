@@ -295,9 +295,9 @@ Every checkbox must be verified and satisfied before Sprint 02B is graduated:
 
 ## 8. References
 
-- Graduated Sprint 02: [`SPRINT-02-ASTRO-SHELL-AND-CORDIS-RUNTIME.md`](../02-astro-shell-and-cordis-runtime/SPRINT-02-ASTRO-SHELL-AND-CORDIS-RUNTIME.md)
-- Domain Model & Parser: [`src/core/domain/types.ts`](../../../src/core/domain/types.ts), [`src/core/parser/parser.ts`](../../../src/core/parser/parser.ts), [`src/core/parser/emitter.ts`](../../../src/core/parser/emitter.ts)
-- Runtime Implementation: [`src/services/kernel.ts`](../../../src/services/kernel.ts), [`src/stores/workbench.ts`](../../../src/stores/workbench.ts), [`TikzitSpatialWorkbench.tsx`](../../../src/components/workbench/TikzitSpatialWorkbench.tsx)
-- CLM Architecture Spike: [`SPIKE-CORDIS-CLM.md`](../../architecture/SPIKE-CORDIS-CLM.md)
+- Graduated Sprint 02: [`SPRINT-02-ASTRO-SHELL-AND-CORDIS-RUNTIME.md`](./SPRINT-02-ASTRO-SHELL-AND-CORDIS-RUNTIME.md)
+- Domain Model & Parser: [`src/core/domain/types.ts`](../../../../src/core/domain/types.ts), [`src/core/parser/parser.ts`](../../../../src/core/parser/parser.ts), [`src/core/parser/emitter.ts`](../../../../src/core/parser/emitter.ts)
+- Runtime Implementation: [`src/services/kernel.ts`](../../../../src/services/kernel.ts), [`src/stores/workbench.ts`](../../../../src/stores/workbench.ts), [`TikzitSpatialWorkbench.tsx`](../../../../src/components/workbench/TikzitSpatialWorkbench.tsx)
+- CLM Architecture Spike: [`SPIKE-CORDIS-CLM.md`](../../../architecture/SPIKE-CORDIS-CLM.md)
 - CLM Kernel Repository: [https://github.com/xlp0/CLM](https://github.com/xlp0/CLM)
 - Astro State Recipes: [https://docs.astro.build/en/recipes/sharing-state-islands/](https://docs.astro.build/en/recipes/sharing-state-islands/)

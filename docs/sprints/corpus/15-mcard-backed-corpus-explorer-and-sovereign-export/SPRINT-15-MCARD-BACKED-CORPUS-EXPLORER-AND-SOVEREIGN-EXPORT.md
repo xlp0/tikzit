@@ -174,20 +174,20 @@
 
 ## 5. Definition of Done (DoD) Checklist
 
-- [ ] Async `corpusExplorer` runtime/service starts only after persisted pillars hydrate; explicit manifest has exactly 12 actual example assets and every source passes `safeParse`.
-- [ ] Seeding is idempotent and retry-safe; no reseed overwrites a committed user revision; a failed/unsupported asset remains visible as a reported seed error, not a phantom row.
-- [ ] Search input is controlled (`$corpusQuery`), filters within ≤150 ms debounce with stable rankings; “bialgebra” test asserts manifest title `The Bialgebra Interaction Law` / handle `zx:examples:05_bialgebra_law`, not the mock’s ordinal-derived name.
-- [ ] Explorer rows render from the explicit corpus index—no hardcoded diagram names in the drawer; stale entries show an error state rather than crashing.
-- [ ] Row activation loads exact stored editor source without normalization echo and synchronizes title, workbench active handle/hash and canvas graph; switching preserves prior dirty buffers and opening creates no card or write receipt.
-- [ ] Cmd/Ctrl+S for a corpus-bound document goes through the existing `DocumentCommitService` gate; valid save advances current handle and preserves revision history; invalid save keeps the prior head, leaves editor dirty and emits diagnostics + bail receipt.
-- [ ] Status bar uses actual `ContentHash.asPrefixed()` data; empty/uncommitted state shows a placeholder, never fabricated CID text.
-- [ ] `withBackends` uses three distinct SqlJsBackend adapters initialized from real sql.js WASM databases; memory-injected tests remain hermetic and existing runtime isolation remains green.
-- [ ] Versioned IndexedDB snapshot persists all three pillar binaries and explicit handle manifest atomically; corpus save awaits durability before showing `saved`; page reload restores hashes/history before seed; quota, corruption, unsupported schema and unavailable IDB produce explicit recoverable/non-persistent states; `disposeAsync()` flushes before closing DBs.
-- [ ] “Save Corpus (.db)” exports verified current and prior MCards for corpus handles + matching history; no browser call to Node-only `compilePortableSqlite`; correct SQLite magic/schema and payload↔hash validation pass before save.
-- [ ] Picker cancellation creates no file/download but records a `cancelled` receipt; unsupported picker uses Blob fallback; successful save revokes object URL and records export result/receipt.
-- [ ] Node-side parse plus mcard-studio import round trip resolves every exported handle to the same hash/payload/history; hash recomputation passes. `zero rejected cards` alone is not acceptance.
-- [ ] Detailed CEX-01 through CEX-21 matrix passes; all prior vitest and Playwright suites remain green (including corpus gallery, source editor, Dockview restore/0-panel guard and runtime isolation).
-- [ ] Production `npm run build` includes/loads sql.js WASM; `npx tsc --noEmit` passes; browser smoke test confirms async startup reaches ready without unhandled rejections.
+- [x] Async `corpusExplorer` runtime/service starts only after persisted pillars hydrate; explicit manifest has exactly 12 actual example assets and every source passes `safeParse`.
+- [x] Seeding is idempotent and retry-safe; no reseed overwrites a committed user revision; a failed/unsupported asset remains visible as a reported seed error, not a phantom row.
+- [x] Search input is controlled (`$corpusQuery`), filters within ≤150 ms debounce with stable rankings; “bialgebra” test asserts manifest title `The Bialgebra Interaction Law` / handle `zx:examples:05_bialgebra_law`, not the mock’s ordinal-derived name.
+- [x] Explorer rows render from the explicit corpus index—no hardcoded diagram names in the drawer; stale entries show an error state rather than crashing.
+- [x] Row activation loads exact stored editor source without normalization echo and synchronizes title, workbench active handle/hash and canvas graph; switching preserves prior dirty buffers and opening creates no card or write receipt.
+- [x] Cmd/Ctrl+S for a corpus-bound document goes through the existing `DocumentCommitService` gate; valid save advances current handle and preserves revision history; invalid save keeps the prior head, leaves editor dirty and emits diagnostics + bail receipt.
+- [x] Status bar uses actual `ContentHash.asPrefixed()` data; empty/uncommitted state shows a placeholder, never fabricated CID text.
+- [x] `withBackends` uses three distinct SqlJsBackend adapters initialized from real sql.js WASM databases; memory-injected tests remain hermetic and existing runtime isolation remains green.
+- [x] Versioned IndexedDB snapshot persists all three pillar binaries and explicit handle manifest atomically; corpus save awaits durability before showing `saved`; page reload restores hashes/history before seed; quota, corruption, unsupported schema and unavailable IDB produce explicit recoverable/non-persistent states; `disposeAsync()` flushes before closing DBs.
+- [x] “Save Corpus (.db)” exports verified current and prior MCards for corpus handles + matching history; no browser call to Node-only `compilePortableSqlite`; correct SQLite magic/schema and payload↔hash validation pass before save.
+- [x] Picker cancellation creates no file/download but records a `cancelled` receipt; unsupported picker uses Blob fallback; successful save revokes object URL and records export result/receipt.
+- [x] Node-side parse plus mcard-studio import round trip resolves every exported handle to the same hash/payload/history; hash recomputation passes. `zero rejected cards` alone is not acceptance.
+- [x] Detailed CEX-01 through CEX-21 matrix passes; all prior vitest and Playwright suites remain green (including corpus gallery, source editor, Dockview restore/0-panel guard and runtime isolation).
+- [x] Production `npm run build` includes/loads sql.js WASM; `npx tsc --noEmit` passes; browser smoke test confirms async startup reaches ready without unhandled rejections.
 
 ---
 
@@ -218,3 +218,4 @@ npx tsc --noEmit && npm run build    # includes sql.js WASM asset/bundle check
 - CRDT merge of two exported `.db` files — `importMCardDatabase` merge mode is the seam; conflict policy deferred.
 - Extracting `databaseSyncService`/`saveLocalFile`/`isSqlite3Binary` into a shared package — the tikzit port duplicates ~80 lines deliberately; a shared module is a candidate follow-up across both repos.
 - Explorer UX beyond filter+open (rename, delete, drag-into-canvas) — deferred to a follow-up sprint.
+- VersionPopover lineage — it still reads `defaultDocumentStore.getRevisions()`; wiring it to `documentCommit.getDocumentHistory(handle)` for corpus documents is a follow-up (corpus history is already queryable; only the popover projection is missing).

@@ -1,5 +1,5 @@
 # Sprint 00-A: Canonical ZX-Diagram Reference Corpus & SVG Generation
-**Directory:** `docs/sprints/00-zx-demo-svg-corpus`  
+**Directory:** `docs/sprints/corpus/00-zx-demo-svg-corpus`
 **Status:** ✅ Completed (Graduated)  
 **Date Completed:** 2026-09-27  
 
@@ -18,13 +18,13 @@ These 12 diagrams serve as the immutable categorical baseline, the visual golden
 | Deliverable | Path | Description |
 | :--- | :--- | :--- |
 | **Graduated Specification** | [`SPRINT-00-ZX-DEMO-SVG-CORPUS.md`](./SPRINT-00-ZX-DEMO-SVG-CORPUS.md) | Full mathematical taxonomy, AST counts, and 100% completed Definition of Done |
-| **Canonical Stylesheet** | [`../../examples/zx-calculus/pqp-zx.tikzstyles`](../../examples/zx-calculus/pqp-zx.tikzstyles) | PQP color palette: Z-spider (`#5AD25A`), X-spider (`#EB4B4B`), H-box (`#FFDC46`) |
-| **12 Vector SVGs** | [`../../examples/zx-calculus/*.svg`](../../examples/zx-calculus/) | Pristine standalone vector outputs generated via `pdftocairo -svg` |
-| **Interactive Visual Gallery** | [`../../examples/index.html`](../../examples/index.html) | Responsive web viewer with search, category filtering, dark/light theme, and TikZ modal |
-| **Automated Build Tool** | [`../../examples/build_examples.py`](../../examples/build_examples.py) | Zero-tolerance fail-fast compilation pipeline with auto-path detection and `--verify-only` mode |
-| **Cryptographic Manifest** | [`../../examples/manifest.json`](../../examples/manifest.json) | SHA-256 hashes, node/edge AST counts, byte sizes, and formal provenance attribution |
-| **Playwright E2E Suite** | [`../../../e2e/corpus/gallery-visual.spec.ts`](../../../e2e/corpus/gallery-visual.spec.ts) | 5 automated browser test scenarios covering gallery rendering, SVGs, theme toggle, and modal |
-| **Native Parser Tests** | [`../../../src/test/testparser.cpp`](../../../src/test/testparser.cpp) | Qt 6 test slot `TestParser::parseCorpusDiagrams()` validating 12/12 diagrams under `TikzAssembler` |
+| **Canonical Stylesheet** | [`../../examples/zx-calculus/pqp-zx.tikzstyles`](../../../examples/zx-calculus/pqp-zx.tikzstyles) | PQP color palette: Z-spider (`#5AD25A`), X-spider (`#EB4B4B`), H-box (`#FFDC46`) |
+| **12 Vector SVGs** | [`../../examples/zx-calculus/*.svg`](../../../examples/zx-calculus/) | Pristine standalone vector outputs generated via `pdftocairo -svg` |
+| **Interactive Visual Gallery** | [`../../examples/index.html`](../../../examples/index.html) | Responsive web viewer with search, category filtering, dark/light theme, and TikZ modal |
+| **Automated Build Tool** | [`../../examples/build_examples.py`](../../../examples/build_examples.py) | Zero-tolerance fail-fast compilation pipeline with auto-path detection and `--verify-only` mode |
+| **Cryptographic Manifest** | [`../../examples/manifest.json`](../../../examples/manifest.json) | SHA-256 hashes, node/edge AST counts, byte sizes, and formal provenance attribution |
+| **Playwright E2E Suite** | [`../../../e2e/corpus/gallery-visual.spec.ts`](../../../../e2e/corpus/gallery-visual.spec.ts) | 5 automated browser test scenarios covering gallery rendering, SVGs, theme toggle, and modal |
+| **Native Parser Tests** | [`../../../src/test/testparser.cpp`](../../../../src/test/testparser.cpp) | Qt 6 test slot `TestParser::parseCorpusDiagrams()` validating 12/12 diagrams under `TikzAssembler` |
 
 ---
 

@@ -1,5 +1,5 @@
 # Sprint 05: Style Palette & Category Property Inspector
-**Directory:** `docs/sprints/05-style-palette-and-inspector`
+**Directory:** `docs/sprints/styles/05-style-palette-and-inspector`
 **Status:** ✅ **Completed (Graduated)**
 **Graduated Date:** 2026-09-27
 **Specification:** [`SPRINT-05-STYLE-PALETTE-AND-PROPERTY-INSPECTOR.md`](./SPRINT-05-STYLE-PALETTE-AND-PROPERTY-INSPECTOR.md)
@@ -47,38 +47,38 @@ Sprint 05 delivered complete stylesheet parsing, categorical organization, and s
 
 | Module | Source Location | Description |
 | :--- | :--- | :--- |
-| **Style Data Model & Helpers** | [`src/core/styles/TikzStyleModel.ts`](../../../src/core/styles/TikzStyleModel.ts) | PGF color parser/emitter, category extraction, edge style classifier, and shape/color accessors. |
-| **Bundled Style Presets** | [`src/core/styles/presets/zxPresets.ts`](../../../src/core/styles/presets/zxPresets.ts) | Pre-bundled ZX-calculus and quantum wire style definitions. |
-| **Cordis StyleService** | [`src/services/kernel.ts`](../../../src/services/kernel.ts) | Service managing active stylesheet catalog, style CRUD, and AST style application. |
-| **Nanostores State Integration** | [`src/stores/createWorkbenchStores.ts`](../../../src/stores/createWorkbenchStores.ts) | Nanostores projection `$stylesCatalog` and `$activeStyle` with reactive bridging. |
-| **Style Palette Island** | [`src/components/styles/StylePalette.tsx`](../../../src/components/styles/StylePalette.tsx) | Category tabs, miniature glyph swatches, and active style selector. |
-| **Property Inspector Island** | [`src/components/inspector/PropertyInspector.tsx`](../../../src/components/inspector/PropertyInspector.tsx) | Dynamic inspector for nodes (style, label, position) and edges (dashed, bend). |
-| **Style Editor Modal** | [`src/components/styles/StyleEditorModal.tsx`](../../../src/components/styles/StyleEditorModal.tsx) | Interactive modal for creating and customizing diagram styles with live preview. |
-| **Inspector Dockview Panel** | [`src/components/workbench/panels/InspectorPanel.tsx`](../../../src/components/workbench/panels/InspectorPanel.tsx) | Hosts Style Palette, Property Inspector, and Style Editor within the right workbench group. |
+| **Style Data Model & Helpers** | [`src/core/styles/TikzStyleModel.ts`](../../../../src/core/styles/TikzStyleModel.ts) | PGF color parser/emitter, category extraction, edge style classifier, and shape/color accessors. |
+| **Bundled Style Presets** | [`src/core/styles/presets/zxPresets.ts`](../../../../src/core/styles/presets/zxPresets.ts) | Pre-bundled ZX-calculus and quantum wire style definitions. |
+| **Cordis StyleService** | [`src/services/kernel.ts`](../../../../src/services/kernel.ts) | Service managing active stylesheet catalog, style CRUD, and AST style application. |
+| **Nanostores State Integration** | [`src/stores/createWorkbenchStores.ts`](../../../../src/stores/createWorkbenchStores.ts) | Nanostores projection `$stylesCatalog` and `$activeStyle` with reactive bridging. |
+| **Style Palette Island** | [`src/components/styles/StylePalette.tsx`](../../../../src/components/styles/StylePalette.tsx) | Category tabs, miniature glyph swatches, and active style selector. |
+| **Property Inspector Island** | [`src/components/inspector/PropertyInspector.tsx`](../../../../src/components/inspector/PropertyInspector.tsx) | Dynamic inspector for nodes (style, label, position) and edges (dashed, bend). |
+| **Style Editor Modal** | [`src/components/styles/StyleEditorModal.tsx`](../../../../src/components/styles/StyleEditorModal.tsx) | Interactive modal for creating and customizing diagram styles with live preview. |
+| **Inspector Dockview Panel** | [`src/components/workbench/panels/InspectorPanel.tsx`](../../../../src/components/workbench/panels/InspectorPanel.tsx) | Hosts Style Palette, Property Inspector, and Style Editor within the right workbench group. |
 
 ---
 
 ## 3. Test Coverage & Verification
 
 ### 3.1 Unit Test Suite (Vitest) — 22 Tests Passing
-- [`tests/unit/styles/styleParser.test.ts`](../../../tests/unit/styles/styleParser.test.ts):
+- [`tests/unit/styles/styleParser.test.ts`](../../../../tests/unit/styles/styleParser.test.ts):
   - Parses `\tikzstyle` declarations matching desktop TikZiT grammar.
   - Validates PGF extended RGB serialization (`{rgb,255: red,R; green,G; blue,B}`) and bidirectional hex conversion.
   - Validates category extraction via `tikzit category` and comments exclusion.
   - Validates desktop C++ parity for `isEdgeStyle()` arrow atoms and confirms `dashed` alone is not an edge style.
   - Validates round-trip serialization and re-parsing invariance.
-- [`tests/unit/styles/registry.test.ts`](../../../tests/unit/styles/registry.test.ts):
+- [`tests/unit/styles/registry.test.ts`](../../../../tests/unit/styles/registry.test.ts):
   - Validates ZX preset styles and category assignment.
   - Tests style cloning, renaming, and isolation.
   - Tests Cordis `StyleService` lifecycle: adding styles, removing styles, applying styles to nodes and edges, and Nanostores updates.
-- [`tests/unit/styles/inspector.test.ts`](../../../tests/unit/styles/inspector.test.ts):
+- [`tests/unit/styles/inspector.test.ts`](../../../../tests/unit/styles/inspector.test.ts):
   - Tests label updating with LaTeX phase angles (`\alpha`, `\pi/2`, `0`).
   - Tests node style changes preserving spatial positions.
   - Tests uniform multi-node style updates.
   - Tests edge property modifications (`dashed`, `bend left`).
 
 ### 3.2 Playwright End-to-End Suite — 5 Tests Passing
-- [`e2e/sprint-05/style-palette.spec.ts`](../../../e2e/sprint-05/style-palette.spec.ts):
+- [`e2e/sprint-05/style-palette.spec.ts`](../../../../e2e/sprint-05/style-palette.spec.ts):
   - `05-E2E-01`: Renders palette categories and styles from the loaded stylesheet.
   - `05-E2E-02`: Applies a stylesheet entry to a selected canvas node and verifies inspector reflection.
   - `05-E2E-03`: Property Inspector edits label and phase angle with AST reflection.
