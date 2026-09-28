@@ -62,3 +62,5 @@ win32-deps
 *.run.xml
 *.dmg
 
+/build-test/
+.DS_Store
