@@ -64,3 +64,5 @@ win32-deps
 
 /build-test/
 .DS_Store
+# Oberon (out-of-context telemetry, postmortems, raw blobs)
+.oberon/

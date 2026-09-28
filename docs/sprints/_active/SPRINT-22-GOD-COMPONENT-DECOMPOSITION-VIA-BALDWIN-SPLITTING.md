@@ -120,3 +120,139 @@ Every selector in the Contract B registry MUST be preserved on the corresponding
 - **AC-22-03 (Selector Contract B Invariant)**: All Playwright E2E tests in `e2e/sprint-16/`, `e2e/sprint-16b/`, `e2e/sprint-17/`, `e2e/sprint-17b/`, and `e2e/sprint-18/` pass without modifying selector queries.
 - **AC-22-04 (Headless Diff Verification)**: `VersionDiffEngine.ts` is covered by dedicated unit tests asserting exact node and edge delta calculations without instantiating React components.
 - **AC-22-05 (Pure Compilation Decoupling)**: `PreviewCompiler.ts` produces identical SVG DOM nodes across standalone testing and in-panel rendering.
+
+---
+
+## 6. Comprehensive Test Strategy & New Test Case Inventory
+
+This sprint introduces 28 new unit and headless component tests verifying the decomposed sub-components, headless diff algorithms, and SVG compilation math:
+
+### 6.1 Headless History Diff Engine Verification (`tests/unit/components/history/VersionDiffEngine.test.ts`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T22-01** | `test_diff_vertex_additions_delta` | VersionDiffEngine | Compares AST $A$ (2 nodes) to AST $B$ (5 nodes); asserts `{ nodeDelta: 3, edgeDelta: 0, addedNodes: ['v2', 'v3', 'v4'] }`. |
+| **T22-02** | `test_diff_vertex_deletions_delta` | VersionDiffEngine | Compares AST $A$ (4 nodes) to AST $B$ (2 nodes); asserts `{ nodeDelta: -2, edgeDelta: 0, removedNodes: [...] }`. |
+| **T22-03** | `test_diff_edge_topology_and_style_changes` | VersionDiffEngine | Compares graphs with changed edge styles or bend angles; asserts exact delta detection and style property diff strings. |
+| **T22-04** | `test_diff_identical_graphs_returns_zero` | VersionDiffEngine | Compares identical ASTs; asserts `{ nodeDelta: 0, edgeDelta: 0, hasDifferences: false }`. |
+| **T22-05** | `test_diff_unified_line_generation` | VersionDiffEngine | Asserts generated unified diff lines format correctly with line prefixes (`+`, `-`, ` `) and syntax highlight tags. |
+
+### 6.2 Headless Preview Compiler Verification (`tests/unit/components/preview/PreviewCompiler.test.ts`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T22-06** | `test_pure_svg_compilation_from_ast` | PreviewCompiler | Compiles canonical AST directly to SVG DOM nodes in headless Vitest; asserts root `<svg>` contains expected `<g>`, `<circle>`, and `<path>` children. |
+| **T22-07** | `test_style_catalog_resolution` | PreviewCompiler | Applies `$stylesCatalog` rules (fill color, stroke width, dashed borders); asserts computed SVG presentation attributes match style definitions. |
+| **T22-08** | `test_teardrop_loop_bezier_generation` | PreviewCompiler | Verifies cubic Bézier path data generation for self-loops ($in=135^\circ, out=45^\circ$); asserts path string matches expected SVG `d` syntax. |
+| **T22-09** | `test_junction_node_svg_presentation` | PreviewCompiler | Asserts that junction nodes (`style=none`) compile to lavender ring `#B4B4DC` with center dot `#B4B4C8`. |
+| **T22-10** | `test_syntax_error_diagnostic_generation` | PreviewCompiler | Passes malformed TikZ string; asserts compiler generates structured diagnostic banner with line and column markers. |
+
+### 6.3 Version History Sub-Component Verification (`tests/unit/components/history/`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T22-11** | `test_history_list_row_rendering` | VersionHistoryList | Renders list with 5 commit entries; asserts rows render `[data-testid^="version-row-"]` with commit messages, dates, and author badges. |
+| **T22-12** | `test_history_copy_head_hash_feedback` | VersionHistoryList | Clicks `btn-copy-head-hash`; asserts clipboard API is invoked and button displays checkmark confirmation icon for 2 seconds. |
+| **T22-13** | `test_history_restore_button_emission` | VersionHistoryList | Clicks `btn-restore-version`; asserts `onRestoreRequested` callback emits selected commit hash. |
+| **T22-14** | `test_compare_modal_side_by_side_layout` | VersionCompareModal | Mounts modal; asserts `history-compare-panel` renders both left (historic) and right (current) preview stages with `compare-stat-deltas`. |
+| **T22-15** | `test_compare_modal_keyboard_close` | VersionCompareModal | Presses `Escape` key inside compare modal; asserts modal unmounts. |
+| **T22-16** | `test_restore_confirm_dialog_clean_buffer` | VersionRestoreDialog | Opens restore dialog for clean buffer; asserts `restore-confirm-dialog` mounts with "Restore Version" primary button. |
+| **T22-17** | `test_restore_dirty_dialog_save_first` | VersionRestoreDialog | Opens restore dialog for dirty buffer; asserts `restore-dirty-dialog` mounts with "Save & Restore" and "Discard & Restore" options. |
+
+### 6.4 Preview Panel Sub-Component Verification (`tests/unit/components/preview/`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T22-18** | `test_preview_stage_pan_zoom_transform` | PreviewStage | Simulates wheel scroll and drag on `preview-svg-stage`; asserts SVG `<g>` transform matrix scales and translates smoothly. |
+| **T22-19** | `test_preview_toolbar_actions` | PreviewToolbar | Clicks Zoom In, Zoom Out, 100%, and Fit-to-Page buttons; asserts appropriate transform dispatches. |
+
+### 6.5 Explorer Drawer Sub-Component Verification (`tests/unit/components/explorer/`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T22-20** | `test_search_bar_debounced_filtering` | ExplorerSearchBar | Types search query into `corpus-search-input`; asserts filtering callback debounces by 300ms before triggering search index query. |
+| **T22-21** | `test_search_bar_archived_toggle` | ExplorerSearchBar | Toggles `toggle-show-archived`; asserts archived visibility state flips and notifies parent container. |
+| **T22-22** | `test_entry_row_inline_rename_commit` | ExplorerEntryRow | Double clicks title; types new name and presses `Enter`; asserts rename callback emits new title string. |
+| **T22-23** | `test_entry_row_inline_rename_cancel` | ExplorerEntryRow | Begins editing name and presses `Escape`; asserts text field reverts to original title without emitting rename. |
+| **T22-24** | `test_entry_row_context_menu_options` | ExplorerEntryRow | Opens row actions menu; asserts menu displays Rename, Duplicate, Version History, Export, and Archive choices. |
+
+### 6.6 Command Bar Sub-Component Verification (`tests/unit/components/commandbar/`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T22-25** | `test_title_bar_dirty_asterisk_indicator` | DocumentTitleBar | Renders title bar with dirty document; asserts `doc-tab-title` displays trailing `*` indicator. |
+| **T22-26** | `test_title_bar_amber_draft_badge` | DocumentTitleBar | Renders title bar for `zx:diagrams:UUID` with `version: 0`; asserts amber `badge-draft` is visible with text "Draft". |
+| **T22-27** | `test_action_buttons_draft_mode_variant` | DocumentActionButtons | In draft mode, asserts primary save button is `btn-save-draft` with label "Save Draft". |
+| **T22-28** | `test_action_buttons_diagram_mode_variant` | DocumentActionButtons | In diagram mode, asserts primary save button is `btn-save-diagram` with label "Save Diagram". |
+
+---
+
+## 7. Legacy Test Preservation & Regression Safeguards
+
+Refactoring high-traffic UI components requires bulletproof protection against visual and behavioral regression:
+
+1. **Selector Contract B Invariant**:
+   - Every single one of the 59 Playwright `data-testid` selectors MUST be preserved on the newly decomposed sub-components, matching the exact locations in the Section 4 Matrix.
+   - Zero test query changes are permitted in `e2e/`.
+2. **Dockview Contract A Invariant**:
+   - Decomposed panels (`PreviewPanel`, `VersionPopover`, `CorpusExplorerDrawer`) must continue mounting inside standard Dockview panel headers and layout slots.
+   - Panel layout serialization and deserialization via `api.toJSON()` / `api.fromJSON()` must remain 100% backward compatible.
+3. **Playwright Regression Suite**:
+   - All 392 Playwright test runs across Sprints 16–19 (`npm run test:e2e`) must pass with zero failures.
+4. **Vitest Unit Suite**:
+   - All 355 existing unit tests must pass 100% green.
+
+---
+
+## 8. Definition of Done (DoD) Checklists
+
+This sprint is gated by 10 verifiable Definition of Done checkpoints:
+
+### Source Decomposition & Line Limit Gates
+- [ ] **G01 — All Sub-Components Under 250 LOC**: Every newly extracted sub-component (`VersionHistoryList`, `VersionDiffEngine`, `VersionCompareModal`, `VersionRestoreDialog`, `PreviewStage`, `PreviewToolbar`, `PreviewCompiler`, `ExplorerSearchBar`, `ExplorerSectionList`, `ExplorerEntryRow`, `DocumentTitleBar`, `DocumentActionButtons`) is verified strictly **$\le 250$ lines of code**.
+- [ ] **G02 — All Parent Containers Under 200 LOC**: Parent coordinating containers (`VersionPopover.tsx`, `PreviewPanel.tsx`, `CorpusExplorerDrawer.tsx`, `WorkbenchCommandBar.tsx`) are refactored into clean composition wrappers strictly **$\le 200$ lines of code**.
+
+### Headless Algorithm & Decoupling Gates
+- [ ] **G03 — Headless Version Diff Engine Verified**: `VersionDiffEngine.ts` is fully decoupled from React and passes all mathematical AST diff tests (T22-01 to T22-05).
+- [ ] **G04 — Headless Preview Compiler Verified**: `PreviewCompiler.ts` compiles SVG elements directly from AST and passes all styling and Bézier geometry tests (T22-06 to T22-10).
+
+### UI Sub-Component Unit Coverage Gates
+- [ ] **G05 — History & Modal Unit Tests Passing**: All history sub-components pass unit tests (T22-11 to T22-17).
+- [ ] **G06 — Preview & Stage Unit Tests Passing**: All preview sub-components pass unit tests (T22-18 to T22-19).
+- [ ] **G07 — Explorer Drawer Unit Tests Passing**: All explorer drawer sub-components pass unit tests (T22-20 to T22-24).
+- [ ] **G08 — Command Bar Unit Tests Passing**: All command bar sub-components pass unit tests (T22-25 to T22-28).
+
+### Regression & Contract Invariant Gates
+- [ ] **G09 — Contract B Selector Integrity Verified**: Automated selector audit confirms all 59 baseline selectors remain active and correctly positioned.
+- [ ] **G10 — Full Regression Suite Passing**: All 355 Vitest unit tests and 392 Playwright E2E test runs pass 100% green with zero modifications to legacy test assertions.
+
+---
+
+## 9. Verification Commands & Execution Runbook
+
+Execute these commands to verify Sprint 22 completion:
+
+```bash
+# 1. Run headless algorithmic tests (Diff Engine & Preview Compiler)
+npx vitest run tests/unit/components/history/VersionDiffEngine.test.ts \
+               tests/unit/components/preview/PreviewCompiler.test.ts
+
+# 2. Run sub-component unit test suites
+npx vitest run tests/unit/components/history/ \
+               tests/unit/components/preview/ \
+               tests/unit/components/explorer/ \
+               tests/unit/components/commandbar/
+
+# 3. Verify line counts of all decomposed modules
+wc -l src/components/workbench/panels/history/* \
+      src/components/workbench/panels/preview/* \
+      src/components/workbench/explorer/* \
+      src/components/workbench/commandbar/*
+
+# 4. Run full Vitest regression suite
+npm test
+
+# 5. Run full Playwright E2E regression suite across all browsers
+npm run test:e2e
+```
+

@@ -106,3 +106,123 @@ The script:
 - **AC-24-03 (Parser Round-Trip Invariant)**: All existing parser unit tests in `tests/unit/parser/` pass 100% green with zero regressions.
 - **AC-24-04 (C++ Refactoring Blueprint)**: `docs/architecture/CPP-MODULARIZATION-BLUEPRINT.md` is authored, providing exact class hierarchies and splitting maps for `tikzscene.cpp`, `styleeditor.cpp`, and `undocommands.cpp`.
 - **AC-24-05 (Automated Conformance Gate)**: `scripts/verify-protocol-conformance.mjs` executes in `make test`, asserting 100% AST isomorphism across all 12 canonical ZX diagrams.
+
+---
+
+## 7. Comprehensive Test Strategy & New Test Case Inventory
+
+This sprint introduces 22 new unit and cross-engine protocol conformance tests verifying the decomposed grammar combinators and asserting graph isomorphism between the native C++ and web TypeScript engines:
+
+### 7.1 Node Combinator Verification (`tests/unit/parser/combinators/nodeCombinator.test.ts`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T24-01** | `test_parse_standard_node_declaration` | nodeCombinator | Parses `\node (v0) at (0, 0) {$X$};`; asserts node name `v0`, coordinates `(0, 0)`, and label `$X$`. |
+| **T24-02** | `test_parse_styled_node_with_options` | nodeCombinator | Parses `\node [style=red_box] (v1) at (1.5, -2.5) {Label};`; asserts style property `red_box` and float coordinates `(1.5, -2.5)`. |
+| **T24-03** | `test_parse_junction_node_none_style` | nodeCombinator | Parses `\node [style=none] (j0) at (0, 1) {};`; asserts junction classification, empty label, and style `none`. |
+| **T24-04** | `test_parse_node_syntax_error_recovery` | nodeCombinator | Passes malformed node missing coordinate; asserts diagnostic syntax error with line and column pointers. |
+
+### 7.2 Edge Combinator Verification (`tests/unit/parser/combinators/edgeCombinator.test.ts`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T24-05** | `test_parse_straight_edge_draw` | edgeCombinator | Parses `\draw (v0) to (v1);`; asserts straight edge between source `v0` and target `v1`. |
+| **T24-06** | `test_parse_bend_left_and_bend_right` | edgeCombinator | Parses `\draw [bend left=30] (v0) to (v1);`; asserts curved path with bend angle 30 degrees. |
+| **T24-07** | `test_parse_explicit_in_out_angles` | edgeCombinator | Parses `\draw [in=180, out=0] (v0) to (v1);`; asserts explicit angles `in: 180`, `out: 0`. |
+| **T24-08** | `test_parse_teardrop_self_loop` | edgeCombinator | Parses `\draw [in=135, out=45, loop] (v0) to ();`; asserts self-loop on node `v0` with canonical teardrop angles. |
+| **T24-09** | `test_parse_edge_weights_and_looseness` | edgeCombinator | Parses `\draw [looseness=1.5, style=dashed] (v0) to (v1);`; asserts looseness factor 1.5 and style `dashed`. |
+| **T24-10** | `test_parse_multi_segment_path` | edgeCombinator | Parses `\draw (a) to (b) to (c);`; asserts compound path with two distinct edge segments. |
+
+### 7.3 Style & Property Combinators (`tests/unit/parser/combinators/`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T24-11** | `test_parse_tikzstyle_declaration` | styleCombinator | Parses `\tikzstyle{my_style}=[fill=red, draw=black]`; asserts registered style with fill and stroke attributes. |
+| **T24-12** | `test_parse_nested_style_inheritance` | styleCombinator | Parses style referencing another style; asserts property resolution hierarchy. |
+| **T24-13** | `test_parse_key_value_bracket_options` | propertyCombinator | Parses `[key=val, flag, count=42]`; asserts parsed property map with keys, strings, and numeric values. |
+| **T24-14** | `test_parse_quoted_and_escaped_brackets` | propertyCombinator | Parses `[label={[above]text}, info="hello, world"]`; asserts balanced bracket parsing without premature truncation. |
+
+### 7.4 Top-Level Parser Orchestrator (`tests/unit/parser/parserTopLevel.test.ts`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T24-15** | `test_orchestrate_full_tikzpicture` | Parser Orchestrator | Parses complete `\begin{tikzpicture} ... \end{tikzpicture}`; asserts resulting `Graph` structure contains all nodes, edges, and styles. |
+| **T24-16** | `test_comment_and_whitespace_preservation` | Parser Orchestrator | Parses TikZ containing `% comment` lines and irregular spacing; asserts correct AST extraction without syntax errors. |
+| **T24-17** | `test_graceful_syntax_error_recovery` | Parser Orchestrator | Parses diagram containing an unrecognized command; asserts parser records diagnostic error while recovering subsequent valid nodes. |
+
+### 7.5 Dual-System Protocol Conformance (`tests/unit/protocol/conformanceSuite.test.ts`)
+
+| Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
+| :--- | :--- | :--- | :--- |
+| **T24-18** | `test_graph_isomorphism_comparator_logic` | Conformance Engine | Unit tests graph isomorphism algorithm; asserts detector flags missing nodes, flipped edges, or altered attributes. |
+| **T24-19** | `test_coordinate_normalization_conformance` | Conformance Engine | Verifies coordinate normalization converts C++ floating-point pixel positions to TypeScript grid coordinates with zero drift. |
+| **T24-20** | `test_12_canonical_zx_diagrams_cross_engine` | Conformance Engine | Compiles all 12 canonical ZX diagrams through both C++ and TS parsers; asserts 100% graph isomorphism and attribute match. |
+| **T24-21** | `test_self_loop_teardrop_parity` | Conformance Engine | Asserts teardrop loops produce identical control parameters in both C++ and TS engines. |
+| **T24-22** | `test_conformance_script_exit_codes` | Conformance CLI | Asserts `scripts/verify-protocol-conformance.mjs` exits with code 0 on full match and non-zero on simulated divergence. |
+
+---
+
+## 8. Legacy Test Preservation & Regression Safeguards
+
+Modularizing the parser combinators must strictly protect the stability of the editing and preview pipelines:
+
+1. **Parser Unit Test Invariants**:
+   - All existing test suites in `tests/unit/parser/` must execute without alteration and pass 100% green.
+2. **Native C++ Desktop Suite Invariant**:
+   - The native C++ `UnitTests` binary must continue passing all 20/20 test assertions.
+3. **Canonical ZX-Calculus Corpus Invariant**:
+   - All 12 canonical diagrams must parse without errors (`python3 docs/examples/build_examples.py --verify-only`).
+4. **Overall Regression Baseline**:
+   - 355 Vitest unit tests and 392 Playwright E2E tests pass 100% green.
+
+---
+
+## 9. Definition of Done (DoD) Checklists
+
+This sprint is gated by 10 verifiable Definition of Done checkpoints:
+
+### Source Decomposition & Line Limit Gates
+- [ ] **G01 — Parser Kernel Under 120 LOC**: `src/core/parser/parser.ts` is refactored into a combinator orchestrator strictly **$\le 120$ lines of code**.
+- [ ] **G02 — Combinator Modules Under 180 LOC**: `nodeCombinator.ts`, `edgeCombinator.ts`, `styleCombinator.ts`, `propertyCombinator.ts` are each strictly **$\le 180$ lines of code**.
+
+### Grammar Combinator Unit Coverage Gates
+- [ ] **G03 — Node Combinator Verified**: Node parsing, options, and error recovery pass unit tests (T24-01 to T24-04).
+- [ ] **G04 — Edge Combinator Verified**: Straight, curved, teardrop, and multi-segment edges pass unit tests (T24-05 to T24-10).
+- [ ] **G05 — Style & Property Combinators Verified**: Style declarations, nested options, and escaped brackets pass unit tests (T24-11 to T24-14).
+- [ ] **G06 — Top-Level Orchestrator Verified**: Full diagram parsing and syntax error recovery pass unit tests (T24-15 to T24-17).
+
+### Protocol Conformance & Native C++ Blueprint Gates
+- [ ] **G07 — Automated Conformance Suite Deployed**: `scripts/verify-protocol-conformance.mjs` is authored, passes tests (T24-18 to T24-22), and is integrated into `make test`.
+- [ ] **G08 — 100% Canonical ZX Isomorphism**: All 12 canonical ZX diagrams produce topologically isomorphic graphs across C++ and TS engines.
+- [ ] **G09 — C++ Modularization Blueprint Authored**: `docs/architecture/CPP-MODULARIZATION-BLUEPRINT.md` is authored, providing exact class hierarchies and splitting maps for `tikzscene.cpp`, `styleeditor.cpp`, and `undocommands.cpp`.
+
+### Regression & Verification Artifact Gates
+- [ ] **G10 — Full Dual-System Suite Passing**: All 355 Vitest unit tests, 392 Playwright E2E tests, 20 native C++ tests, and 12 canonical ZX diagrams pass 100% green.
+
+---
+
+## 10. Verification Commands & Execution Runbook
+
+Execute these commands to verify Sprint 24 completion:
+
+```bash
+# 1. Run grammar combinator unit tests
+npx vitest run tests/unit/parser/
+
+# 2. Run dual-system protocol conformance suite
+node scripts/verify-protocol-conformance.mjs
+
+# 3. Verify line counts across parser modules
+wc -l src/core/parser/parser.ts \
+      src/core/parser/combinators/*
+
+# 4. Run native C++ unit tests
+make test-cpp
+
+# 5. Run full Vitest regression suite
+npm test
+
+# 6. Verify 12 canonical ZX-calculus diagrams
+make verify-corpus
+```
+
