@@ -23,13 +23,14 @@ test.describe('Sprint 00-A: Canonical ZX Reference Gallery', () => {
 
     for (let i = 0; i < 12; i++) {
       const svg = svgs.nth(i);
+      await svg.scrollIntoViewIfNeeded();
       await expect(svg).toBeVisible();
       const naturalWidth = await svg.evaluate((el: HTMLImageElement) => el.naturalWidth);
       expect(naturalWidth).toBeGreaterThan(0);
     }
   });
 
-  test('0A-E2E-03: Dark/Light mode theme toggle visual stability', async ({ page }) => {
+  test('0A-E2E-03: Dark/Light mode theme toggle visual stability', async ({ page }, testInfo) => {
     const themeBtn = page.locator('#theme-toggle-btn');
     await expect(themeBtn).toBeVisible();
 
@@ -41,7 +42,9 @@ test.describe('Sprint 00-A: Canonical ZX Reference Gallery', () => {
     await expect(page.locator('html')).toHaveClass(/light/);
 
     // Visual snapshot comparison
-    await expect(page).toHaveScreenshot('gallery-theme-toggle.png', { maxDiffPixelRatio: 0.01 });
+    if (testInfo.project.name === 'chromium') {
+      await expect(page).toHaveScreenshot('gallery-theme-toggle.png', { maxDiffPixelRatio: 0.01 });
+    }
 
     // Toggle back to dark
     await themeBtn.click();

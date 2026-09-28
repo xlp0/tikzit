@@ -92,6 +92,7 @@ export function createKeybindingDispatcher(
         break;
       case 'backspace':
       case 'delete':
+        if (typeof e.preventDefault === 'function') e.preventDefault();
         if (ctx.command.has('cmd:edit:delete')) {
           ctx.command.execute('cmd:edit:delete');
         }

@@ -36,10 +36,10 @@ The core mission of this sprint series is to achieve exact visual, aesthetic, an
 
 | Sprint | Document | Focus & Scope | Lead Agents | Status |
 | :---: | :--- | :--- | :---: | :---: |
-| **09** | [`SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md`](./SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md) | Media Asset Pipeline, Shared C++ Icons, macOS Window Chrome & Green Tool Border | Winston & Amelia | 🟢 **Active / Next Up** |
-| **10** | [`SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md`](./SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md) | White Paper Canvas, Exact `#DCDCF0` Axes, Dashed Junctions & Teardrop Loops | Winston & Amelia | 📋 **Planned** |
-| **11** | [`SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md`](./SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md) | 4-Icon Action Bar, Category Dropdown, Split Node/Edge 48x48 Swatches & Ingestion | Winston & Amelia | 📋 **Planned** |
-| **12** | [`SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md`](./SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md) | Reference Screenshot Golden Tests, Cross-Browser Matrix & Master Sign-Off | Winston & Amelia | 📋 **Planned** |
+| **09** | [`SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md`](./SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md) | Media Asset Pipeline, Shared C++ Icons, macOS Window Chrome & Green Tool Border | Winston & Amelia | ✅ **Completed & Graduated** |
+| **10** | [`SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md`](./SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md) | White Paper Canvas, Exact `#DCDCF0` Axes, Dashed Junctions & Teardrop Loops | Winston & Amelia | ✅ **Completed & Graduated** |
+| **11** | [`SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md`](./SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md) | 4-Icon Action Bar, Category Dropdown, Split Node/Edge 48x48 Swatches & Ingestion | Winston & Amelia | ✅ **Completed & Graduated** |
+| **12** | [`SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md`](./SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md) | Reference Screenshot Golden Tests, Cross-Browser Matrix & Master Sign-Off | Winston & Amelia | ✅ **Completed & Graduated** |
 
 ---
 

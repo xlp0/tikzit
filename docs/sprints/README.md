@@ -11,10 +11,6 @@
 docs/sprints/
 ├── README.md                              # This Master Index
 ├── _active/                               # Current active sprint working drafts
-│   ├── README.md
-│   ├── SPRINT-00-MASTER-ORCHESTRATION.md
-│   ├── SPRINT-00-ZX-DEMO-SVG-CORPUS.md
-│   └── SPRINT-01 ... SPRINT-08
 ├── 00-master-orchestration/               # Master Plan & Architecture
 ├── 00-zx-demo-svg-corpus/                 # [COMPLETED] 12 Canonical ZX SVGs & Gallery
 ├── 01-core-domain-and-ast-parser/         # TypeScript AST Parser & Domain Model
@@ -25,7 +21,11 @@ docs/sprints/
 ├── 05b-editable-canvas-interaction/       # Canvas Tool Activation & Editing Fixes
 ├── 06-preview-pipeline-and-exporters/     # WebAssembly TeX Preview & Exporters
 ├── 07-state-sync-and-mcard-storage/       # Bidirectional Sync & MCard Persistence
-└── 08-verification-and-deployment/        # Playwright E2E, Benchmarks & PWA Deploy
+├── 08-verification-and-deployment/        # Playwright E2E, Benchmarks & PWA Deploy
+├── 09-desktop-assets-and-chrome-harmonization/ # Desktop Assets, macOS Window Chrome & Green Tool Border
+├── 10-canvas-visual-parity-and-self-loops/     # Canvas Stage Visual Parity & Teardrop Loops
+├── 11-desktop-style-palette-and-action-bar/    # Desktop Style Palette & Action Bar
+└── 12-visual-regression-and-final-parity/      # Visual Regression Testing & Master Sign-Off
 ```
 
 ---
@@ -45,10 +45,10 @@ docs/sprints/
 | **06** | [`06-preview-pipeline-and-exporters`](./06-preview-pipeline-and-exporters/) | Live TeX Preview Window, Standalone PDF/SVG/TikZ Exporters | ✅ **Completed** |
 | **07** | [`07-state-sync-and-mcard-storage`](./07-state-sync-and-mcard-storage/) | Bidirectional Code/Canvas Sync, Undo/Redo & MCard Local Storage | ✅ **Completed** |
 | **08** | [`08-verification-and-deployment`](./08-verification-and-deployment/) | Playwright E2E Suite, 60 FPS Benchmarks & PWA Offline Deploy | ✅ **Completed** |
-| **09** | [`_active/SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md`](./_active/SPRINT-09-DESKTOP-ASSETS-AND-CHROME-HARMONIZATION.md) | Media Asset Sharing, macOS Window Chrome & Green Active Tool Border | 🟢 **Active** |
-| **10** | [`_active/SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md`](./_active/SPRINT-10-CANVAS-VISUAL-PARITY-AND-SELF-LOOPS.md) | White Paper Canvas, Subtle Blue Grid/Axes, Dashed Junctions & Teardrop Loops | 📋 **Planned** |
-| **11** | [`_active/SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md`](./_active/SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md) | 4-Icon Action Bar, Category Combobox & Split 48x48 Swatch Grids | 📋 **Planned** |
-| **12** | [`_active/SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md`](./_active/SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md) | Screenshot Visual Regression Suite, Cross-Browser Golden Tests & Sign-Off | 📋 **Planned** |
+| **09** | [`09-desktop-assets-and-chrome-harmonization`](./09-desktop-assets-and-chrome-harmonization/) | Desktop Assets, macOS Window Chrome & Green Active Tool Border | ✅ **Completed** |
+| **10** | [`10-canvas-visual-parity-and-self-loops`](./10-canvas-visual-parity-and-self-loops/) | White Paper Canvas, Subtle Blue Grid/Axes, Dashed Junctions & Teardrop Loops | ✅ **Completed** |
+| **11** | [`11-desktop-style-palette-and-action-bar`](./11-desktop-style-palette-and-action-bar/) | 4-Icon Action Bar, Category Combobox & Split 48x48 Swatch Grids | ✅ **Completed** |
+| **12** | [`12-visual-regression-and-final-parity`](./12-visual-regression-and-final-parity/) | Reference Screenshot Golden Tests, Cross-Browser Matrix & Master Sign-Off | ✅ **Completed** |
 
 ---
 
