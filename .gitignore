@@ -9,7 +9,8 @@ tex/sample/sample.pdf
 *.sublime-*
 src-old
 GeneratedFiles
-build
+/build/
+!tests/unit/build/
 .vs
 debug
 release
@@ -22,7 +23,9 @@ target_wrapper.bat
 build-tikzit-*
 *.pro.user
 *.autosave
-Makefile
+!/Makefile
+build-qmake/
+build-test/
 tikzit.app
 target_wrapper.sh
 src/data/tikzlexer.lexer.cpp
