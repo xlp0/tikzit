@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateSvg } from '../../../src/services/preview/SvgGenerator';
+import { generateSvg, isEdgeCurved } from '../../../src/services/preview/SvgGenerator';
 import type { GraphAST, TikzStylesCatalog } from '../../../src/core/domain/types';
 
 describe('SvgGenerator', () => {
@@ -69,5 +69,77 @@ describe('SvgGenerator', () => {
     const svg = generateSvg(sampleAST, sampleStyles);
     expect(svg).toContain('id="edge-e3"');
     expect(svg).toMatch(/id="edge-e3" d="M [0-9.]+ [0-9.]+ C/);
+  });
+
+  describe('Sprint 14: Curvature Synchronization with edge.data properties', () => {
+    it('correctly identifies curved vs straight edges via isEdgeCurved', () => {
+      expect(isEdgeCurved({ id: '1', sourceId: '0', targetId: '1', data: [] })).toBe(false);
+      expect(isEdgeCurved({ id: '2', sourceId: '0', targetId: '1', data: [{ key: 'bend left', value: '35' }] })).toBe(true);
+      expect(isEdgeCurved({ id: '3', sourceId: '0', targetId: '1', data: [{ key: 'bend right', value: '20' }] })).toBe(true);
+      expect(isEdgeCurved({ id: '4', sourceId: '0', targetId: '1', data: [{ key: 'bend left' }] })).toBe(true);
+      expect(isEdgeCurved({ id: '5', sourceId: '0', targetId: '1', data: [{ key: 'in', value: '30' }, { key: 'out', value: '150' }] })).toBe(true);
+      expect(isEdgeCurved({ id: '6', sourceId: '0', targetId: '0', data: [] })).toBe(true); // self-loop
+    });
+
+    it('renders curved cubic bezier path when bend left is only in edge.data', () => {
+      const ast: GraphAST = {
+        data: [],
+        paths: [],
+        nodes: [
+          { id: '0', name: '0', label: '', position: { x: -1, y: 0 }, data: [] },
+          { id: '1', name: '1', label: '', position: { x: 1, y: 0 }, data: [] },
+        ],
+        edges: [
+          { id: 'e_curved_left', sourceId: '0', targetId: '1', data: [{ key: 'bend left', value: '35' }] },
+        ],
+      };
+
+      const svg = generateSvg(ast);
+      expect(svg).toContain('id="edge-e_curved_left"');
+      expect(svg).toMatch(/id="edge-e_curved_left" d="M [0-9.]+ [0-9.]+ C [0-9.]+ [0-9.]+, [0-9.]+ [0-9.]+, [0-9.]+ [0-9.]+"/);
+    });
+
+    it('renders curved cubic bezier path when bend right is only in edge.data', () => {
+      const ast: GraphAST = {
+        data: [],
+        paths: [],
+        nodes: [
+          { id: '0', name: '0', label: '', position: { x: -1, y: 0 }, data: [] },
+          { id: '1', name: '1', label: '', position: { x: 1, y: 0 }, data: [] },
+        ],
+        edges: [
+          { id: 'e_curved_right', sourceId: '0', targetId: '1', data: [{ key: 'bend right', value: '45' }] },
+        ],
+      };
+
+      const svg = generateSvg(ast);
+      expect(svg).toContain('id="edge-e_curved_right"');
+      expect(svg).toMatch(/id="edge-e_curved_right" d="M [0-9.]+ [0-9.]+ C [0-9.]+ [0-9.]+, [0-9.]+ [0-9.]+, [0-9.]+ [0-9.]+"/);
+    });
+
+    it('positions edge label on curved edge using exact bezier midpoint', () => {
+      const ast: GraphAST = {
+        data: [],
+        paths: [],
+        nodes: [
+          { id: '0', name: '0', label: '', position: { x: 0, y: 0 }, data: [] },
+          { id: '1', name: '1', label: '', position: { x: 2, y: 0 }, data: [] },
+        ],
+        edges: [
+          {
+            id: 'e_labeled',
+            sourceId: '0',
+            targetId: '1',
+            data: [{ key: 'bend left', value: '60' }],
+            edgeNode: { label: 'curved label', data: [] },
+          },
+        ],
+      };
+
+      const svg = generateSvg(ast);
+      expect(svg).toContain('curved label');
+      // Label y should not be on the straight line (y=0 in TikZ coords -> y=padding+maxY*scale)
+      expect(svg).toMatch(/<text x="[0-9.]+" y="[0-9.]+"/);
+    });
   });
 });

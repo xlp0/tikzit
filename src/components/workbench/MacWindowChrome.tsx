@@ -55,7 +55,7 @@ export const MacWindowChrome: React.FC<MacWindowChromeProps> = ({
   const formattedTitle = `${baseTitle}${isDirty ? '*' : ''} - TikZiT`;
 
   return (
-    <header data-testid="mac-window-chrome" className="h-10 bg-[#2a2a2a] border-b border-[#383838] px-3 flex items-center justify-between z-20 select-none text-slate-200">
+    <header data-testid="mac-window-chrome" className="relative h-10 bg-[#2a2a2a] border-b border-[#383838] px-3 flex items-center justify-between z-20 select-none text-slate-200">
       {/* Left side: Document Lifecycle & Active Document Title */}
       <div className="flex items-center space-x-2 z-10">
         <div
@@ -85,7 +85,7 @@ export const MacWindowChrome: React.FC<MacWindowChromeProps> = ({
       {/* Center: Canvas Drawing Tools (Select, Vertex, Edge, BBox) centered directly above the Vector Canvas */}
       <div
         data-testid="center-toolbar-zone"
-        className="flex items-center justify-center flex-1 mx-4"
+        className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto"
       >
         <DesktopToolPalette activeTool={activeTool} onSelectTool={onSelectTool} />
       </div>

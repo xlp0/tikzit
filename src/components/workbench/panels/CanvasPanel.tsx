@@ -180,6 +180,15 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
             styleActions.applyStyleToSelected(styleName);
           }
         },
+        setGraph: (ast: any) => {
+          if (runtime) {
+            runtime.ctx.graph.setAST(ast);
+          } else {
+            defaultGraphAST.set(ast);
+          }
+          stage.renderGraph(ast);
+          stage.fitToGraph();
+        },
         setSourceCode: (code: string) => window.TikzitApp.loadTikz(code),
         getTikzCode: () => emitTikz(runtime ? runtime.stores.$graphAST.get() : defaultGraphAST.get()),
         loadTikz: (tikzCode: string) => {

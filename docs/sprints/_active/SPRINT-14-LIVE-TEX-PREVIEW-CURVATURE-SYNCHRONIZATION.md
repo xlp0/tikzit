@@ -127,13 +127,13 @@ An edge must be recognized as curved if ANY of the following hold:
 
 ## 5. Definition of Done (DoD) Checklist
 
-- [ ] `SvgGenerator.ts` correctly detects edge curvature from `edge.data` (`bend left`, `bend right`, `in`, `out`, `loop`) and typed fields.
-- [ ] `computeEdgeControls` receives `data: edge.data`, `srcStyle`, and `targetStyle` from `SvgGenerator.ts`.
-- [ ] SVG path strings for curved edges emit cubic Bézier `M ... C ...` splines respecting node perimeter insets (`tail` and `head`).
-- [ ] `SelectTool.ts` synchronizes `edge.bend` when dragging the yellow curvature handle.
-- [ ] `parser.ts` extracts `bend`, `inAngle`, and `outAngle` into typed `EdgeData` fields upon parsing TikZ source.
-- [ ] Unit tests in `tests/unit/preview/svgGenerator.test.ts` pass 100%, covering property-driven curvature.
-- [ ] Playwright E2E suite `e2e/sprint-14/preview-curvature.spec.ts` passes across Chromium, Firefox, and WebKit.
-- [ ] Zero regressions across all prior unit tests (215+ tests) and Playwright tests (258+ tests).
-- [ ] TypeScript check (`npx tsc --noEmit`) passes with 0 errors.
-- [ ] Production build (`npm run build`) succeeds with 0 errors.
+- [x] `SvgGenerator.ts` correctly detects edge curvature from `edge.data` (`bend left`, `bend right`, `in`, `out`, `loop`) and typed fields.
+- [x] `computeEdgeControls` receives `data: edge.data`, `srcStyle`, and `targetStyle` from `SvgGenerator.ts`.
+- [x] SVG path strings for curved edges emit cubic Bézier `M ... C ...` splines respecting node perimeter insets (`tail` and `head`).
+- [x] `SelectTool.ts` synchronizes `edge.bend` when dragging the yellow curvature handle.
+- [x] `parser.ts` extracts `bend`, `inAngle`, and `outAngle` into typed `EdgeData` fields upon parsing TikZ source.
+- [x] Unit tests in `tests/unit/preview/svgGenerator.test.ts` pass 100%, covering property-driven curvature.
+- [x] Playwright E2E suite `e2e/sprint-14/preview-curvature.spec.ts` passes across Chromium, Firefox, and WebKit (12/12 passing).
+- [x] Zero regressions across all prior unit tests (219 tests pass) and Playwright tests (270 tests pass).
+- [x] TypeScript check (`npx tsc --noEmit`) passes with 0 errors.
+- [x] Production build (`npm run build`) succeeds with 0 errors.

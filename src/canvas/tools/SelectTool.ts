@@ -165,7 +165,7 @@ export class SelectTool implements CanvasTool {
         const bendAngleRaw = Math.atan2(perpDist, chordLen * 0.4) * (180 / Math.PI);
         const snappedBend = roundToNearest(5, bendAngleRaw);
 
-        // Update edge properties
+        // Update edge properties and synchronize typed edge.bend
         edge.data = edge.data.filter(
           (p) => p.key !== 'bend left' && p.key !== 'bend right'
         );
@@ -173,9 +173,13 @@ export class SelectTool implements CanvasTool {
         if (Math.abs(snappedBend) >= 3) {
           if (snappedBend > 0) {
             edge.data.push({ key: 'bend left', value: String(Math.round(snappedBend)) });
+            edge.bend = -Math.round(snappedBend);
           } else {
             edge.data.push({ key: 'bend right', value: String(Math.round(-snappedBend)) });
+            edge.bend = Math.round(-snappedBend);
           }
+        } else {
+          edge.bend = undefined;
         }
 
         this.ctx.setGraph({ ...graph });

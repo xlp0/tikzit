@@ -17,6 +17,22 @@ export interface SvgGeneratorOptions {
   transparentBg?: boolean;
 }
 
+export function isEdgeCurved(edge: EdgeData): boolean {
+  if (edge.sourceId === edge.targetId) return true;
+  if (edge.bend !== undefined && edge.bend !== 0) return true;
+  if (edge.inAngle !== undefined && edge.outAngle !== undefined) return true;
+  if (edge.data) {
+    for (const p of edge.data) {
+      if (p.key === 'bend left' || p.key === 'bend right' || p.key === 'loop') return true;
+      if (p.key === 'in' || p.key === 'out') {
+        const hasOther = edge.data.some((o) => (p.key === 'in' ? o.key === 'out' : o.key === 'in'));
+        if (hasOther) return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function generateSvg(
   ast: GraphAST,
   stylesCatalog?: TikzStylesCatalog,
@@ -102,8 +118,24 @@ export function generateSvg(
     const tx = toSvgX(p1.x);
     const ty = toSvgY(p1.y);
 
-    const isSelfLoop = edge.sourceId === edge.targetId;
-    const isCurved = isSelfLoop || edge.bend !== undefined || (edge.inAngle !== undefined && edge.outAngle !== undefined);
+    const isCurved = isEdgeCurved(edge);
+
+    const srcStyleName = getProperty(srcNode.data, 'style') || (srcNode.data[0]?.value === undefined ? srcNode.data[0]?.key : undefined);
+    const tgtStyleName = getProperty(tgtNode.data, 'style') || (tgtNode.data[0]?.value === undefined ? tgtNode.data[0]?.key : undefined);
+
+    const controls = computeEdgeControls({
+      src: p0,
+      target: p1,
+      sourceId: edge.sourceId,
+      targetId: edge.targetId,
+      srcStyle: srcStyleName,
+      targetStyle: tgtStyleName,
+      bend: edge.bend,
+      inAngle: edge.inAngle,
+      outAngle: edge.outAngle,
+      weight: edge.weight,
+      data: edge.data,
+    });
 
     let pathD = '';
     let midX = (sx + tx) / 2;
@@ -112,14 +144,6 @@ export function generateSvg(
     if (!isCurved) {
       pathD = `M ${sx.toFixed(2)} ${sy.toFixed(2)} L ${tx.toFixed(2)} ${ty.toFixed(2)}`;
     } else {
-      const controls = computeEdgeControls({
-        src: p0,
-        target: p1,
-        bend: edge.bend,
-        inAngle: edge.inAngle,
-        outAngle: edge.outAngle,
-        weight: edge.weight,
-      });
       const cp0 = controls.cp1;
       const cp1 = controls.cp2;
 
@@ -130,9 +154,9 @@ export function generateSvg(
 
       pathD = `M ${sx.toFixed(2)} ${sy.toFixed(2)} C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${tx.toFixed(2)} ${ty.toFixed(2)}`;
 
-      // Approximate Bézier midpoint at t = 0.5: B(0.5) = 0.125*P0 + 0.375*CP1 + 0.375*CP2 + 0.125*P1
-      midX = 0.125 * sx + 0.375 * c1x + 0.375 * c2x + 0.125 * tx;
-      midY = 0.125 * sy + 0.375 * c1y + 0.375 * c2y + 0.125 * ty;
+      // Exact Bézier midpoint from evaluateCubicBezier(0.5, tail, cp1, cp2, head)
+      midX = toSvgX(controls.mid.x);
+      midY = toSvgY(controls.mid.y);
     }
 
     // Edge styling

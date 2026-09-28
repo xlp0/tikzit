@@ -36,10 +36,10 @@ npm run dev
 The web workbench is backed by a comprehensive automated test matrix:
 
 ```bash
-# Run Vitest unit, parser, and integration test suite (215 tests)
+# Run Vitest unit, parser, and integration test suite (219 tests)
 npm test
 
-# Run Playwright cross-browser test suite (81 tests x 3 browsers = 243 test runs)
+# Run Playwright cross-browser test suite (90 tests x 3 browsers = 270 test runs)
 npx playwright test
 
 # Check TypeScript types
