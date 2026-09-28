@@ -49,6 +49,24 @@ The core mission of this sprint series is to achieve exact visual, aesthetic, an
 
 ---
 
+## Proposed Next Series: Diagram Lifecycle, History & Export (Sprints 16–19)
+
+These are proposals, not implementation commitments. The umbrella plan captures current gaps, UX principles, the shared data/event contract, and a decision record (D1–D10 all confirmed by the product owner, 2026-09-28). It was revised after a three-lens review whose findings were verified against source and the CLM kernel.
+
+| Sprint | Proposed specification | Outcome | Depends on | Status |
+| :---: | :--- | :--- | :--- | :---: |
+| **16** | [Diagram Creation & Unified MCard Lifecycle](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md) | Phase A: fix Sprint 15 carry-over defects H1–H8. Then one handle predicate, snapshot v2, and create + explicit save of `zx:diagrams:` handles with metadata cards | — | Proposed |
+| **16B** | [Diagram Library Management & Session Durability](./SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md) | Rename, duplicate, and archive via metadata-card lineage; dirty-buffer recovery across reload; idempotent legacy `DocumentStore` import | 16 | Proposed |
+| **17** | [MCard Version History & Restore](./SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md) | History popover on real lineage with labels, preview, and compare; restore by re-registering the historical card | 16 | Proposed |
+| **18** | [Individual Diagram Export](./SPRINT-18-INDIVIDUAL-DIAGRAM-EXPORT.md) | Verbatim TikZ/TeX and rendered SVG/PNG/PDF export of saved or unsaved content from row or active doc | 16 | Proposed |
+| **19** | [Complete MCard Diagram Collection Export](./SPRINT-19-COMPLETE-MCARD-COLLECTION-EXPORT.md) | Verified `.db` of all diagram and metadata handles with full lineage; pinned mcard-studio round-trip | 16, 16B, 17 | Proposed |
+
+16B, 17, and 18 can run in parallel once 16 lands.
+
+**Planning brief:** [Sprints 16–19 proposal](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
+
+---
+
 ## Architectural Principles & Collaboration Guidelines
 - **Winston (System Architect)**: Owns architectural decisions, domain models, asset synchronization strategy, and UX/UI system hierarchy.
 - **Amelia (Senior Software Engineer)**: Owns test-first execution (red, green, refactor), exact acceptance criteria (AC IDs), TypeScript type safety, and 100% green test passes.
@@ -57,7 +75,7 @@ The core mission of this sprint series is to achieve exact visual, aesthetic, an
 
 ## Cross-Sprint Contract A: Dockview Preservation Invariants
 
-The workbench's Dockview shell is a feature, not scaffolding. All Sprint 09–12 UI work MUST preserve its native capabilities:
+The workbench's Dockview shell is a feature, not scaffolding. All Sprint 09–12 UI work MUST preserve its native capabilities — these invariants continue to bind the Sprints 16–19 Explorer/chrome work:
 
 1. **Panels remain Dockview panels.** New surface components (macOS chrome content, desktop tool palette, styles dock) mount *inside* `DockviewReact` panels or the surrounding shell chrome — never as fixed overlays that prevent panel dragging, re-docking, floating groups, or maximization.
 2. **Layout serialization is load-bearing.** `api.toJSON()`/`api.fromJSON()` persistence to `localStorage['tikzit:workbench:layout']` and the 0-panel guard must continue to work after every sprint. Adding a new panel `id`/`component` (e.g. a dedicated `styles` panel) requires either a layout-key version bump or a post-restore `addPanel` for missing IDs — a saved layout will not magically contain new panels.
@@ -69,7 +87,7 @@ The workbench's Dockview shell is a feature, not scaffolding. All Sprint 09–12
 
 ## Cross-Sprint Contract B: E2E Selector Stability Contract
 
-The existing **59 Playwright tests** depend on the selectors below. Any component rewrite in Sprints 09–12 must either preserve these attributes or update the referencing spec in the same commit — otherwise AC-12-03 ("all prior tests green") fails by construction.
+The existing **59 Playwright tests** depend on the selectors below. Any component rewrite in Sprints 09–12 (or the 16–19 series, which touches the same Explorer/chrome surfaces) must either preserve these attributes or update the referencing spec in the same commit — otherwise AC-12-03 ("all prior tests green") fails by construction.
 
 **Shell / chrome / tools** (sprint-00, sprint-02, sprint-05b, sprint-07, tikzit.spec):
 `#tikzit-workbench`, `[data-testid="workbench-root"]`, `[data-testid="doc-tab-title"]`, `[data-testid="btn-new-diagram"]`, `button[data-tool="select"|"vertex"|"edge"|"bbox"]`, `[data-testid="tool-*"]`, `[data-testid="btn-toolbar-undo"/"btn-toolbar-redo"]`, `[data-testid="btn-version-history"]`, `[data-testid="version-popover"]`, `[data-testid="editor-tabs-more-actions-btn"]`, `[data-testid="tabs-more-actions-dropdown"]`, `[data-testid="tabs-close-others-btn"/"tabs-close-all-btn"]`, `[data-testid="btn-reset-layout"]`, `[data-testid="btn-theme-toggle"]`, `#theme-selector-btn`, `button[data-theme="dark"/"light"]`.
@@ -81,3 +99,7 @@ The existing **59 Playwright tests** depend on the selectors below. Any componen
 `#style-palette-island`, `.style-category-tab`, `button[data-style-name="…"]`, `#open-style-editor-btn`, `#style-editor-modal`, `#new-style-btn`, `#style-name-input`, `#style-fill-color`, `#save-style-btn`, `#node-style-select`, `#node-label-input`, `#edge-dashed-checkbox`.
 
 **Panels** (sprint-02/03/06): `[data-testid="panel-canvas"|"panel-source"|"panel-inspector"|"panel-preview"|"panel-console"]`, `[data-panel="canvas"/"source"/"inspector"]`, `canvas#webgl-stage`.
+
+**Corpus Explorer** (sprint-15): `[data-testid="corpus-persistence-state"]`, `[data-testid="corpus-save-btn"]`, `[data-testid="corpus-search-input"]`, `[data-testid="corpus-entry-<handle>"]`. The row selector pattern also applies to `zx:diagrams:` handles. Sprint 19 retires `corpus-save-btn` in favor of `btn-export-collection` and updates `corpus-explorer.spec.ts` in the same commit.
+
+**Planned for Sprints 16–19** (added to this contract as each sprint lands): `btn-explorer-new-diagram`, `row-export-diagram`, `btn-export-diagram`, `btn-export-collection`, plus row overflow items for Rename, Duplicate, and Archive, the Show-archived toggle, and the recovered-edits banner (Sprint 16B).
