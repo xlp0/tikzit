@@ -35,7 +35,7 @@ export const DesktopToolPalette: React.FC<DesktopToolPaletteProps> = ({
       role="toolbar"
       aria-label="Tool Palette"
       data-testid="desktop-tool-palette"
-      className={`flex items-center space-x-1.5 p-1 bg-[#1e1e1e] rounded border border-[#333333] ${className}`}
+      className={`flex items-center space-x-1.5 p-0.5 bg-[#1e1e1e] rounded border border-[#333333] ${className}`}
     >
       {tools.map(({ mode, label, shortcut, Icon }) => {
         const isActive = activeTool === mode;

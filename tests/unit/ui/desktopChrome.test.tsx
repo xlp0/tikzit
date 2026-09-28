@@ -106,8 +106,8 @@ describe('Sprint 09: Desktop Assets & macOS Chrome Harmonization', () => {
     });
   });
 
-  describe('Step 09.3 & AC-09-03: macOS Window Chrome', () => {
-    it('renders decorative traffic lights, reactive title, and Contract B buttons', () => {
+  describe('Step 09.3 & Sprint 13 Refinement: Window Chrome & Canvas-Centric Tools', () => {
+    it('renders clean chrome without non-functional traffic lights, centered tools, and left title', () => {
       const html = renderToString(
         <MacWindowChrome
           documentTitle="01_spider_fusion.tikz"
@@ -133,13 +133,16 @@ describe('Sprint 09: Desktop Assets & macOS Chrome Harmonization', () => {
         />
       );
 
-      // Traffic lights
-      expect(html).toContain('data-testid="mac-traffic-lights"');
-      expect(html).toContain('bg-[#ff5f56]');
-      expect(html).toContain('bg-[#ffbd2e]');
-      expect(html).toContain('bg-[#27c93f]');
+      // Non-functional traffic lights removed per Sprint 13 intentional design
+      expect(html).not.toContain('data-testid="mac-traffic-lights"');
+      expect(html).not.toContain('traffic-light-close');
+      expect(html).not.toContain('bg-[#ff5f56]');
 
-      // Document title with dirty asterisk and - TikZiT suffix
+      // Centered tool palette zone
+      expect(html).toContain('data-testid="center-toolbar-zone"');
+      expect(html).toContain('data-testid="desktop-tool-palette"');
+
+      // Document title with dirty asterisk and - TikZiT suffix on left
       expect(html).toContain('data-testid="doc-tab-title"');
       expect(html).toContain('01_spider_fusion.tikz* - TikZiT');
 

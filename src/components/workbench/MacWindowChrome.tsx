@@ -56,17 +56,19 @@ export const MacWindowChrome: React.FC<MacWindowChromeProps> = ({
 
   return (
     <header data-testid="mac-window-chrome" className="h-10 bg-[#2a2a2a] border-b border-[#383838] px-3 flex items-center justify-between z-20 select-none text-slate-200">
-      {/* Left side: macOS Traffic Lights & Desktop Tool Palette */}
-      <div className="flex items-center space-x-3">
-        {/* Decorative macOS Traffic Light Buttons */}
-        <div className="flex items-center space-x-1.5 mr-1" aria-hidden="true" data-testid="mac-traffic-lights">
-          <div data-testid="traffic-light-close" className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] shadow-sm cursor-pointer" title="Close" />
-          <div data-testid="traffic-light-minimize" className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] shadow-sm cursor-pointer" title="Minimize" />
-          <div data-testid="traffic-light-fullscreen" className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] shadow-sm cursor-pointer" title="Maximize" />
+      {/* Left side: Document Lifecycle & Active Document Title */}
+      <div className="flex items-center space-x-2 z-10">
+        <div
+          data-testid="mac-window-title"
+          className="flex items-center"
+        >
+          <span
+            data-testid="doc-tab-title"
+            className="text-xs px-3 py-1 rounded bg-[#1e1e1e] text-slate-200 border border-[#383838] font-medium tracking-wide flex items-center shadow-inner"
+          >
+            <span>{formattedTitle}</span>
+          </span>
         </div>
-
-        {/* 32x32px Desktop Tool Palette */}
-        <DesktopToolPalette activeTool={activeTool} onSelectTool={onSelectTool} />
 
         {/* New Diagram Tab Button */}
         <button
@@ -80,23 +82,16 @@ export const MacWindowChrome: React.FC<MacWindowChromeProps> = ({
         </button>
       </div>
 
-      {/* Center: Centered Reactive Document Title */}
-      <div className="flex items-center justify-center flex-1 mx-4">
-        <div
-          data-testid="mac-window-title"
-          className="flex items-center"
-        >
-          <span
-            data-testid="doc-tab-title"
-            className="text-xs px-3 py-1 rounded bg-[#1e1e1e] text-slate-200 border border-[#383838] font-medium tracking-wide flex items-center shadow-inner"
-          >
-            <span>{formattedTitle}</span>
-          </span>
-        </div>
+      {/* Center: Canvas Drawing Tools (Select, Vertex, Edge, BBox) centered directly above the Vector Canvas */}
+      <div
+        data-testid="center-toolbar-zone"
+        className="flex items-center justify-center flex-1 mx-4"
+      >
+        <DesktopToolPalette activeTool={activeTool} onSelectTool={onSelectTool} />
       </div>
 
       {/* Right side: Absorbed Actions (Undo/Redo, History, Tabs, Layout, Theme) */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 z-10">
         {/* Undo / Redo */}
         <div className="flex items-center bg-[#1e1e1e] rounded p-0.5 border border-[#383838] space-x-0.5">
           <button

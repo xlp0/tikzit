@@ -6,20 +6,23 @@ test.describe('Sprint 09: Desktop Assets and Chrome Harmonization', () => {
     await page.waitForSelector('#tikzit-workbench');
   });
 
-  test('09-E2E-01: Displays macOS window chrome with decorative traffic lights', async ({ page }) => {
+  test('09-E2E-01: Displays macOS window chrome with non-functional traffic lights removed', async ({ page }) => {
     const chrome = page.locator('[data-testid="mac-window-chrome"]');
     await expect(chrome).toBeVisible();
 
+    // Verify non-functional traffic lights are removed per intentional design
     const closeDot = page.locator('[data-testid="traffic-light-close"]');
     const minDot = page.locator('[data-testid="traffic-light-minimize"]');
     const maxDot = page.locator('[data-testid="traffic-light-fullscreen"]');
+    const macLights = page.locator('[data-testid="mac-traffic-lights"]');
 
-    await expect(closeDot).toBeVisible();
-    await expect(minDot).toBeVisible();
-    await expect(maxDot).toBeVisible();
+    await expect(closeDot).toHaveCount(0);
+    await expect(minDot).toHaveCount(0);
+    await expect(maxDot).toHaveCount(0);
+    await expect(macLights).toHaveCount(0);
   });
 
-  test('09-E2E-02: Centered window title shows document name and TikZiT app branding', async ({ page }) => {
+  test('09-E2E-02: Window title shows document name and TikZiT app branding on left', async ({ page }) => {
     const titleLocator = page.locator('[data-testid="mac-window-title"]');
     await expect(titleLocator).toBeVisible();
     const titleText = await titleLocator.textContent();
@@ -50,6 +53,15 @@ test.describe('Sprint 09: Desktop Assets and Chrome Harmonization', () => {
     if (box) {
       expect(Math.round(box.width)).toBe(32);
       expect(Math.round(box.height)).toBe(32);
+    }
+
+    // Verify tool palette is centered horizontally in the chrome directly above the canvas
+    const chromeBox = await page.locator('[data-testid="mac-window-chrome"]').boundingBox();
+    const palBox = await palette.boundingBox();
+    if (chromeBox && palBox) {
+      const chromeCenter = chromeBox.x + chromeBox.width / 2;
+      const palCenter = palBox.x + palBox.width / 2;
+      expect(Math.abs(chromeCenter - palCenter)).toBeLessThan(10);
     }
   });
 

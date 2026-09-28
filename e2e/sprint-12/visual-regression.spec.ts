@@ -17,9 +17,9 @@ test.describe('Sprint 12: Visual Regression & Layout Baseline Parity', () => {
     await expect(title).toBeVisible();
     await expect(title).toContainText('TikZiT');
 
-    // Traffic lights (macOS decorative controls)
-    const trafficLights = page.locator('[aria-label="macOS window controls"], [aria-hidden="true"]');
-    await expect(trafficLights.first()).toBeVisible();
+    // Traffic lights removed per intentional design
+    const trafficLights = page.locator('[data-testid="mac-traffic-lights"]');
+    await expect(trafficLights).toHaveCount(0);
 
     // 2. Desktop Tool Palette with 32x32 square buttons
     const selectBtn = page.locator('[data-tool="select"]');
