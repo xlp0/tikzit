@@ -119,6 +119,12 @@ src/services/
 - Retains only Cordis microkernel instantiation, plugin registration, and store binding (`bindStoresToKernel`).
 - Pure declarative composition of the extracted actors. Total length strictly under **350 lines of code**.
 
+### 4.5 Upstream Assignment for `mcard-studio`: Universal Multi-Tab Session Controller & Sync Bus
+- **Target Upstream Package**: `mcard-studio` $\to$ `@mcard/workbench-session`
+- **Porting Scope**: `TabSessionController.ts` and `SyncChannel.ts`
+- **Architectural Rationale**: Multi-tab document lifecycle routing, focus arbitration, and CSP channels between complementary projections (e.g. CodeMirror text mode and visual viewlet mode) are universal requirements for all CLM applications in `mcard-studio`.
+- **Extraction Boundary**: In TikZiT, `SyncChannel` carries TikZ AST updates between canvas and source editor. When ported to `mcard-studio`, the channel operates generically over `MCard.payload` and `ASTDiff` envelopes via the Universal Viewlet Protocol.
+
 ---
 
 ## 5. Acceptance Criteria

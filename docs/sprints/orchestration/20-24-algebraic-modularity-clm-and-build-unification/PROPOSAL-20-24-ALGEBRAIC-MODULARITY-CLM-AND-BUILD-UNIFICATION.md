@@ -247,6 +247,7 @@ verify-corpus:
 - **D19 (C++ Implementation Immutability & Reference Status):** The native C++ Qt codebase remains strictly in its original state as an immutable reference implementation. Modularity operators, line count ceilings ($\le 450$ LOC), and refactoring efforts apply exclusively to the JavaScript/TypeScript/TSX web stack. The native C++ codebase is only modified if: (1) a proven logical error/bug is discovered during cross-engine testing, or (2) a minimal runtime bridge runner is strictly required to enable automated conformance verification.
 - **D20 (Native Test Harness Route & CI Scope):** Native `UnitTests` are built through the existing **qmake testcase configuration** (`CONFIG+=test`, `TARGET=UnitTests`) into `build-test/` — matching `npm run test:native` — **not** through CMake, which has no test target today. The root `Makefile` is a developer-facing interface: `make test-cpp`/`make build-cpp` must auto-detect Qt and emit a clear skip notice when unavailable rather than fail cryptically; a dedicated native CI job is optional follow-up. The existing git-tracked qmake-generated root `Makefile` is removed via `git rm` and superseded by the authored one; regeneration always happens inside `build-qmake/`.
 - **D21 (Selector Registry is Generated):** The Contract B selector registry is produced by `scripts/audit-testids.mjs` → committed `docs/testing/testid-baseline.json`, never hand-maintained. Decompositions diff the regenerated baseline against the committed one; removals are DoD blockers, additions are deliberate diffs.
+- **D22 (Upstream Porting Target: `mcard-studio` Boundary):** Universal spatial workbench elements (`VersionPopover`, `VersionDiffEngine`, `CorpusExplorerDrawer`, `LineageTraversalEngine`, `CollectionSnapshotWriter`, `diagramLifecycleManager`) are recognized as universal MCard substrates. They are architected with strict decoupling from TikZ domain primitives to enable future zero-friction upstream migration to `mcard-studio` and `clm-kernel`. TikZiT permanently retains the domain-specific CAD core (TikZ grammar combinators, Three.js WebGL canvas, Bézier curve math, and desktop C++ Qt parity).
 
 ---
 
@@ -299,7 +300,43 @@ All existing test suites must pass 100% green without modification to legacy tes
 
 ---
 
-## 8. Consolidated Master Definition of Done (DoD) Checklist
+## 8. Upstream Porting Architecture: Decoupling TikZiT Domain Logic from `mcard-studio` Universal Substrates
+
+### 8.1 The Three-Tier Ecosystem Topology
+Under Decision D22, the repository architecture establishes a clean three-tier topology across the CLM ecosystem:
+
+```mermaid
+graph TD
+    subgraph Ecosystem_Partition["Three-Tier CLM Architecture Partition"]
+        direction TB
+        K["Tier 1: clm-kernel (npm: clm-kernel)<br/>• Mathematical Types, Hashing & Coeffects<br/>• ColoredPetriVM & IncidenceMatrix Token Algebra<br/>• SqlJsBackend, TriDatabaseManager & MCardSchema<br/>• SheafGluingVerifier & GlobalNoetherianAuditor"]
+        
+        S["Tier 2: mcard-studio (Reference Spatial Workbench PWA)<br/>• Universal Dockview Spatial Windowing Engine<br/>• Generic MCard Handle Explorer & Search Drawer<br/>• Universal Revision History, Diff & Restore Modals<br/>• WindowSyncBus (Satellite Multi-Window Synchronization)<br/>• Sovereign .db Snapshot & Corpus Import/Export Engine"]
+        
+        T["Tier 3: TikZiT Web (Domain-Specific CAD Studio)<br/>• TikZ/PGF EBNF Grammar Combinators & AST<br/>• Three.js WebGL String Diagram Canvas & Bézier Math<br/>• ZX-Calculus Quantum Style Palette & Spider Shaders<br/>• Dual-System Protocol Conformance Bridge (C++ / TS)"]
+        
+        K -->|Foundation Core| S
+        K -->|Foundation Core| T
+        S -->|Host Shell & Universal Viewlet Protocol| T
+    end
+```
+
+### 8.2 Subsystem Assignment & Upstream Migration Matrix
+During Sprints 20–24, six critical modules were decomposed into headless, isolated components under Contract D ($\le 250$ LOC). This guarantees zero friction when porting them upstream into `mcard-studio` or `clm-kernel`:
+
+| Module in TikZiT (`src/`) | Current LOC | Target Repository & Package | Target Role | Porting Readiness & Extraction Contract |
+| :--- | :---: | :--- | :--- | :--- |
+| `src/components/workbench/panels/history/*`<br/>(`VersionPopover`, `VersionHistoryList`, `VersionCompareModal`, `VersionRestoreDialog`, `VersionDiffEngine`) | **479** | `mcard-studio`<br/>`@mcard/workbench-history` | Universal MCard Lineage & Version Diff Modal | **100% Ready**. Zero TikZ dependencies. Operates strictly on MCard content hashes, timestamps, and line-diff algorithms. Tested headlessly without React DOM. |
+| `src/components/workbench/explorer/*`<br/>(`CorpusExplorerDrawer`, `ExplorerSearchBar`, `ExplorerSectionList`, `ExplorerEntryRow`) | **468** | `mcard-studio`<br/>`@mcard/workbench-explorer` | Universal Handle Explorer & Search Drawer | **100% Ready**. Pure UI view of handle registries (`zx:diagrams:`, `zx:meta:`). Interacts via generic `CorpusIndexRecord` interfaces. |
+| `src/services/clm/export/lineageTraversalEngine.ts` | **182** | `clm-kernel/layer2`<br/>or `@mcard/corpus-io` | Canonical MCard Lineage Closure Algorithm | **100% Ready**. Pure mathematical graph function $f: (\text{DbBackend}, \text{Handles}) \to \text{Closure}$. Resolves cycles ($A \to B \to A$) and excludes orphans. Zero DOM/Node dependencies. |
+| `src/services/clm/export/collectionSnapshotWriter.ts` | **84** | `clm-kernel/layer2`<br/>or `@mcard/corpus-io` | Canonical SQLite 3 Schema Serializer | **100% Ready**. Generates standard SQLite 3 tables (`card`, `handle_registry`, `handle_history`) conforming to `mcard_schema.sql` v3.0.3. Validated by pinned mcard-studio validator. |
+| `src/services/clm/explorer/diagramLifecycleManager.ts` | **193** | `mcard-studio`<br/>`@mcard/handle-manager` | Handle CRUD Actor (Rename, Duplicate, Archive) | **100% Ready**. Manages immutable companion metadata lineage records (`zx:meta:UUID`). Operates on arbitrary handle types. |
+| `src/components/workbench/commandbar/WindowControls.tsx` | **85** | `mcard-studio`<br/>`@mcard/workbench-shell` | Traffic Light Chrome & Window Controls | **100% Ready**. Reusable macOS-style window controls and fullscreen/minimize dispatcher. |
+| `src/core/parser/combinators/*`<br/>`src/components/canvas/*`<br/>`src/components/styles/*` | **~1,200** | **TikZiT** (Retained permanently) | Domain-Specific TikZ & ZX-Calculus CAD Core | **Domain Boundary**. Exposes standard `TikzDiagramViewlet` to `mcard-studio` via the Universal Viewlet Protocol (`viewlet: { id: 'tikz', visual: TikzCanvas, text: CodeMirror }`). |
+
+---
+
+## 9. Consolidated Master Definition of Done (DoD) Checklist
 
 This master checklist aggregates all 51 Definition of Done checkpoints across Sprints 20–24 to examine engineering progress at a glance:
 
@@ -366,7 +403,7 @@ This master checklist aggregates all 51 Definition of Done checkpoints across Sp
 
 ---
 
-## 9. Series Verification Workflow
+## 10. Series Verification Workflow
 
 The unified quality gate for the entire Algebraic Architecture Series is executed via the root `Makefile`:
 

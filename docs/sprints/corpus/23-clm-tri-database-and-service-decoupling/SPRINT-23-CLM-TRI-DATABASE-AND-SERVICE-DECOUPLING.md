@@ -83,6 +83,24 @@ src/services/clm/export/
 - **`collectionSnapshotWriter.ts` (Pure Kenotic Function)**: Pure functional serializer $f_{\text{sqlite}}: \text{Closure} \to \text{Result}\langle\text{Uint8Array}, \text{BailVerdict}\rangle$. Generates a valid SQLite 3 database using `sql.js` WASM with the canonical schema (`card`, `handle_registry`, `handle_history` — per `mcard_schema.sql` v3.0.3), validating every card's content against its recorded hash prior to emission.
 - **`exportFileBridge.ts`**: Isolated browser file I/O layer. Handles `showSaveFilePicker`, streams writes, distinguishes user cancellation (`BailVerdict.bail('...', 'CANCELLED')` — no error UI) from **write failure** (an error result, not a silent fallback), and falls back to Blob anchor download only when the picker is unavailable or permission is denied.
 
+### 3.4 Upstream Porting Blueprint: Sovereign Corpus Export & Handle Lifecycle for `mcard-studio` / `clm-kernel`
+Under Decision D22, the storage and export modules decomposed in this sprint represent canonical MCard infrastructure that belongs upstream:
+
+1. **Canonical MCard Lineage Closure Algorithm (`lineageTraversalEngine.ts`)**:
+   - **Target**: `clm-kernel` (`layer2/storage`) or `mcard-studio` (`@mcard/corpus-io`)
+   - **Nature**: Pure graph function $f: (\text{DbBackend}, \text{Handles}) \to \text{Closure}$. Computes transitive closures across all historical parent references ($A \to B \to A$), eliminates orphan cards, and trims execution receipts.
+   - **Porting Readiness**: 100% complete. Headless, zero DOM or Node dependencies, verified by headless unit tests.
+
+2. **Canonical SQLite 3 Corpus Serializer (`collectionSnapshotWriter.ts`)**:
+   - **Target**: `clm-kernel` (`layer2/storage`) or `mcard-studio` (`@mcard/corpus-io`)
+   - **Nature**: Pure table serializer generating standard SQLite 3 binary databases (`card`, `handle_registry`, `handle_history` per `mcard_schema.sql` v3.0.3).
+   - **Porting Readiness**: 100% complete. Validated against pinned `mcard-studio` importer specifications (`126cb34`).
+
+3. **Universal Handle Lifecycle Manager (`diagramLifecycleManager.ts`)**:
+   - **Target**: `mcard-studio` (`@mcard/handle-manager`)
+   - **Nature**: Encapsulates handle mutations (rename, duplicate, archive, unarchive) via immutable metadata lineage records.
+   - **Porting Readiness**: 100% complete. Handles arbitrary handle namespaces (`*:*:UUID`).
+
 ---
 
 ## 4. Kenotic CLM MVP Card Alignment Matrix

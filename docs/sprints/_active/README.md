@@ -63,6 +63,31 @@ To guarantee modular independence and eliminate information entanglement:
 5. **Inverting ($\dashv$)**: Transforming imperative event wiring into high-level reactive streams and Petri net controllers.
 6. **Porting ($\text{Lan}$)**: Maintaining native browser independence while executing identical TikZ protocol conformance.
 
+### 3.4 Deep Integration with `clm-kernel` npm Library (Layers 0–4)
+To maximize code reuse and eliminate duplicate implementations, the architecture deeply leverages the published `clm-kernel` npm package across all 5 architectural layers:
+
+```mermaid
+graph TD
+    subgraph CLM_Kernel_Integration["clm-kernel Architectural Layer Leverage"]
+        direction TB
+        L0["Layer 0: Content Addressing & Tri-Database<br/>• ContentHash (BLAKE3/SHA-256)<br/>• Handle & MCard Primitives<br/>• SqlJsBackend & TriDatabaseManager"]
+        L1["Layer 1: Process Algebra & Petri Nets<br/>• ColoredPetriVM & IncidenceMatrix<br/>• PlaceId, TransitionId, Token Algebra<br/>• SavepointGuard (Transactional Rollback)"]
+        L2["Layer 2: Collection & File System<br/>• MCardCollection & MCardFileSystem<br/>• Canonical Schema v3.0.3 Serialization"]
+        L3["Layer 3: Sheaf-Theoretic & Categorical Verification<br/>• PolynomialFunctor & CartesianLiftEngine<br/>• SheafGluingVerifier (AST Fragment Topology)<br/>• GlobalNoetherianAuditor (Rewrite Cycle Guards)"]
+        L4["Layer 4 & Shared: Spatiotemporal Fibers & Mesh<br/>• DisposableList & FiberLifecycle<br/>• BailVerdict & VCardResult Protocol Envelopes<br/>• SatoriService & CordisServiceAdapterRegistry"]
+        
+        L0 --> L1 --> L2 --> L3 --> L4
+    end
+```
+
+| `clm-kernel` Layer | Exported Primitives Leveraged | Application in TikZiT Spatial Architecture |
+| :--- | :--- | :--- |
+| **Layer 0 (Storage)** | `ContentHash`, `Handle`, `MCard`, `Blake3Provider`, `Sha256Provider`, `SqlJsBackend`, `TriDatabaseManager` | Cryptographic content addressing of `.tikz` ASTs, canonical handles table registry (`zx:diagrams:`, `zx:meta:`), and multi-table WASM SQLite persistence. |
+| **Layer 1 (Process)** | `ColoredPetriVM`, `IncidenceMatrix`, `PlaceId`, `TransitionId`, `SavepointGuard` | Formal document lifecycle state machine (`DocumentProcess`), token conservation during asynchronous flushes, and atomic transaction rollback. |
+| **Layer 2 (Collection)**| `MCardCollection`, `MCardFileSystem` | Sovereign SQLite `.db` corpus serialization, DAG lineage closure computation, and cross-repo collection snapshot emission. |
+| **Layer 3 (Topology)** | `PolynomialFunctor`, `CartesianLiftEngine`, `SheafGluingVerifier`, `GlobalNoetherianAuditor` | Categorical verification of string diagram tensor boundaries, spider fusion transformations, and topological cycle prevention in rewrite rules. |
+| **Layer 4 & Shared** | `DisposableList`, `FiberLifecycle`, `FibrationFiber`, `BailVerdict`, `VCardResult`, `SatoriService` | VCard Sandwich temporal cleanup of WebGL/CodeMirror coeffects, standardized discriminated union failure handling, and service mesh routing. |
+
 ---
 
 ## 4. Cross-Sprint Quality Contracts
@@ -187,7 +212,50 @@ This master checklist tracks all 51 granular Definition of Done checkpoints acro
 
 ---
 
-## 7. Master Quality Gate Execution Runbook
+## 7. Cross-Repository Architectural Division & `mcard-studio` Upstream Porting Blueprint
+
+### 7.1 The Three-Tier Ecosystem Partition
+To ensure optimal modularity across the Cubical Logic Model ecosystem, responsibilities are strictly partitioned between the mathematical kernel, the reference spatial workbench, and the domain-specific CAD tool:
+
+```mermaid
+graph TD
+    subgraph CLM_Ecosystem["Cubical Logic Model (CLM) Ecosystem Partition"]
+        direction TB
+        K["Tier 1: clm-kernel (npm: clm-kernel)<br/>• Zero-DOM Mathematical Types & Coeffects<br/>• ColoredPetriVM & Token Algebra<br/>• SqlJsBackend, TriDatabaseManager & MCardSchema<br/>• SheafGluingVerifier & NoetherianAuditor"]
+        
+        S["Tier 2: mcard-studio (Reference Spatial Workbench PWA)<br/>• Universal Dockview Spatial Windowing Engine<br/>• Generic MCard Handle Explorer & Search<br/>• Universal Revision History, Diff & Restore Modals<br/>• WindowSyncBus (Satellite Multi-Window Coordination)<br/>• Sovereign .db Snapshot & Corpus Import/Export"]
+        
+        T["Tier 3: TikZiT Web (Domain-Specific CAD Studio)<br/>• TikZ/PGF EBNF Grammar Combinators & AST<br/>• Three.js WebGL String Diagram Canvas & Bézier Math<br/>• ZX-Calculus Quantum Style Palette & Spider Shaders<br/>• Dual-System Protocol Conformance Bridge (C++ / TS)"]
+        
+        K -->|Foundation Core| S
+        K -->|Foundation Core| T
+        S -->|Host Shell & Universal Viewlet Protocol| T
+    end
+```
+
+### 7.2 Module Assignment & Upstream Migration Matrix
+During Sprints 20–24, several modules were decomposed into headless, isolated components under Contract D ($\le 250$ LOC). This architectural discipline guarantees they can be ported upstream to `mcard-studio` or `clm-kernel` with zero rewrites:
+
+| Module in TikZiT (`src/`) | Current LOC | Target Repository & Package | Target Role | Porting Readiness & Extraction Contract |
+| :--- | :---: | :--- | :--- | :--- |
+| `src/components/workbench/panels/history/*`<br/>(`VersionPopover`, `VersionHistoryList`, `VersionCompareModal`, `VersionRestoreDialog`, `VersionDiffEngine`) | **479** | `mcard-studio`<br/>`@mcard/workbench-history` | Universal MCard Lineage & Version Diff Modal | **100% Ready**. Zero TikZ dependencies. Operates strictly on MCard content hashes, timestamps, and line-diff algorithms. Tested headlessly without React DOM. |
+| `src/components/workbench/explorer/*`<br/>(`CorpusExplorerDrawer`, `ExplorerSearchBar`, `ExplorerSectionList`, `ExplorerEntryRow`) | **468** | `mcard-studio`<br/>`@mcard/workbench-explorer` | Universal Handle Explorer & Search Drawer | **100% Ready**. Pure UI view of handle registries (`zx:diagrams:`, `zx:meta:`). Interacts via generic `CorpusIndexRecord` interfaces. |
+| `src/services/clm/export/lineageTraversalEngine.ts` | **182** | `clm-kernel/layer2`<br/>or `@mcard/corpus-io` | Canonical MCard Lineage Closure Algorithm | **100% Ready**. Pure mathematical graph function $f: (\text{DbBackend}, \text{Handles}) \to \text{Closure}$. Resolves cycles ($A \to B \to A$) and excludes orphans. Zero DOM/Node dependencies. |
+| `src/services/clm/export/collectionSnapshotWriter.ts` | **84** | `clm-kernel/layer2`<br/>or `@mcard/corpus-io` | Canonical SQLite 3 Schema Serializer | **100% Ready**. Generates standard SQLite 3 tables (`card`, `handle_registry`, `handle_history`) conforming to `mcard_schema.sql` v3.0.3. Validated by pinned mcard-studio validator. |
+| `src/services/clm/explorer/diagramLifecycleManager.ts` | **193** | `mcard-studio`<br/>`@mcard/handle-manager` | Handle CRUD Actor (Rename, Duplicate, Archive) | **100% Ready**. Manages immutable companion metadata lineage records (`zx:meta:UUID`). Operates on arbitrary handle types. |
+| `src/components/workbench/commandbar/WindowControls.tsx` | **85** | `mcard-studio`<br/>`@mcard/workbench-shell` | Traffic Light Chrome & Window Controls | **100% Ready**. Reusable macOS-style window controls and fullscreen/minimize dispatcher. |
+| `src/core/parser/combinators/*`<br/>`src/components/canvas/*`<br/>`src/components/styles/*` | **~1,200** | **TikZiT** (Retained permanently) | Domain-Specific TikZ & ZX-Calculus CAD Core | **Domain Boundary**. Exposes standard `TikzDiagramViewlet` to `mcard-studio` via the Universal Viewlet Protocol (`viewlet: { id: 'tikz', visual: TikzCanvas, text: CodeMirror }`). |
+
+### 7.3 Future Porting Workflow & Zero-Regression Protocol
+When executing the upstream porting effort into `mcard-studio`:
+1. **Packaging**: Publish `@mcard/workbench-history` and `@mcard/corpus-io` from the `mcard-studio` monorepo.
+2. **Coeffect Substitution (Baldwin Operator $\simeq \implies =$)**: In TikZiT, substitute the local `src/components/workbench/panels/history/` imports with `@mcard/workbench-history`.
+3. **Contract B Verification**: Run `node scripts/audit-testids.mjs --check` to prove that all 196 E2E selectors remain byte-for-byte identical.
+4. **Canonical Conformance**: Run `node scripts/verify-protocol-conformance.mjs` to ensure zero disruption to diagram parsing or dual-system conformance.
+
+---
+
+## 8. Master Quality Gate Execution Runbook
 
 ```bash
 # 1. Clean previous build artifacts
@@ -217,7 +285,7 @@ make lint
 
 ---
 
-## 8. Previous Graduated Series
+## 9. Previous Graduated Series
 
 - [Desktop Parity Series (Sprints 09–15)](../README.md#2-sprint-status-matrix) — Shared C++ media assets, macOS chrome, paper canvas, teardrop self-loops, desktop style palette, and sovereign `.db` corpus export.
 - [Diagram Lifecycle & Export Series (Sprints 16–19)](../README.md#2-sprint-status-matrix) — First-class MCard diagram creation (`zx:diagrams:UUID`), library management (rename, duplicate, archive), session durability, lineage version history, draft save affordance, individual diagram export, and complete MCard collection export.

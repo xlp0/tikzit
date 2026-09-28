@@ -77,6 +77,22 @@ Rather than refactoring the stable, working native C++ Qt codebase, we treat it 
 - An automated node script (`scripts/verify-protocol-conformance.mjs`) feeds identical canonical diagrams to both the C++ reference bridge and the TypeScript combinators.
 - Validates that the TypeScript combinators faithfully match the parse results of the canonical Bison parser.
 
+### 4.3 Domain Boundary: TikZiT CAD Core vs. `mcard-studio` Universal Viewlet Contract
+Under Decision D22, the parser combinators and string diagram rendering pipeline represent the domain-specific core of TikZiT:
+- **Permanent TikZiT Core**: The EBNF grammar combinators (`nodeCombinator`, `edgeCombinator`, `styleCombinator`, `propertyCombinator`, `pathCombinator`) remain permanently in TikZiT.
+- **Universal Viewlet Protocol for `mcard-studio`**: Rather than porting the parser into `mcard-studio`, TikZiT exports the **`TikzDiagramViewlet`** conforming to the `mcard-studio` viewlet specification:
+  ```typescript
+  export const TikzDiagramViewlet: CardViewletDefinition = {
+    id: 'tikz',
+    name: 'TikZ & ZX-Calculus Diagram',
+    mimeTypes: ['text/vnd.tikz', 'application/x-pgf'],
+    visualProjection: TikzCanvasComponent,
+    textProjection: CodeMirrorTikzEditor,
+    verifier: (ast) => SheafGluingVerifier.verify(ast),
+  };
+  ```
+- **Leveraging `clm-kernel/layer3`**: The combinators and AST emit topological boundaries that validate against `clm-kernel`'s `SheafGluingVerifier` and `PolynomialFunctor`, mathematically guaranteeing that diagram composition, spider fusion, and tensor products satisfy categorical sheaf gluing conditions.
+
 ---
 
 ## 5. Dual-System Automated Conformance Suite (Functorial Equivalence)

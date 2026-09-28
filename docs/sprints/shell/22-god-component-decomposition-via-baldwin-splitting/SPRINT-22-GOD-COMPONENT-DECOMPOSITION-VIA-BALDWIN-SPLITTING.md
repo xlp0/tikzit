@@ -95,6 +95,19 @@ src/components/workbench/commandbar/
 
 - **`DocumentActionButtons.tsx`**: Encapsulates the save affordance transitions between Draft and Diagram modes, rendering `btn-save-draft` or `btn-save-diagram` with appropriate aria-labels and tooltips.
 
+### 3.5 Upstream Assignment for `mcard-studio`: Universal MCard Lineage & Explorer Substrates
+Under the cross-repository architectural boundary (D22), two major UI subsystems decomposed in this sprint are designated for future upstream migration to `mcard-studio`:
+
+1. **Universal MCard Lineage & Diff Modal (`@mcard/workbench-history`)**:
+   - **Constituents**: `VersionPopover.tsx`, `VersionHistoryList.tsx`, `VersionCompareModal.tsx`, `VersionRestoreDialog.tsx`, and `VersionDiffEngine.ts`.
+   - **Universal Role**: Provides timeline navigation, cryptographic commit hash copying, side-by-side AST/text comparison, and transactional restoration for *any* MCard collection. It contains **zero TikZ-specific code**.
+   - **Porting Strategy**: Extract to the `mcard-studio` monorepo. TikZiT will consume it as a dependency, injecting its active document handle and coeffects.
+
+2. **Universal Handle Explorer & Search Drawer (`@mcard/workbench-explorer`)**:
+   - **Constituents**: `CorpusExplorerDrawer.tsx`, `ExplorerSearchBar.tsx`, `ExplorerSectionList.tsx`, `ExplorerEntryRow.tsx`.
+   - **Universal Role**: Provides search, grouping, filtering, inline renaming, archiving, and context actions across arbitrary MCard handle registries (`prefix:type:UUID`).
+   - **Porting Strategy**: Extract to `@mcard/workbench-explorer`, allowing `mcard-studio` to provide a unified sidebar across all card types.
+
 ---
 
 ## 4. Cross-Sprint Selector Contract B Preservation Matrix
