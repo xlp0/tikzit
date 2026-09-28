@@ -1,9 +1,9 @@
 # Sprint 16: Diagram Creation & Unified MCard Lifecycle
 
-**Status:** Proposed; not started  
+**Status:** ✅ Completed & Verified  
 **Primary category:** `corpus` (with Explorer interaction work)  
 **Depends on:** —  
-**Parent proposal:** [Sprints 16–19](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
+**Parent proposal:** [Sprints 16–19](../../orchestration/16-19-mcard-diagram-lifecycle-history-and-export/PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
 
 ## Objective
 

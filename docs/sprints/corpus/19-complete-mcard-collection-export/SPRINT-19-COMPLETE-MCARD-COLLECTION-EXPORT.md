@@ -1,9 +1,9 @@
 # Sprint 19: Complete MCard Diagram Collection Export
 
-**Status:** Completed & Verified  
+**Status:** ✅ Completed & Verified  
 **Primary category:** `corpus`  
-**Depends on:** [Sprint 16](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md), [Sprint 16B](./SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md) (metadata lifecycle), [Sprint 17](./SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md) (restore semantics)  
-**Parent proposal:** [Sprints 16–19](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
+**Depends on:** [Sprint 16](../16-diagram-creation-and-mcard-lifecycle/SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md), [Sprint 16B](../16b-diagram-library-and-session-durability/SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md) (metadata lifecycle), [Sprint 17](../17-mcard-version-history-and-restore/SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md) (restore semantics)  
+**Parent proposal:** [Sprints 16–19](../../orchestration/16-19-mcard-diagram-lifecycle-history-and-export/PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
 
 ## Objective
 

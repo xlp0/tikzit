@@ -14,14 +14,20 @@ docs/sprints/
 ├── README.md                                     # This Master Index
 ├── _active/                                      # Current active sprint working drafts
 ├── orchestration/                                # Master plans & architecture blueprints
-│   └── 00-master-orchestration/                  # Master Plan & Architecture
+│   ├── 00-master-orchestration/                  # Master Plan & Architecture
+│   └── 16-19-mcard-diagram-lifecycle-history-and-export/ # Sprints 16–19 Proposal & Architecture
 ├── corpus/                                       # Reference corpora & sovereign storage
 │   ├── 00-zx-demo-svg-corpus/                    # [COMPLETED] 12 Canonical ZX SVGs & Gallery
-│   └── 15-mcard-backed-corpus-explorer-and-sovereign-export/  # MCard Explorer & .db Export
+│   ├── 15-mcard-backed-corpus-explorer-and-sovereign-export/  # MCard Explorer & .db Export
+│   ├── 16-diagram-creation-and-mcard-lifecycle/  # Diagram Creation & Unified MCard Lifecycle
+│   ├── 16b-diagram-library-and-session-durability/ # Diagram Library Management & Session Durability
+│   ├── 17-mcard-version-history-and-restore/     # MCard Version History & Restore
+│   └── 19-complete-mcard-collection-export/      # Complete MCard Collection Export
 ├── parser/                                       # TikZ grammar & domain model
 │   └── 01-core-domain-and-ast-parser/            # TypeScript AST Parser & Domain Model
 ├── shell/                                        # Application shell & service runtime
-│   └── 02-astro-shell-and-cordis-runtime/        # Astro 7 Shell, Dockview, Cordis & CLM State
+│   ├── 02-astro-shell-and-cordis-runtime/        # Astro 7 Shell, Dockview, Cordis & CLM State
+│   └── 17b-prominent-draft-save-affordance/      # Prominent Draft-to-MCard Save Affordance
 ├── canvas/                                       # Canvas rendering engine & visual fidelity
 │   ├── 03-threejs-webgl-canvas-engine/           # Three.js Canvas & Infinite Grid Shader
 │   └── 10-canvas-visual-parity-and-self-loops/   # Canvas Stage Visual Parity & Teardrop Loops
@@ -33,7 +39,8 @@ docs/sprints/
 │   └── 11-desktop-style-palette-and-action-bar/  # Desktop Style Palette & Action Bar
 ├── preview/                                      # TeX preview pipeline & exporters
 │   ├── 06-preview-pipeline-and-exporters/        # WebAssembly TeX Preview & Exporters
-│   └── 14-live-tex-preview-curvature-synchronization/  # Preview Curvature & Geometry Sync
+│   ├── 14-live-tex-preview-curvature-synchronization/  # Preview Curvature & Geometry Sync
+│   └── 18-individual-diagram-export/             # Multi-Format Individual Diagram Export
 ├── sync/                                         # State synchronization & persistence
 │   └── 07-state-sync-and-mcard-storage/          # Bidirectional Sync & MCard Persistence
 ├── verification/                                 # Test suites, benchmarks & deployment
@@ -68,6 +75,13 @@ docs/sprints/
 | **13** | desktop-parity | [`desktop-parity/13-canvas-centric-toolbar-and-chrome-refinement`](./desktop-parity/13-canvas-centric-toolbar-and-chrome-refinement/) | Canvas-Centric Tool Palette & Window Chrome Refinement | ✅ **Completed** |
 | **14** | preview | [`preview/14-live-tex-preview-curvature-synchronization`](./preview/14-live-tex-preview-curvature-synchronization/) | Live TeX Preview Curvature & Edge Geometry Synchronization | ✅ **Completed** |
 | **15** | corpus | [`corpus/15-mcard-backed-corpus-explorer-and-sovereign-export`](./corpus/15-mcard-backed-corpus-explorer-and-sovereign-export/) | MCard Corpus Explorer, IndexedDB/SqlJs Persistence & Sovereign `.db` Export | ✅ **Completed** |
+| **16** | corpus | [`corpus/16-diagram-creation-and-mcard-lifecycle`](./corpus/16-diagram-creation-and-mcard-lifecycle/) | Diagram Creation (`zx:diagrams:`), Carry-Over Hardening H1–H8, Snapshot v2 & Explicit MCard Save | ✅ **Completed** |
+| **16B** | corpus | [`corpus/16b-diagram-library-and-session-durability`](./corpus/16b-diagram-library-and-session-durability/) | Library Actions (Rename, Duplicate, Archive), Crash/Reload Recovery & Legacy Migration | ✅ **Completed** |
+| **17** | corpus | [`corpus/17-mcard-version-history-and-restore`](./corpus/17-mcard-version-history-and-restore/) | Lineage Version History Popover, Preview/Compare Modes & Non-Rewinding Restore | ✅ **Completed** |
+| **17B** | shell | [`shell/17b-prominent-draft-save-affordance`](./shell/17b-prominent-draft-save-affordance/) | Prominent Draft-to-MCard Save CTA, In-Canvas Callout & Mode Transitions | ✅ **Completed** |
+| **18** | preview | [`preview/18-individual-diagram-export`](./preview/18-individual-diagram-export/) | Individual Diagram Export (TikZ, TeX, SVG, PNG 1x/2x/4x, PDF) & Style Presets | ✅ **Completed** |
+| **19** | corpus | [`corpus/19-complete-mcard-collection-export`](./corpus/19-complete-mcard-collection-export/) | Verified MCard Collection `.db` Export, Complete Lineage Traversal & Pinned Round-Trip | ✅ **Completed** |
+| **16–19** | orchestration | [`orchestration/16-19-mcard-diagram-lifecycle-history-and-export`](./orchestration/16-19-mcard-diagram-lifecycle-history-and-export/) | Architecture Proposal: First-Class MCard Diagrams, History & Export | 🟢 **Graduated Blueprint** |
 
 ---
 

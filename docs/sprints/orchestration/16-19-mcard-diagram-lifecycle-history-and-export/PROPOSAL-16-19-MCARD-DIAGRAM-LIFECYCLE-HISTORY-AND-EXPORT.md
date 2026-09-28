@@ -8,7 +8,7 @@
 
 The Explorer lists the 12 seeded `zx:examples:` handles and exposes a single `Save Corpus (.db)` action; it cannot create anything. The header `+` creates a generic `WorkspaceManager` document with an ephemeral `doc-*` id, and ordinary saves go to the legacy `localStorage` `DocumentStore`. Corpus saves go through `CorpusExplorerService` → `DocumentCommitService`. The History popover reads `DocumentStore.getRevisions()`, not CLM handle history. The SQLite export walks only the example index.
 
-The review also found that the `zx:examples:` prefix is enforced in seven places. One is the IndexedDB snapshot validator, so the first persisted user diagram would make every later startup fail. Several Sprint 15 defects are also live today (see [Sprint 16 Phase A](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md#phase-a--sprint-15-carry-over-hardening)).
+The review also found that the `zx:examples:` prefix is enforced in seven places. One is the IndexedDB snapshot validator, so the first persisted user diagram would make every later startup fail. Several Sprint 15 defects are also live today (see [Sprint 16 Phase A](../../corpus/16-diagram-creation-and-mcard-lifecycle/SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md#phase-a--sprint-15-carry-over-hardening)).
 
 **Target:** one coherent diagram lifecycle. Create from the Explorer or header, commit accepted saves as MCards on a stable handle, manage the library (rename, duplicate, archive), inspect and restore lineage, and export one diagram or the whole collection with verifiable lineage.
 
@@ -49,11 +49,11 @@ The review also found that the `zx:examples:` prefix is enforced in seven places
 
 | Sprint | Title | Primary outcome | Depends on |
 |---|---|---|---|
-| 16 | [Diagram Creation & Unified MCard Lifecycle](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md) | Hardening of Sprint 15 defects; one handle predicate; snapshot v2; create + explicit save of `zx:diagrams:` handles with metadata cards | — |
-| 16B | [Diagram Library Management & Session Durability](./SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md) | Rename, duplicate, archive; dirty-buffer recovery across reload; legacy `DocumentStore` import | 16 |
-| 17 | [MCard Version History & Restore](./SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md) | History popover on real lineage; labels, preview, compare; restore by re-registration | 16 |
-| 18 | [Individual Diagram Export](./SPRINT-18-INDIVIDUAL-DIAGRAM-EXPORT.md) | Verbatim/rendered export of saved or unsaved diagram from row or active doc | 16 |
-| 19 | [Complete MCard Diagram Collection Export](./SPRINT-19-COMPLETE-MCARD-COLLECTION-EXPORT.md) | `.db` with all diagram + metadata handles and lineage, pinned mcard-studio round-trip | 16, 16B (metadata), 17 (restore semantics) |
+| 16 | [Diagram Creation & Unified MCard Lifecycle](../../corpus/16-diagram-creation-and-mcard-lifecycle/SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md) | Hardening of Sprint 15 defects; one handle predicate; snapshot v2; create + explicit save of `zx:diagrams:` handles with metadata cards | — |
+| 16B | [Diagram Library Management & Session Durability](../../corpus/16b-diagram-library-and-session-durability/SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md) | Rename, duplicate, archive; dirty-buffer recovery across reload; legacy `DocumentStore` import | 16 |
+| 17 | [MCard Version History & Restore](../../corpus/17-mcard-version-history-and-restore/SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md) | History popover on real lineage; labels, preview, compare; restore by re-registration | 16 |
+| 18 | [Individual Diagram Export](../../preview/18-individual-diagram-export/SPRINT-18-INDIVIDUAL-DIAGRAM-EXPORT.md) | Verbatim/rendered export of saved or unsaved diagram from row or active doc | 16 |
+| 19 | [Complete MCard Diagram Collection Export](../../corpus/19-complete-mcard-collection-export/SPRINT-19-COMPLETE-MCARD-COLLECTION-EXPORT.md) | `.db` with all diagram + metadata handles and lineage, pinned mcard-studio round-trip | 16, 16B (metadata), 17 (restore semantics) |
 
 16B, 17, and 18 can proceed in parallel after 16. Each specification is a proposal; do not treat its checkboxes as evidence.
 
@@ -74,7 +74,7 @@ The review also found that the `zx:examples:` prefix is enforced in seven places
 
 ## Cross-Sprint Quality Gates
 
-- The [`_active/README.md`](./README.md) Contracts A (Dockview preservation) and B (selector stability) bind this series. New selectors are listed in each sprint.
+- The [`docs/sprints/README.md`](../../README.md) Contracts A (Dockview preservation) and B (selector stability) bind this series. New selectors are listed in each sprint.
 - The 12 seeded examples stay intact and `npm run verify:corpus` passes in every sprint.
 - Race and failure matrix: parse failure, gate bail, save during flush, duplicate/no-op content, missing/corrupt cards, unavailable/blocked IndexedDB, stale writer, picker cancel versus write failure, partial export.
 - `showSaveFilePicker` is Chromium-only: picker-path ACs run in the Chromium project; Blob-fallback ACs run in Chromium, Firefox, and WebKit.

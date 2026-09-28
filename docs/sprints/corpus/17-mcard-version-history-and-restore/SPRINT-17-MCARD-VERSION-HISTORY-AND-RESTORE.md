@@ -1,9 +1,9 @@
 # Sprint 17: MCard Version History & Restore
 
-**Status:** Completed & Verified  
+**Status:** ✅ Completed & Verified  
 **Primary category:** `corpus` (reusing the shell History affordance)  
-**Depends on:** [Sprint 16](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md)  
-**Parent proposal:** [Sprints 16–19](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
+**Depends on:** [Sprint 16](../16-diagram-creation-and-mcard-lifecycle/SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md)  
+**Parent proposal:** [Sprints 16–19](../../orchestration/16-19-mcard-diagram-lifecycle-history-and-export/PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
 
 ## Objective
 

@@ -1,6 +1,6 @@
 # Active Sprint Directory (`docs/sprints/_active`)
 
-This directory tracks sprint working drafts in flight. The **Desktop Parity & Media Sharing Series** (Sprints 09–14) and the follow-on **Sovereign Corpus track** (Sprint 15) — designed in collaboration with **Winston (System Architect)** and **Amelia (Senior Software Engineer)** — are now **fully graduated**: their final specifications live in the category bins under `docs/sprints/` (see the table below and the [master index](../README.md)).
+This directory tracks sprint working drafts in flight. Both the **Desktop Parity & Media Sharing Series** (Sprints 09–15) and the **Diagram Lifecycle, History & Export Series** (Sprints 16–19) — designed in collaboration with **Winston (System Architect)** and **Amelia (Senior Software Engineer)** — are now **fully graduated**: their final specifications live in the category bins under `docs/sprints/` (see the tables below and the [master index](../README.md)). There are currently no ungraduated sprint drafts in flight.
 
 ---
 
@@ -49,22 +49,18 @@ The core mission of this sprint series is to achieve exact visual, aesthetic, an
 
 ---
 
-## Proposed Next Series: Diagram Lifecycle, History & Export (Sprints 16–19)
+## Graduated Series: Diagram Lifecycle, History & Export (Sprints 16–19)
 
-These are proposals, not implementation commitments. The umbrella plan captures current gaps, UX principles, the shared data/event contract, and a decision record (D1–D10 all confirmed by the product owner, 2026-09-28). It was revised after a three-lens review whose findings were verified against source and the CLM kernel.
+| Sprint | Bin | Document | Focus & Scope | Lead Agents | Status |
+| :---: | :--- | :--- | :--- | :---: | :---: |
+| **16** | `corpus` | [`SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md`](../corpus/16-diagram-creation-and-mcard-lifecycle/SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md) | Diagram Creation (`zx:diagrams:`), Carry-Over Hardening H1–H8, Snapshot v2 & Explicit MCard Save | Winston & Amelia | ✅ **Completed & Graduated** |
+| **16B** | `corpus` | [`SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md`](../corpus/16b-diagram-library-and-session-durability/SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md) | Library Actions (Rename, Duplicate, Archive), Crash/Reload Recovery & Legacy Migration | Winston & Amelia | ✅ **Completed & Graduated** |
+| **17** | `corpus` | [`SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md`](../corpus/17-mcard-version-history-and-restore/SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md) | Lineage Version History Popover, Preview/Compare Modes & Non-Rewinding Restore | Winston & Amelia | ✅ **Completed & Graduated** |
+| **17B** | `shell` | [`SPRINT-17B-PROMINENT-DRAFT-SAVE-AFFORDANCE.md`](../shell/17b-prominent-draft-save-affordance/SPRINT-17B-PROMINENT-DRAFT-SAVE-AFFORDANCE.md) | Prominent Draft-to-MCard Save CTA, In-Canvas Callout & Mode Transitions | Winston & Amelia | ✅ **Completed & Graduated** |
+| **18** | `preview` | [`SPRINT-18-INDIVIDUAL-DIAGRAM-EXPORT.md`](../preview/18-individual-diagram-export/SPRINT-18-INDIVIDUAL-DIAGRAM-EXPORT.md) | Individual Diagram Export (TikZ, TeX, SVG, PNG 1x/2x/4x, PDF) & Style Presets | Winston & Amelia | ✅ **Completed & Graduated** |
+| **19** | `corpus` | [`SPRINT-19-COMPLETE-MCARD-COLLECTION-EXPORT.md`](../corpus/19-complete-mcard-collection-export/SPRINT-19-COMPLETE-MCARD-COLLECTION-EXPORT.md) | Verified MCard Collection `.db` Export, Complete Lineage Traversal & Pinned Round-Trip | Winston & Amelia | ✅ **Completed & Graduated** |
 
-| Sprint | Proposed specification | Outcome | Depends on | Status |
-| :---: | :--- | :--- | :--- | :---: |
-| **16** | [Diagram Creation & Unified MCard Lifecycle](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md) | Phase A: fix Sprint 15 carry-over defects H1–H8. Then one handle predicate, snapshot v2, and create + explicit save of `zx:diagrams:` handles with metadata cards | — | ✅ **Completed & Verified** |
-| **16B** | [Diagram Library Management & Session Durability](./SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md) | Rename, duplicate, and archive via metadata-card lineage; dirty-buffer recovery across reload; idempotent legacy `DocumentStore` import | 16 | ✅ **Completed & Verified** |
-| **17** | [MCard Version History & Restore](./SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md) | History popover on real lineage with labels, preview, and compare; restore by re-registering the historical card | 16 | ✅ **Completed & Verified** |
-| **17B** | [Prominent Draft-to-MCard Save Affordance](./SPRINT-17B-PROMINENT-DRAFT-SAVE-AFFORDANCE.md) | Prominent GUI CTA signaling Draft mode, 1-click MCard commit, and visual transition to Diagram mode | 16, 17 | ✅ **Completed & Verified** |
-| **18** | [Individual Diagram Export](./SPRINT-18-INDIVIDUAL-DIAGRAM-EXPORT.md) | Verbatim TikZ/TeX and rendered SVG/PNG/PDF export of saved or unsaved content from row or active doc | 16 | ✅ **Completed & Verified** |
-| **19** | [Complete MCard Diagram Collection Export](./SPRINT-19-COMPLETE-MCARD-COLLECTION-EXPORT.md) | Verified `.db` of all diagram and metadata handles with full lineage; pinned mcard-studio round-trip | 16, 16B, 17 | ✅ **Completed & Verified** |
-
-16B, 17, and 18 can run in parallel once 16 lands.
-
-**Planning brief:** [Sprints 16–19 proposal](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
+**Architecture & Planning Brief:** [`PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md`](../orchestration/16-19-mcard-diagram-lifecycle-history-and-export/PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
 
 ---
 
