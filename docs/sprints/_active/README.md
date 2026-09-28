@@ -1,6 +1,6 @@
 # Active Sprint Directory (`docs/sprints/_active`)
 
-This directory tracks the active execution of the **Desktop Parity & Media Sharing Series** (Sprints 09–13), designed in collaboration with **Winston (System Architect)** and **Amelia (Senior Software Engineer)**.
+This directory tracks the active execution of the **Desktop Parity & Media Sharing Series** (Sprints 09–14), designed in collaboration with **Winston (System Architect)** and **Amelia (Senior Software Engineer)**.
 
 ---
 
@@ -30,10 +30,11 @@ The core mission of this sprint series is to achieve exact visual, aesthetic, an
 | **Style Ingestion** | `FileDropZone.tsx:49` rejects `.tikzstyles` | Accepts `.tikzstyles`, populates `$stylesCatalog.styleFileName`, refresh support | **11** |
 | **Visual Tests** | 59 functional E2E tests, no reference screenshot assertions | Playwright pixelmatch suite reproducing screenshot geometry across browsers | **12** |
 | **Canvas-Centric Chrome** | Traffic lights in top bar; tools pinned to top-left | Non-functional traffic lights removed; tools centered over canvas; title on left | **13** |
+| **Live Preview Curvature** | Curved edges in canvas collapse to straight lines in TeX Preview | Curvature properties reflected as cubic Bézier splines with node insets | **14** |
 
 ---
 
-## Active Sprint Series (Sprints 09–13)
+## Active Sprint Series (Sprints 09–14)
 
 | Sprint | Document | Focus & Scope | Lead Agents | Status |
 | :---: | :--- | :--- | :---: | :---: |
@@ -42,6 +43,7 @@ The core mission of this sprint series is to achieve exact visual, aesthetic, an
 | **11** | [`SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md`](./SPRINT-11-DESKTOP-STYLE-PALETTE-AND-ACTION-BAR.md) | 4-Icon Action Bar, Category Dropdown, Split Node/Edge 48x48 Swatches & Ingestion | Winston & Amelia | ✅ **Completed & Graduated** |
 | **12** | [`SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md`](./SPRINT-12-VISUAL-REGRESSION-AND-FINAL-PARITY.md) | Reference Screenshot Golden Tests, Cross-Browser Matrix & Master Sign-Off | Winston & Amelia | ✅ **Completed & Graduated** |
 | **13** | [`SPRINT-13-CANVAS-CENTRIC-TOOLBAR-AND-CHROME-REFINEMENT.md`](./SPRINT-13-CANVAS-CENTRIC-TOOLBAR-AND-CHROME-REFINEMENT.md) | Canvas-Centric Tool Placement, Traffic Light Removal & Chrome Refinement | Winston & Amelia | ✅ **Completed & Graduated** |
+| **14** | [`SPRINT-14-LIVE-TEX-PREVIEW-CURVATURE-SYNCHRONIZATION.md`](./SPRINT-14-LIVE-TEX-PREVIEW-CURVATURE-SYNCHRONIZATION.md) | Live TeX Preview Curvature & Edge Geometry Synchronization | Winston & Amelia | 🟢 **Ready for Implementation** |
 
 ---
 
