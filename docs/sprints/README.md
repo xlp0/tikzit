@@ -15,19 +15,24 @@ docs/sprints/
 ├── _active/                                      # Current active sprint working drafts
 ├── orchestration/                                # Master plans & architecture blueprints
 │   ├── 00-master-orchestration/                  # Master Plan & Architecture
-│   └── 16-19-mcard-diagram-lifecycle-history-and-export/ # Sprints 16–19 Proposal & Architecture
+│   ├── 16-19-mcard-diagram-lifecycle-history-and-export/ # Sprints 16–19 Proposal & Architecture
+│   ├── 20-24-algebraic-modularity-clm-and-build-unification/ # Sprints 20–24 Proposal & Architecture
+│   └── 20-dual-system-makefile-and-shared-protocol/ # Unified Makefile & Shared Dual-System Protocol
 ├── corpus/                                       # Reference corpora & sovereign storage
 │   ├── 00-zx-demo-svg-corpus/                    # [COMPLETED] 12 Canonical ZX SVGs & Gallery
 │   ├── 15-mcard-backed-corpus-explorer-and-sovereign-export/  # MCard Explorer & .db Export
 │   ├── 16-diagram-creation-and-mcard-lifecycle/  # Diagram Creation & Unified MCard Lifecycle
 │   ├── 16b-diagram-library-and-session-durability/ # Diagram Library Management & Session Durability
 │   ├── 17-mcard-version-history-and-restore/     # MCard Version History & Restore
-│   └── 19-complete-mcard-collection-export/      # Complete MCard Collection Export
+│   ├── 19-complete-mcard-collection-export/      # Complete MCard Collection Export
+│   └── 23-clm-tri-database-and-service-decoupling/ # TriDatabase Decoupling & Export Extraction
 ├── parser/                                       # TikZ grammar & domain model
-│   └── 01-core-domain-and-ast-parser/            # TypeScript AST Parser & Domain Model
+│   ├── 01-core-domain-and-ast-parser/            # TypeScript AST Parser & Domain Model
+│   └── 24-parser-combinator-and-protocol-conformance/ # Grammar Combinators & Conformance Runner
 ├── shell/                                        # Application shell & service runtime
 │   ├── 02-astro-shell-and-cordis-runtime/        # Astro 7 Shell, Dockview, Cordis & CLM State
-│   └── 17b-prominent-draft-save-affordance/      # Prominent Draft-to-MCard Save Affordance
+│   ├── 17b-prominent-draft-save-affordance/      # Prominent Draft-to-MCard Save Affordance
+│   └── 22-god-component-decomposition-via-baldwin-splitting/ # Baldwin Splitting on UI God Components
 ├── canvas/                                       # Canvas rendering engine & visual fidelity
 │   ├── 03-threejs-webgl-canvas-engine/           # Three.js Canvas & Infinite Grid Shader
 │   └── 10-canvas-visual-parity-and-self-loops/   # Canvas Stage Visual Parity & Teardrop Loops
@@ -42,7 +47,8 @@ docs/sprints/
 │   ├── 14-live-tex-preview-curvature-synchronization/  # Preview Curvature & Geometry Sync
 │   └── 18-individual-diagram-export/             # Multi-Format Individual Diagram Export
 ├── sync/                                         # State synchronization & persistence
-│   └── 07-state-sync-and-mcard-storage/          # Bidirectional Sync & MCard Persistence
+│   ├── 07-state-sync-and-mcard-storage/          # Bidirectional Sync & MCard Persistence
+│   └── 21-process-algebra-and-petri-net-lifecycle/ # Petri Net Lifecycle & CSP Sync Channel
 ├── verification/                                 # Test suites, benchmarks & deployment
 │   ├── 08-verification-and-deployment/           # Playwright E2E, Benchmarks & PWA Deploy
 │   └── 12-visual-regression-and-final-parity/    # Visual Regression Testing & Master Sign-Off
@@ -82,12 +88,12 @@ docs/sprints/
 | **18** | preview | [`preview/18-individual-diagram-export`](./preview/18-individual-diagram-export/) | Individual Diagram Export (TikZ, TeX, SVG, PNG 1x/2x/4x, PDF) & Style Presets | ✅ **Completed** |
 | **19** | corpus | [`corpus/19-complete-mcard-collection-export`](./corpus/19-complete-mcard-collection-export/) | Verified MCard Collection `.db` Export, Complete Lineage Traversal & Pinned Round-Trip | ✅ **Completed** |
 | **16–19** | orchestration | [`orchestration/16-19-mcard-diagram-lifecycle-history-and-export`](./orchestration/16-19-mcard-diagram-lifecycle-history-and-export/) | Architecture Proposal: First-Class MCard Diagrams, History & Export | 🟢 **Graduated Blueprint** |
-| **20–24** | orchestration | [`_active/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION`](./_active/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md) | Architecture Proposal: Algebraic Modularity, CLM & Build Unification | 📋 **In Planning** |
-| **20** | orchestration | [`_active/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL`](./_active/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md) | Authored Root Makefile, Browser Independence & Shared TS/C++ Protocol | 📋 **In Planning** |
-| **21** | sync | [`_active/SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE`](./_active/SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md) | Process Algebra Runtime Decomposition & Petri Net Document Lifecycle | 📋 **In Planning** |
-| **22** | shell | [`_active/SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING`](./_active/SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md) | UI God-Component Decomposition, Baldwin Splitting & Generated Selector Audit | 📋 **In Planning** |
-| **23** | corpus | [`_active/SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING`](./_active/SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING.md) | CLM TriDatabase Service Decoupling, Headless Lineage & Legacy Store Boundary | 📋 **In Planning** |
-| **24** | parser | [`_active/SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE`](./_active/SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE.md) | Parser Combinator Decomposition & TS/C++ Cross-Engine Conformance | 📋 **In Planning** |
+| **20–24** | orchestration | [`orchestration/20-24-algebraic-modularity-clm-and-build-unification`](./orchestration/20-24-algebraic-modularity-clm-and-build-unification/) | Architecture Proposal: Algebraic Modularity, CLM & Build Unification | 🟢 **Graduated Blueprint** |
+| **20** | orchestration | [`orchestration/20-dual-system-makefile-and-shared-protocol`](./orchestration/20-dual-system-makefile-and-shared-protocol/) | Authored Root Makefile, Browser Independence & Shared TS/C++ Protocol | ✅ **Completed** |
+| **21** | sync | [`sync/21-process-algebra-and-petri-net-lifecycle`](./sync/21-process-algebra-and-petri-net-lifecycle/) | Process Algebra Runtime Decomposition & Petri Net Document Lifecycle | ✅ **Completed** |
+| **22** | shell | [`shell/22-god-component-decomposition-via-baldwin-splitting`](./shell/22-god-component-decomposition-via-baldwin-splitting/) | UI God-Component Decomposition, Baldwin Splitting & Generated Selector Audit | ✅ **Completed** |
+| **23** | corpus | [`corpus/23-clm-tri-database-and-service-decoupling`](./corpus/23-clm-tri-database-and-service-decoupling/) | CLM TriDatabase Service Decoupling, Headless Lineage & Legacy Store Boundary | ✅ **Completed** |
+| **24** | parser | [`parser/24-parser-combinator-and-protocol-conformance`](./parser/24-parser-combinator-and-protocol-conformance/) | Parser Combinator Decomposition & TS/C++ Cross-Engine Conformance | ✅ **Completed** |
 
 ---
 

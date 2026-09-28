@@ -5,6 +5,13 @@ All notable changes to the TikZiT project are documented weekly in the [`docs/ch
 ## Latest Entries
 
 - [**2026-W40 (2026-09-28 – 2026-10-04)**](docs/changelog/2026-W40.md):
+  - **Algebraic Modularity, CLM & Build Unification Series (Sprints 20–24 Completed & Graduated)**:
+    - **Sprint 20 (Dual-System Makefile & Shared Protocol)**: Authored root Makefile build authority (`make build-web`, `make test-web`, `make check-independence`), automated browser-independence gate, and shared SQLite/TypeScript protocol specification.
+    - **Sprint 21 (Process Algebra & Petri Net Lifecycle)**: Decomposed `createWorkbenchRuntime.ts` into CSP message channels (`SyncChannel.ts`) and a formal marked Petri Net document lifecycle actor (`DocumentProcess.ts`) with orthogonal dirty-state places.
+    - **Sprint 22 (God Component Decomposition via Baldwin Splitting)**: Decomposed UI God components (`VersionPopover`, `PreviewPanel`, `CorpusExplorerDrawer`, `WorkbenchCommandBar`) into modules strictly $\le 250$ LOC, preserving 100% of the 196 literal testids.
+    - **Sprint 23 (CLM TriDatabase & Service Decoupling)**: Decoupled `corpusExplorerService` and `corpusExportService` into headless storage, lineage, query, and export modules; completed legacy `DocumentStore` zero-new-writes boundary.
+    - **Sprint 24 (Parser Combinator & Protocol Conformance)**: Decomposed recursive-descent parser into pure grammar combinators (`combinators/`) and verified dual-system AST conformance across 12 canonical PQP ZX diagrams.
+    - **Quality & Verification Matrix**: 77 Vitest test files (466 tests 100% green), automated browser independence audit passing 5/5 checks, dual-system ZX AST conformance passing 12/12 diagrams, and 392+ E2E browser tests passing.
   - **Diagram Lifecycle, History & Sovereign Export Series (Sprints 16–19 Completed & Verified)**:
     - **Sprint 16 (Diagram Creation & Unified MCard Lifecycle)**: User diagram creation (`zx:diagrams:UUID`), explicit save to MCard, companion metadata cards (`zx:meta:diagrams:*`), snapshot v2 schema, and carry-over hardening (H1–H8).
     - **Sprint 16B (Diagram Library Management & Session Durability)**: Rename, duplicate, archive/unarchive via metadata-card lineage, dirty-buffer recovery across reloads, and idempotent legacy `DocumentStore` import.

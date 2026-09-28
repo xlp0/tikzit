@@ -1,20 +1,23 @@
 # Active Sprint Directory (`docs/sprints/_active`)
 
-This directory tracks the active engineering series in flight: **The Algebraic Architecture Series (Sprints 20–24)**. Designed in collaboration with **Winston (System Architect)** and **Amelia (Senior Software Engineer)**, this series restructures the TikZiT codebase around the **Cubical Logic Model (CLM)**, **Carliss Baldwin's Six Modularity Operators**, **Process Algebra (CSP/CCS)**, and **Petri Nets**, while establishing an authored root **Makefile** that unifies the native C++ Qt and web TypeScript build and test workflows without coupling browser execution to native binaries.
+> [!NOTE]
+> **Active Series Graduated:** The Algebraic Architecture Series (Sprints 20–24) has successfully completed all 51 Definition of Done checkpoints, passed 466/466 unit tests, and graduated into permanent subsystem archive directories in [`docs/sprints/`](../README.md). There are currently zero open drafts in `_active/`.
+
+This directory tracks the active engineering series in flight. Designed in collaboration with **Winston (System Architect)** and **Amelia (Senior Software Engineer)**, this series restructures the TikZiT codebase around the **Cubical Logic Model (CLM)**, **Carliss Baldwin's Six Modularity Operators**, **Process Algebra (CSP/CCS)**, and **Petri Nets**, while establishing an authored root **Makefile** that unifies the native C++ Qt and web TypeScript build and test workflows without coupling browser execution to native binaries.
 
 ---
 
-## 1. Active Series Roadmap: Algebraic Modularity & Build Unification (Sprints 20–24)
+## 1. Graduated Series Roadmap: Algebraic Modularity & Build Unification (Sprints 20–24)
 
-| Sprint | Subsystem | Document | Focus & Scope | Lead Agents | Status |
+| Sprint | Subsystem | Graduated Specification | Focus & Scope | Lead Agents | Status |
 | :---: | :--- | :--- | :--- | :---: | :---: |
-| **20** | `orchestration` / `build` | [`SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md`](./SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md) | Authored root `Makefile` driving CMake & npm; browser independence gate; shared protocol spec. | Winston & Amelia | ✅ **Completed** (`990b893`) |
-| **21** | `shell` / `sync` | [`SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md`](./SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md) | Petri Net document state machine; CSP communication channels; decompose `createWorkbenchRuntime.ts` (1,100 $\to 320$ LOC). | Winston & Amelia | ✅ **Completed** (`7705278`) |
-| **22** | `interactions` / `styles` | [`SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md`](./SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md) | Baldwin Splitting on UI God components (`VersionPopover` 188 LOC, `PreviewPanel` 140 LOC, `CorpusExplorerDrawer` 189 LOC, `WorkbenchCommandBar` 207 LOC) $\le 250$ LOC. | Winston & Amelia | ✅ **Completed** (`9462fae`) |
-| **23** | `corpus` / `storage` | [`SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING.md`](./SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING.md) | Prune legacy `DocumentStore` shadow state; decompose `corpusExplorerService.ts` (204 LOC) & `corpusExportService.ts` (155 LOC) into CLM MVP Card actors. | Winston & Amelia | ✅ **Completed** (`6a61da9`) |
-| **24** | `parser` / `protocol-conformance` | [`SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE.md`](./SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE.md) | Modular combinator decomposition for `parser.ts` (494 $\to 150$ LOC); automated dual-system conformance verification across 12 canonical ZX diagrams. | Winston & Amelia | ✅ **Completed** (`143affe`) |
+| **20** | `orchestration` / `build` | [`orchestration/20-dual-system-makefile-and-shared-protocol`](../orchestration/20-dual-system-makefile-and-shared-protocol/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md) | Authored root `Makefile` driving CMake & npm; browser independence gate; shared protocol spec. | Winston & Amelia | ✅ **Completed (Graduated)** (`990b893`) |
+| **21** | `sync` | [`sync/21-process-algebra-and-petri-net-lifecycle`](../sync/21-process-algebra-and-petri-net-lifecycle/SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md) | Petri Net document state machine; CSP communication channels; decompose `createWorkbenchRuntime.ts` (1,100 $\to 320$ LOC). | Winston & Amelia | ✅ **Completed (Graduated)** (`7705278`) |
+| **22** | `shell` | [`shell/22-god-component-decomposition-via-baldwin-splitting`](../shell/22-god-component-decomposition-via-baldwin-splitting/SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md) | Baldwin Splitting on UI God components (`VersionPopover` 188 LOC, `PreviewPanel` 140 LOC, `CorpusExplorerDrawer` 189 LOC, `WorkbenchCommandBar` 207 LOC) $\le 250$ LOC. | Winston & Amelia | ✅ **Completed (Graduated)** (`9462fae`) |
+| **23** | `corpus` | [`corpus/23-clm-tri-database-and-service-decoupling`](../corpus/23-clm-tri-database-and-service-decoupling/SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING.md) | Prune legacy `DocumentStore` shadow state; decompose `corpusExplorerService.ts` (204 LOC) & `corpusExportService.ts` (155 LOC) into CLM MVP Card actors. | Winston & Amelia | ✅ **Completed (Graduated)** (`6a61da9`) |
+| **24** | `parser` | [`parser/24-parser-combinator-and-protocol-conformance`](../parser/24-parser-combinator-and-protocol-conformance/SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE.md) | Modular combinator decomposition for `parser.ts` (494 $\to 150$ LOC); automated dual-system conformance verification across 12 canonical ZX diagrams. | Winston & Amelia | ✅ **Completed (Graduated)** (`143affe`) |
 
-**Master Architecture Proposal:** [`PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md`](./PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
+**Master Architecture Proposal:** [`orchestration/20-24-algebraic-modularity-clm-and-build-unification`](../orchestration/20-24-algebraic-modularity-clm-and-build-unification/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
 
 ---
 
