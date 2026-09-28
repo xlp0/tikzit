@@ -1,3 +1,4 @@
+import { MacWindowChrome } from './MacWindowChrome';
 import { FileDropZone } from '../workspace/FileDropZone';
 import { VersionPopover } from './panels/VersionPopover';
 import { defaultTransactionManager } from '../../core/history/TransactionManager';
@@ -284,231 +285,42 @@ export const TikzitSpatialWorkbench: React.FC<TikzitSpatialWorkbenchProps> = ({ 
       data-testid="workbench-root"
     >
       {/* Top Header / Command Bar */}
-      <header className="h-10 bg-[#161922] border-b border-[#2e3446] px-3 flex items-center justify-between z-10 select-none">
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1.5 font-bold tracking-tight text-white text-sm">
-            <span className="w-4 h-4 rounded bg-gradient-to-tr from-emerald-500 to-blue-500 flex items-center justify-center text-[10px]">T</span>
-            <span>TikZiT <span className="text-blue-400 font-normal">Web</span></span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <span
-              data-testid="doc-tab-title"
-              className="text-xs px-2 py-0.5 rounded bg-[#222634] text-slate-200 border border-[#2e3446] font-medium flex items-center space-x-1"
-            >
-              <span>{workspaceState.openDocs.find((d: any) => d.id === workspaceState.activeDocId)?.title || activeDiagram.name}</span>
-              {(historyState.isDirty || workspaceState.openDocs.find((d: any) => d.id === workspaceState.activeDocId)?.isDirty) && (
-                <span className="text-amber-400 font-bold ml-1">*</span>
-              )}
-            </span>
-            <button
-              onClick={() => defaultWorkspaceManager.createNewDocument('New Diagram.tikz')}
-              data-testid="btn-new-diagram"
-              className="text-xs px-1.5 py-0.5 rounded bg-[#222634] hover:bg-[#2e3446] text-slate-300 hover:text-white border border-[#2e3446] transition-colors"
-              title="Create new diagram tab"
-            >
-              +
-            </button>
-          </div>
-        </div>
-
-        {/* Desktop Tool Palette */}
-        <div className="flex items-center bg-[#1f2330] rounded p-0.5 border border-[#2e3446] space-x-0.5" role="toolbar" aria-label="Tool Palette">
-          <button
-            onClick={() => setTool('select')}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-              activeTool === 'select'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-[#282d3e]'
-            }`}
-            title="Select Tool (S)"
-            data-tool="select"
-            data-active={activeTool === 'select' ? 'true' : 'false'}
-            data-testid="tool-select"
-          >
-            Select <span className="opacity-60 text-[10px] ml-0.5">(S)</span>
-          </button>
-          <button
-            onClick={() => setTool('vertex')}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-              activeTool === 'vertex'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-[#282d3e]'
-            }`}
-            title="Vertex Tool (V / N)"
-            data-tool="vertex"
-            data-active={activeTool === 'vertex' ? 'true' : 'false'}
-            data-testid="tool-vertex"
-          >
-            Vertex <span className="opacity-60 text-[10px] ml-0.5">(V)</span>
-          </button>
-          <button
-            onClick={() => setTool('edge')}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-              activeTool === 'edge'
-                ? 'bg-rose-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-[#282d3e]'
-            }`}
-            title="Edge Tool (E)"
-            data-tool="edge"
-            data-active={activeTool === 'edge' ? 'true' : 'false'}
-            data-testid="tool-edge"
-          >
-            Edge <span className="opacity-60 text-[10px] ml-0.5">(E)</span>
-          </button>
-          <button
-            onClick={() => setTool('bbox')}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-              activeTool === 'bbox'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-[#282d3e]'
-            }`}
-            title="Bounding Box Tool (B)"
-            data-tool="bbox"
-            data-active={activeTool === 'bbox' ? 'true' : 'false'}
-            data-testid="tool-bbox"
-          >
-            BBox <span className="opacity-60 text-[10px] ml-0.5">(B)</span>
-          </button>
-        </div>
-
-        {/* Global Actions */}
-        <div className="flex items-center space-x-2">
-          {/* Undo / Redo */}
-          <div className="flex items-center bg-[#1f2330] rounded p-0.5 border border-[#2e3446] space-x-0.5">
-            <button
-              onClick={() => defaultTransactionManager.undo()}
-              disabled={!historyState.canUndo}
-              data-testid="btn-toolbar-undo"
-              title="Undo (Cmd+Z)"
-              className={`px-2 py-1 rounded text-xs transition-colors ${
-                historyState.canUndo
-                  ? 'text-slate-200 hover:bg-[#282d3e]'
-                  : 'text-slate-600 cursor-not-allowed'
-              }`}
-            >
-              ↶ Undo
-            </button>
-            <button
-              onClick={() => defaultTransactionManager.redo()}
-              disabled={!historyState.canRedo}
-              data-testid="btn-toolbar-redo"
-              title="Redo (Cmd+Shift+Z)"
-              className={`px-2 py-1 rounded text-xs transition-colors ${
-                historyState.canRedo
-                  ? 'text-slate-200 hover:bg-[#282d3e]'
-                  : 'text-slate-600 cursor-not-allowed'
-              }`}
-            >
-              ↷ Redo
-            </button>
-          </div>
-
-          {/* Version History Popover Toggle */}
-          <div className="relative">
-            <button
-              onClick={() => setShowVersionPopover(!showVersionPopover)}
-              data-testid="btn-version-history"
-              className="text-xs text-slate-300 hover:text-white px-2 py-1 rounded bg-[#222634] hover:bg-[#2e3446] border border-[#2e3446] transition-colors flex items-center space-x-1"
-              title="Version History & MCard Lineage"
-            >
-              <span>🕒 History</span>
-            </button>
-            {showVersionPopover && (
-              <VersionPopover
-                documentId={workspaceState.activeDocId}
-                onClose={() => setShowVersionPopover(false)}
-              />
-            )}
-          </div>
-          {/* Tab Actions Menu */}
-          <div className="relative">
-            <button
-              onClick={() => toggleTabsMenu()}
-              className="text-xs text-slate-300 hover:text-white px-2 py-1 rounded bg-[#222634] hover:bg-[#2e3446] border border-[#2e3446] transition-colors"
-              title="More Editor Tab Actions"
-              data-testid="editor-tabs-more-actions-btn"
-            >
-              ⋯
-            </button>
-            {tabsMenuOpen && (
-              <div
-                className="absolute right-0 top-full mt-1 bg-[#1e222d] border border-[#2e3446] shadow-xl rounded py-1 z-50 text-xs text-slate-200 min-w-[120px]"
-                data-testid="tabs-more-actions-dropdown"
-              >
-                <button
-                  onClick={() => {
-                    handleCloseOthers();
-                    setTabsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-[#282d3e] hover:text-white transition-colors"
-                  data-testid="tabs-close-others-btn"
-                >
-                  Close Others
-                </button>
-                <button
-                  onClick={() => {
-                    handleCloseAll();
-                    setTabsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-[#282d3e] hover:text-white transition-colors"
-                  data-testid="tabs-close-all-btn"
-                >
-                  Close All
-                </button>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={handleResetLayout}
-            className="text-xs text-slate-300 hover:text-white px-2 py-1 rounded bg-[#222634] hover:bg-[#2e3446] border border-[#2e3446] transition-colors"
-            title="Reset to default 4-panel layout"
-            data-testid="btn-reset-layout"
-          >
-            Reset Layout
-          </button>
-
-          {/* Theme Selector Button & Menu */}
-          <div className="relative">
-            <button
-              id="theme-selector-btn"
-              data-testid="btn-theme-toggle"
-              onClick={() => {
-                toggleThemeMenu();
-                toggleTheme();
-              }}
-              className="text-xs text-slate-300 hover:text-white px-2 py-1 rounded bg-[#222634] hover:bg-[#2e3446] border border-[#2e3446] transition-colors"
-              title="Toggle or Select Dark/Light Theme"
-            >
-              {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
-            </button>
-            {themeMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-[#1e222d] border border-[#2e3446] shadow-xl rounded py-1 z-50 text-xs text-slate-200 min-w-[110px]">
-                <button
-                  data-theme="dark"
-                  onClick={() => {
-                    setTheme('dark');
-                    setThemeMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-[#282d3e] hover:text-white transition-colors"
-                >
-                  🌙 Dark
-                </button>
-                <button
-                  data-theme="light"
-                  onClick={() => {
-                    setTheme('light');
-                    setThemeMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-[#282d3e] hover:text-white transition-colors"
-                >
-                  ☀️ Light
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* macOS Window Chrome & Tool Palette */}
+      <MacWindowChrome
+        documentTitle={workspaceState.openDocs.find((d: any) => d.id === workspaceState.activeDocId)?.title || activeDiagram.name}
+        isDirty={historyState.isDirty || !!workspaceState.openDocs.find((d: any) => d.id === workspaceState.activeDocId)?.isDirty}
+        activeTool={activeTool}
+        onSelectTool={setTool}
+        canUndo={historyState.canUndo}
+        canRedo={historyState.canRedo}
+        onUndo={() => defaultTransactionManager.undo()}
+        onRedo={() => defaultTransactionManager.redo()}
+        showVersionPopover={showVersionPopover}
+        onToggleVersionPopover={() => setShowVersionPopover(!showVersionPopover)}
+        activeDocId={workspaceState.activeDocId}
+        tabsMenuOpen={tabsMenuOpen}
+        onToggleTabsMenu={toggleTabsMenu}
+        onCloseOthers={() => {
+          handleCloseOthers();
+          setTabsMenuOpen(false);
+        }}
+        onCloseAll={() => {
+          handleCloseAll();
+          setTabsMenuOpen(false);
+        }}
+        onResetLayout={handleResetLayout}
+        theme={theme}
+        themeMenuOpen={themeMenuOpen}
+        onToggleThemeMenu={() => {
+          toggleThemeMenu();
+          toggleTheme();
+        }}
+        onSetTheme={(t) => {
+          setTheme(t);
+          setThemeMenuOpen(false);
+        }}
+        onNewDiagram={() => defaultWorkspaceManager.createNewDocument('New Diagram.tikz')}
+      />
 
       {/* Main Workspace with Left Activity Bar, Collapsible Drawer, & Center Dockview */}
       <div className="flex-1 flex overflow-hidden">

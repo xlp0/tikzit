@@ -14,7 +14,9 @@
     "test:native": "./build-test/UnitTests.app/Contents/MacOS/UnitTests",
     "build:corpus": "python3 docs/examples/build_examples.py",
     "verify:corpus": "python3 docs/examples/build_examples.py --verify-only",
-    "bench": "vitest run tests/perf/benchmark.test.ts"
+    "bench": "vitest run tests/perf/benchmark.test.ts",
+    "predev": "node scripts/sync-desktop-icons.mjs",
+    "prebuild": "node scripts/sync-desktop-icons.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
