@@ -136,11 +136,8 @@ const TikzitSpatialWorkbenchReady: React.FC<{ runtime: WorkbenchRuntime; ownsRun
     });
   };
 
-  // Initialize Theme from localStorage and dispose local runtime on unmount
+  // Dispose local runtime on unmount
   useEffect(() => {
-    // Initialize default diagram if empty
-// Clean empty initial state
-
     return () => {
       if (ownsRuntime) void runtime.disposeAsync().catch(() => undefined);
     };
@@ -252,7 +249,7 @@ export const TikzitSpatialWorkbench: React.FC<TikzitSpatialWorkbenchProps> = ({ 
         <button type="button" onClick={() => setRetryCount((count) => count + 1)} className="px-3 py-1 rounded bg-blue-600">
           Retry startup
         </button>
-        {!temporarySession && /snapshot|sqlite|mcard|schema|database/i.test(startupError) && (
+        {!temporarySession && /snapshot|sqlite|indexeddb|storage|quota|blocked|mcard|schema|database/i.test(startupError) && (
           <button
             type="button"
             data-testid="temporary-session-btn"

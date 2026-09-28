@@ -28,7 +28,6 @@ async function setup() {
   const exporter = new CorpusExportService({
     triDb: runtime.triDb,
     collection: runtime.mcardCollection,
-    mcardFs: runtime.mcardFs,
     authorDid: runtime.authorDid,
     getIndex: () => runtime.corpusExplorer.getCorpusIndex(),
     getHistoryRows: () => historyRows,
@@ -53,6 +52,44 @@ describe('CorpusExportService', () => {
     expect(parsed.history).toHaveLength(1);
     expect(parsed.history[0].previous_hash ?? parsed.history[0].hash).toBe(firstHash);
     expect(parsed.history[0].previous_hash ?? parsed.history[0].hash).not.toBe(parsed.handles[0].hash);
+    runtime.dispose();
+  });
+
+  it('exports a reverted lineage head without fabricating self-history rows', async () => {
+    const { runtime } = await setup();
+    const handle = 'zx:examples:portable_sample';
+    const hashA = runtime.mcardCollection.resolveHandle(handle)!;
+    const cardA = runtime.mcardCollection.get(hashA)!;
+    await runtime.corpusExplorer.commitCorpusDocument({ handle, sourceText: `${source}% revision B\n` });
+    const hashB = runtime.mcardCollection.resolveHandle(handle)!;
+    expect(hashB.asHex()).not.toBe(hashA.asHex());
+
+    // Revert the handle to the earlier revision card (A -> B -> A).
+    runtime.mcardCollection.putWithHandle(cardA, handle);
+    runtime.corpusExplorer.restoreIndex([{ handle, hash: hashA.asHex(), committedAt: Date.now() }]);
+    expect(runtime.mcardCollection.resolveHandle(handle)!.asHex()).toBe(hashA.asHex());
+
+    // No getHistoryRows: exercises the lineage-reconstruction fallback.
+    const exporter = new CorpusExportService({
+      triDb: runtime.triDb,
+      collection: runtime.mcardCollection,
+      authorDid: runtime.authorDid,
+      getIndex: () => runtime.corpusExplorer.getCorpusIndex(),
+      flush: () => runtime.corpusExplorer.flush(),
+    });
+    const parsed = await parsePortableSqlite(await exporter.exportCorpusDb());
+    expect(parsed.handles[0].hash).toBe(hashA.asHex());
+    expect(parsed.cards).toHaveLength(2);
+    const cardHashes = new Set(parsed.cards.map((card: any) => card.hash));
+    expect(cardHashes.has(hashA.asHex())).toBe(true);
+    expect(cardHashes.has(hashB.asHex())).toBe(true);
+    // Genuine history for A -> B -> A: rows record superseded heads [A, B].
+    // The head may appear in earlier rows, but the transition INTO the current
+    // head (the last row) must not list the head as its own predecessor.
+    expect(parsed.history).toHaveLength(2);
+    const historyHashes = parsed.history.map((row: any) => row.previous_hash ?? row.hash);
+    expect(historyHashes).toEqual([hashA.asHex(), hashB.asHex()]);
+    expect(historyHashes.at(-1)).not.toBe(hashA.asHex());
     runtime.dispose();
   });
 

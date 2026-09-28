@@ -73,6 +73,7 @@ export function createKeybindingDispatcher(
         if (ctx.command.has('cmd:view:panel')) ctx.command.execute('cmd:view:panel');
         return;
       }
+      return;
     }
 
     // Single-key tool selection shortcuts matching desktop TikZiT

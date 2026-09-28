@@ -141,11 +141,13 @@ export class WorkspaceManager {
     this.notify();
   }
 
-  public markCommitted(id: string, hash: string, sequence: number): void {
+  public markCommitted(id: string, hash: string, sequence: number, ast?: GraphAST): void {
     const doc = this.openDocs.get(id);
     if (!doc) return;
     doc.hash = hash;
     doc.version = sequence + 1;
+    if (ast) doc.ast = ast;
+    doc.updatedAt = Date.now();
     doc.isDirty = false;
     this.notify();
   }

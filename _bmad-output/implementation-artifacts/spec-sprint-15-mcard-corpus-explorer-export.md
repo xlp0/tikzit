@@ -2,11 +2,11 @@
 title: 'Sprint 15 — MCard-backed Corpus Explorer & Sovereign Export'
 type: 'feature'
 created: '2026-09-28'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 baseline_commit: '9e4d8af9281f299168e63bff9ea2354a84872dc8'
-review_loop_iteration: 0
-context: ['docs/sprints/_active/SPRINT-15-MCARD-BACKED-CORPUS-EXPLORER-AND-SOVEREIGN-EXPORT.md']
+review_loop_iteration: 1
+context: ['docs/sprints/corpus/15-mcard-backed-corpus-explorer-and-sovereign-export/SPRINT-15-MCARD-BACKED-CORPUS-EXPLORER-AND-SOVEREIGN-EXPORT.md']
 ---
 
 <frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
@@ -77,17 +77,17 @@ context: ['docs/sprints/_active/SPRINT-15-MCARD-BACKED-CORPUS-EXPLORER-AND-SOVER
 
 **Execution:**
 
-- [ ] `package.json` — add `sql.js` + `@types/sql.js` (pinned, ≥7-day-old version) — required for browser WASM SQLite.
-- [ ] `tests/unit/clm/*` + `e2e/sprint-15/*` — write failing tests for CEX-01…CEX-21 first — sprint contract.
-- [ ] `src/services/clm/sqliteRuntime.ts` (new) — sql.js init, three-pillar backend factory, IndexedDB hydrate/flush (`tikzit_corpus_db`, versioned, atomic writes, corruption/unsupported-version recovery, non-persistent observable fallback) — CEX-12…15.
-- [ ] `src/services/clm/corpusExplorerService.ts` (new) — manifest fetch/verify, `zx:examples:{id}` seeding, `{handle,hash,committedAt}` index, `listCorpusEntries`/`searchCorpus`/`openEntry`, corpus-bound save orchestration — CEX-01…09.
-- [ ] `src/services/clm/triDbAdapter.ts` — injectable backends variant — async init support.
-- [ ] `src/services/createWorkbenchRuntime.ts` + `TikzitSpatialWorkbench.tsx` — async bootstrap, ready/error state, `disposeAsync`, SSR-safe — CEX-21.
-- [ ] `src/components/workbench/…` Explorer drawer — controlled debounced search `[data-testid="corpus-search-input"]`, rows `[data-testid="corpus-entry-{handle}"]`, loading/empty/error/active states — CEX-05…07.
-- [ ] `WorkspaceManager.ts` + `SourcePanel.tsx` + `keybindings.ts` — `markCommitted`, exact-source activation, corpus-bound save routing — CEX-08.
-- [ ] `TikzitSpatialWorkbench.tsx` status bar — real CID `[data-testid="status-cid"]` — CEX-10.
-- [ ] `src/services/clm/corpusExport.ts` (new) + save button `[data-testid="corpus-save-btn"]` — verified isolated export, FS-Access/Blob save, receipts — CEX-16…18.
-- [ ] `mcard-studio/src/services/databaseSyncService.ts` + `tests/clm-studio/unit/services/mcard_database_import_integrity.test.ts` — preserve original `MCard.fromJSON` identity, verify recomputed hash before handle registration, and round-trip full histories — CEX-19 (perform GitNexus impact analysis in mcard-studio before edits).
+- [x] `package.json` — add `sql.js` + `@types/sql.js` (pinned, ≥7-day-old version) — required for browser WASM SQLite.
+- [x] `tests/unit/clm/*` + `e2e/sprint-15/*` — write failing tests for CEX-01…CEX-21 first — sprint contract.
+- [x] `src/services/clm/sqliteRuntime.ts` (new) — sql.js init, three-pillar backend factory, IndexedDB hydrate/flush (`tikzit_corpus_db`, versioned, atomic writes, corruption/unsupported-version recovery, non-persistent observable fallback) — CEX-12…15.
+- [x] `src/services/clm/corpusExplorerService.ts` (new) — manifest fetch/verify, `zx:examples:{id}` seeding, `{handle,hash,committedAt}` index, `listCorpusEntries`/`searchCorpus`/`openEntry`, corpus-bound save orchestration — CEX-01…09.
+- [x] `src/services/clm/triDbAdapter.ts` — injectable backends variant — async init support.
+- [x] `src/services/createWorkbenchRuntime.ts` + `TikzitSpatialWorkbench.tsx` — async bootstrap, ready/error state, `disposeAsync`, SSR-safe — CEX-21.
+- [x] `src/components/workbench/…` Explorer drawer — controlled debounced search `[data-testid="corpus-search-input"]`, rows `[data-testid="corpus-entry-{handle}"]`, loading/empty/error/active states — CEX-05…07.
+- [x] `WorkspaceManager.ts` + `SourcePanel.tsx` + `keybindings.ts` — `markCommitted`, exact-source activation, corpus-bound save routing — CEX-08.
+- [x] `TikzitSpatialWorkbench.tsx` status bar — real CID `[data-testid="status-cid"]` — CEX-10.
+- [x] `src/services/clm/corpusExport.ts` (new) + save button `[data-testid="corpus-save-btn"]` — verified isolated export, FS-Access/Blob save, receipts — CEX-16…18.
+- [x] `mcard-studio/src/services/databaseSyncService.ts` + `tests/clm-studio/unit/services/mcard_database_import_integrity.test.ts` — preserve original `MCard.fromJSON` identity, verify recomputed hash before handle registration, and round-trip full histories — CEX-19 (perform GitNexus impact analysis in mcard-studio before edits).
 
 **Acceptance Criteria:**
 
@@ -98,9 +98,13 @@ context: ['docs/sprints/_active/SPRINT-15-MCARD-BACKED-CORPUS-EXPLORER-AND-SOVER
 
 ## Implementation Notes
 
+Post-review fixes landed: sql.js rejected-init cache reset (retry-safe); export made best-effort on non-persistent flush; revert-safe history validation (last row only must not equal head); `meta+s` no longer falls through to `setTool('select')`; SourcePanel stale-debounce and same-id echo suppression via `doc.ast === graph` reference check; `commitCorpusDocument` rejects non-`zx:examples:` handles; stale index rows repaired to resolved head on reseed; ConsolePanel bound to live `$documentHead`; non-corpus activation clears `$documentHead`/`$activeDiagram`; `saveActiveCorpusEntry` marks dirty-but-unchanged saves clean; `browserDownload` mounts the anchor and revokes after 1 s; `build_examples.py` mirrors `.tikz`/`.svg` assets into `public/` when it isn't a symlink; temp-session regex broadened to IndexedDB/storage/blocked errors.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+Three parallel layers (edge-case, blind-hunter, verification-gap) reviewed the 201 kB diff. Converged findings verified and patched: rejected-WASM retry dead-end, export abort in non-persistent sessions, revert-lineage (A→B→A) export abort, `meta+s` clobbering the active tool, stale debounced parse stomping a newly opened doc, same-id reopen normalizing exact source, fabricated `ConsolePanel` CID, sticky drawer error state, unhandled `saveActiveCorpusEntry` rejection, dirty no-op save left dirty, Blob fallback anchor/URL lifecycle, missing activation/edge-count/gate-bail E2E assertions, runtime-isolation regression coverage. Deferred/out-of-scope: VersionPopover lineage wiring (documented follow-up — corpus history surfaced via `documentCommit.getDocumentHistory`).
 
 ## Design Notes
 

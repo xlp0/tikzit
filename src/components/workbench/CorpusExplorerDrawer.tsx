@@ -15,6 +15,7 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({ runt
   const corpusView = useStore(runtime.stores.$corpusView);
   const [debouncedQuery, setDebouncedQuery] = useState(corpusQuery);
   const [exportNotice, setExportNotice] = useState('');
+  const [openError, setOpenError] = useState('');
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setDebouncedQuery(corpusQuery), 100);
@@ -58,6 +59,7 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({ runt
         </div>
       </div>
       {exportNotice && <div role="status" className="px-2 py-1 text-[10px] text-slate-400">{exportNotice}</div>}
+      {openError && <div role="alert" className="px-2 py-1 text-[10px] text-amber-300">{openError}</div>}
       <div className="p-2 border-b border-[#2e3446]">
         <input
           data-testid="corpus-search-input"
@@ -100,13 +102,9 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({ runt
             onClick={() => {
               try {
                 runtime.openCorpusEntry(entry.handle);
+                setOpenError('');
               } catch (error) {
-                const current = runtime.stores.$corpusView.get();
-                runtime.stores.$corpusView.set({
-                  ...current,
-                  status: 'error',
-                  persistenceError: error instanceof Error ? error.message : String(error),
-                });
+                setOpenError(error instanceof Error ? error.message : String(error));
               }
             }}
             className={`w-full text-left px-2 py-1 rounded flex items-center space-x-1.5 ${

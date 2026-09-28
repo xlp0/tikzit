@@ -44,6 +44,8 @@ export interface CorpusSeedResult {
   failed: number;
   complete: boolean;
   failures: CorpusIndexIssue[];
+  /** Persistence-layer warning (e.g. temporary session without IndexedDB). */
+  persistenceError?: string;
 }
 
 export interface CorpusCommitResult extends CommitDocumentResult {
@@ -105,6 +107,18 @@ export class CorpusExplorerService extends Service {
   private readonly baseUrl: string;
   private index: CorpusIndexRecord[];
   private issues: CorpusIndexIssue[] = [];
+  // Cards are content-addressed and immutable, so parse results keyed by hash never stale.
+  private readonly parseCache = new Map<string, { ast: GraphAST; nodeCount: number; edgeCount: number }>();
+
+  private parseCard(hashHex: string, source: string): { ast: GraphAST; nodeCount: number; edgeCount: number } | null {
+    const cached = this.parseCache.get(hashHex);
+    if (cached) return cached;
+    const parsed = safeParse(source);
+    if (!parsed.success || !parsed.ast) return null;
+    const result = { ast: parsed.ast, nodeCount: parsed.ast.nodes.length, edgeCount: parsed.ast.edges.length };
+    this.parseCache.set(hashHex, result);
+    return result;
+  }
 
   constructor(ctx: Context, options: CorpusExplorerOptions) {
     super(ctx, 'corpusExplorer');
@@ -152,8 +166,8 @@ export class CorpusExplorerService extends Service {
         issues.push({ handle: row.handle, reason: 'Corpus card is missing or is not text' });
         continue;
       }
-      const parsed = safeParse(card.payload.value);
-      if (!parsed.success || !parsed.ast) {
+      const parsed = this.parseCard(currentHash.asHex(), card.payload.value);
+      if (!parsed) {
         issues.push({ handle: row.handle, reason: 'Corpus card source no longer parses' });
         continue;
       }
@@ -164,8 +178,8 @@ export class CorpusExplorerService extends Service {
         hash: currentHash.asHex(),
         name: `${id}.tikz`,
         title: manifestEntry?.title ?? id,
-        nodeCount: parsed.ast.nodes.length,
-        edgeCount: parsed.ast.edges.length,
+        nodeCount: parsed.nodeCount,
+        edgeCount: parsed.edgeCount,
         updatedAt: Number.isFinite(row.committedAt) ? row.committedAt : 0,
       });
     }
@@ -200,8 +214,8 @@ export class CorpusExplorerService extends Service {
     if (!hash || hash.asHex() !== row.hash.toLowerCase()) throw new Error(`Corpus entry is stale: ${handle}`);
     const card = this.collection.get(hash);
     if (!card || card.payload.kind !== 'text') throw new Error(`Corpus entry is not a TikZ text card: ${handle}`);
-    const parsed = safeParse(card.payload.value);
-    if (!parsed.success || !parsed.ast) throw new Error(`Corpus entry failed parsing: ${handle}`);
+    const parsed = this.parseCard(hash.asHex(), card.payload.value);
+    if (!parsed) throw new Error(`Corpus entry failed parsing: ${handle}`);
     const entry = this.listCorpusEntries().entries.find((candidate) => candidate.handle === handle);
     if (!entry) throw new Error(`Corpus entry failed index validation: ${handle}`);
     return { entry, source: card.payload.value, ast: parsed.ast, sequence: card.sequence };
@@ -221,7 +235,11 @@ export class CorpusExplorerService extends Service {
           if (!card || card.payload.kind !== 'text' || !safeParse(card.payload.value).success) {
             throw new Error('Existing corpus head is not a valid TikZ card');
           }
-          if (!this.index.some((row) => row.handle === handle)) {
+          const row = this.index.find((record) => record.handle === handle);
+          if (row) {
+            // Rebuild stale app-owned index rows so a valid resolved head is not reported missing.
+            row.hash = existingHash.asHex();
+          } else {
             this.index.push({ handle, hash: existingHash.asHex(), committedAt: Date.now() });
           }
           continue;
@@ -244,17 +262,18 @@ export class CorpusExplorerService extends Service {
     }
 
     let committed = 0;
+    let persistenceError: string | undefined;
     for (const item of prepared) {
       const result = await this.commitCorpusDocument({ handle: item.handle, sourceText: item.source, uri: `tikzit://diagram/${item.manifest.id}`, activate: false });
       if (result.success) committed++;
       else failures.push({ handle: item.handle, reason: result.reason ?? 'Commit gate bailed' });
-      if (!result.persisted) failures.push({ handle: item.handle, reason: `Committed, not persisted: ${result.persistenceError ?? 'storage unavailable'}` });
+      if (!result.persisted) persistenceError = result.persistenceError ?? 'storage unavailable';
     }
     if (prepared.length === 0 && this.index.length !== initialIndexSize) {
       try {
         await this.persistence.flush();
       } catch (error) {
-        failures.push({ handle: 'zx:examples', reason: error instanceof Error ? error.message : String(error) });
+        persistenceError = error instanceof Error ? error.message : String(error);
       }
     }
     return {
@@ -262,10 +281,14 @@ export class CorpusExplorerService extends Service {
       failed: failures.length,
       complete: failures.length === 0 && this.manifest.every((entry) => Boolean(this.collection.resolveHandle(`zx:examples:${entry.id}`))),
       failures,
+      persistenceError,
     };
   }
 
   async commitCorpusDocument(options: { handle: string; sourceText: string; uri?: string; activate?: boolean }): Promise<CorpusCommitResult> {
+    if (!options.handle.startsWith('zx:examples:')) {
+      return { success: false, reason: `Not a corpus handle: ${options.handle}`, persisted: false, receiptHash: '' };
+    }
     const currentHash = this.collection.resolveHandle(options.handle);
     const currentCard = currentHash ? this.collection.get(currentHash) : undefined;
     if (currentHash && currentCard?.payload.kind === 'text' && currentCard.payload.value === options.sourceText) {

@@ -17,9 +17,15 @@ test('searches, opens exact source, gates save, and restores the committed head 
   await expect(page.locator('[data-testid^="corpus-entry-zx:examples:"]')).toHaveCount(1);
   await row.click();
 
+  // Activation projects the opened head: current row + real CID, no fabricated text.
+  await expect(row).toHaveAttribute('aria-current', 'page');
+  const statusCid = page.getByTestId('status-cid');
+  await expect(statusCid).toHaveText(/CID: blake3:[0-9a-f]{11}…/);
+  await expect(statusCid).toHaveAttribute('title', /^blake3:[0-9a-f]{64}$/);
+
   const source = page.getByTestId('tikz-source-editor');
   const original = await source.inputValue();
-  const initialCid = await page.getByTestId('status-cid').textContent();
+  const initialCid = await statusCid.textContent();
   expect(original).toContain('\\node [style=X dot]');
   await source.fill(`${original}% Sprint 15 persisted edit\n`);
   await page.keyboard.press('Control+s');
@@ -58,6 +64,7 @@ test('replaces canvas geometry when switching between corpus entries', async ({ 
   });
   const first = await snapshot();
   expect(first.renderedNodes).toBe(first.astNodeIds.length);
+  expect(first.renderedEdges).toBe(first.edgeCount);
 
   await page.getByTestId(`corpus-entry-${bialgebraHandle}`).click();
   await page.waitForFunction(() => {
@@ -66,6 +73,7 @@ test('replaces canvas geometry when switching between corpus entries', async ({ 
   });
   const second = await snapshot();
   expect(second.renderedNodes).toBe(second.astNodeIds.length);
+  expect(second.renderedEdges).toBe(second.edgeCount);
   expect(second.astNodeIds.length).toBeGreaterThan(0);
 
   const staleIds = await page.evaluate((previousIds: string[]) => {
@@ -87,6 +95,35 @@ test('keeps a dirty corpus buffer when opening a different entry', async ({ page
   await expect(source).toHaveValue(dirtyText);
 });
 
+test('keeps the prior head, dirty flag, and bail receipt when a corpus save is gated', async ({ page }) => {
+  await ready(page);
+  await page.getByTestId(`corpus-entry-${spiderHandle}`).click();
+  const source = page.getByTestId('tikz-source-editor');
+  await expect(source).not.toHaveValue('');
+  const cidBefore = await page.getByTestId('status-cid').getAttribute('title');
+  const receiptsBefore = await page.evaluate(
+    () => ((window as Window & { TikzitApp?: any }).TikzitApp?.getReceipts?.() ?? []).length
+  );
+
+  // Syntactically invalid TikZ: the commit gate must bail without moving the head.
+  await source.fill('\\begin{tikzpicture}\n\\node (\n');
+  await page.keyboard.press('Control+s');
+
+  await expect(page.getByTestId('source-doc-title')).toContainText('*');
+  await expect(page.getByTestId('status-cid')).toHaveAttribute('title', cidBefore ?? '');
+  await expect(page.getByTestId('sync-diagnostics-banner')).toBeVisible();
+  await page.waitForFunction(
+    (before) =>
+      (((window as Window & { TikzitApp?: any }).TikzitApp?.getReceipts?.() ?? []).length) > before,
+    receiptsBefore
+  );
+  const receipts = await page.evaluate(
+    () => (window as Window & { TikzitApp?: any }).TikzitApp?.getReceipts?.() ?? []
+  );
+  expect(receipts.at(-1)?.verdict).toBe('bail');
+  await expect(page.getByTestId('corpus-persistence-state')).toHaveText('Saved locally');
+});
+
 test('shows non-persistent status when IndexedDB is unavailable', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(window, 'indexedDB', { configurable: true, value: undefined }));
   await page.goto('/');
@@ -100,6 +137,28 @@ test('reports a failed sql.js WASM request instead of leaving the workbench in a
   await page.goto('/');
   await expect(page.getByText(/Workbench startup failed/)).toBeVisible({ timeout: 30000 });
   await expect(page.getByTestId('temporary-session-btn')).toHaveCount(0);
+});
+
+test('offers a temporary session when the IndexedDB open request fails', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'indexedDB', {
+      configurable: true,
+      value: {
+        open: () => {
+          const request: Record<string, unknown> = {};
+          request.error = new DOMException('Could not open IndexedDB', 'UnknownError');
+          setTimeout(() => (request as any).onerror?.(new Event('error')), 0);
+          return request;
+        },
+      },
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByText(/Workbench startup failed/)).toBeVisible({ timeout: 30000 });
+  await expect(page.getByTestId('temporary-session-btn')).toBeVisible();
+  await page.getByTestId('temporary-session-btn').click();
+  await expect(page.getByTestId(`corpus-entry-${spiderHandle}`)).toBeVisible({ timeout: 30000 });
+  await expect(page.getByTestId('corpus-persistence-state')).toHaveText('Not persisted');
 });
 
 test('preserves a future-version snapshot and allows an explicit temporary session', async ({ page }) => {

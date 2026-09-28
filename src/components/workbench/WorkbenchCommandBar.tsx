@@ -37,8 +37,15 @@ export const WorkbenchCommandBar: React.FC<WorkbenchCommandBarProps> = ({ runtim
       } else if (key === 's') {
         event.preventDefault();
         const active = defaultWorkspaceManager.getActiveDocument();
-        if (active?.id.startsWith('zx:examples:')) void runtime.saveActiveCorpusEntry();
-        else void defaultWorkspaceManager.saveActive();
+        if (active?.id.startsWith('zx:examples:')) {
+          void runtime.saveActiveCorpusEntry().catch((error) => {
+            const view = runtime.stores.$corpusView.get();
+            runtime.stores.$corpusView.set({
+              ...view,
+              persistenceError: `Save failed: ${error instanceof Error ? error.message : String(error)}`,
+            });
+          });
+        } else void defaultWorkspaceManager.saveActive();
       }
     };
     window.addEventListener('keydown', handleKeyDown);

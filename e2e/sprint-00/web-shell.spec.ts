@@ -39,10 +39,12 @@ test.describe('Sprint 00: TikZiT Web Spatial Workbench & Dockview Shell', () => 
     const preview = page.locator('[data-testid="panel-preview"]');
     await expect(preview).toBeVisible();
 
-    // Verify Console Panel
+    // Verify Console Panel — the CID line must show live state, never a fabricated hash
     const consolePanel = page.locator('[data-testid="panel-console"]');
     await expect(consolePanel).toBeVisible();
     await expect(consolePanel).toContainText('[INIT] TikZiT Web Runtime');
+    await expect(consolePanel).not.toContainText('7a4f32');
+    await expect(page.getByTestId('console-mcard-cid')).toContainText(/CID: (uncommitted|blake3:[0-9a-f]{64})/);
   });
 
   test('00-E2E-03: Tool palette and keyboard shortcuts (S, V, E, B) dispatch correctly', async ({ page }) => {

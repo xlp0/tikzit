@@ -60,6 +60,10 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
       suppressGraphEchoRef.current = false;
       return;
     }
+    const active = defaultWorkspaceManager.getActiveDocument();
+    // The active document's stored AST is the same object pushed into the graph
+    // by activation/commit — that echo must not normalize the exact stored source.
+    if (active?.ast === graph) return;
     if (!isEditing && graph) {
       isUpdatingFromExternal.current = true;
       const emitted = emitTikz(graph);
@@ -80,8 +84,11 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
       defaultWorkspaceManager.updateContent(active.id, newCode);
     }
 
+    const editedDocId = active?.id;
     defaultSyncController.updateFromEditor(newCode, (ast) => {
-      if (active) defaultWorkspaceManager.updateContent(active.id, newCode, ast);
+      if (editedDocId) defaultWorkspaceManager.updateContent(editedDocId, newCode, ast);
+      // A debounced edit must never apply its AST to a different active document.
+      if (defaultWorkspaceManager.getActiveDocument()?.id !== editedDocId) return;
       if (runtime) {
         runtime.ctx.graph.setAST(ast);
       } else {

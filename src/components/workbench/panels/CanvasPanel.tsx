@@ -240,6 +240,11 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
           const ast = runtime ? runtime.stores.$graphAST.get() : defaultGraphAST.get();
           return emitTikz(ast);
         },
+        // Sprint 15 E2E surface: commit-gate receipts from the executionLog pillar.
+        getReceipts: () =>
+          runtime
+            ? runtime.triDb.executionLog.list().map((card: any) => card.payload?.value ?? card.payload)
+            : [],
       };
     }
 

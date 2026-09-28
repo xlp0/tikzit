@@ -34,7 +34,11 @@ export function initializeSqlJs() {
     const wasmPath = typeof window === 'undefined'
       ? new URL('../../../node_modules/sql.js/dist/sql-wasm.wasm', import.meta.url).pathname
       : wasmUrl;
-    sqlJsPromise = initSqlJs({ locateFile: () => wasmPath });
+    const pending = initSqlJs({ locateFile: () => wasmPath });
+    sqlJsPromise = pending;
+    pending.catch(() => {
+      if (sqlJsPromise === pending) sqlJsPromise = undefined;
+    });
   }
   return sqlJsPromise;
 }

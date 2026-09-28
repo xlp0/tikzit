@@ -188,7 +188,15 @@ def main():
     with open(MANIFEST_FILE, "w") as f:
         json.dump(manifest, f, indent=2)
     if os.path.realpath(MANIFEST_FILE) != os.path.realpath(PUBLIC_MANIFEST_FILE):
+        public_examples_dir = os.path.dirname(PUBLIC_MANIFEST_FILE)
+        os.makedirs(public_examples_dir, exist_ok=True)
         shutil.copyfile(MANIFEST_FILE, PUBLIC_MANIFEST_FILE)
+        # Mirror the runtime .tikz assets too — seeding fetches them from this path.
+        public_zx_dir = os.path.join(public_examples_dir, "zx-calculus")
+        os.makedirs(public_zx_dir, exist_ok=True)
+        for name in os.listdir(ZX_DIR):
+            if name.endswith((".tikz", ".svg")):
+                shutil.copyfile(os.path.join(ZX_DIR, name), os.path.join(public_zx_dir, name))
     print(f"\nManifest successfully updated at {MANIFEST_FILE}")
     print(f"All {EXPECTED_DIAGRAM_COUNT} diagrams compiled & verified with 0 errors.")
 

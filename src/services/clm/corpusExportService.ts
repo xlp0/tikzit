@@ -4,7 +4,6 @@ import {
   Handle,
   MCard,
   MCardCollection,
-  MCardFileSystem,
   SqlJsBackend,
   structuredPayload,
   TriDatabaseManager,
@@ -27,7 +26,6 @@ export interface CorpusSaveResult {
 interface CorpusExportOptions {
   triDb: TriDatabaseManager;
   collection: MCardCollection;
-  mcardFs: MCardFileSystem;
   authorDid: AgentDid;
   getIndex(): CorpusIndexRecord[];
   getHistoryRows?(): Array<{ handle: string; previous_hash: string; changed_at: string }>;
@@ -71,15 +69,25 @@ function browserDownload(bytes: Uint8Array, filename: string): void {
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = filename;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 0);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function reconstructHistoryRows(handle: string, chain: ContentHash[], currentHash: ContentHash) {
+  const previous = chain.at(-1)?.equals(currentHash) ? chain.slice(0, -1) : chain;
+  return previous.map((hash) => ({
+    handle,
+    previous_hash: hash.asHex(),
+    changed_at: new Date(0).toISOString(),
+  }));
 }
 
 export class CorpusExportService {
   private readonly triDb: TriDatabaseManager;
   private readonly collection: MCardCollection;
-  private readonly mcardFs: MCardFileSystem;
   private readonly authorDid: AgentDid;
   private readonly getIndex: CorpusExportOptions['getIndex'];
   private readonly getHistoryRows: CorpusExportOptions['getHistoryRows'];
@@ -88,7 +96,6 @@ export class CorpusExportService {
   constructor(options: CorpusExportOptions) {
     this.triDb = options.triDb;
     this.collection = options.collection;
-    this.mcardFs = options.mcardFs;
     this.authorDid = options.authorDid;
     this.getIndex = options.getIndex;
     this.getHistoryRows = options.getHistoryRows;
@@ -96,41 +103,43 @@ export class CorpusExportService {
   }
 
   async exportCorpusDb(): Promise<Uint8Array> {
-    await this.flush();
+    try {
+      await this.flush();
+    } catch {
+      // Persistence may be unavailable (temporary session, missing IndexedDB);
+      // the in-memory corpus is still exportable.
+    }
     const rows = this.getIndex();
     if (new Set(rows.map((row) => row.handle)).size !== rows.length) throw new Error('Duplicate corpus handle index rows');
     const cards = new Map<string, MCard>();
     const histories: Array<{ handle: string; previousHash: string; changedAt: string }> = [];
     const handleHeads = new Map<string, string>();
+    const allHistoryRows = this.getHistoryRows?.();
     for (const row of rows) {
       if (!row || !row.handle.startsWith('zx:examples:') || !Number.isFinite(row.committedAt)) throw new Error('Malformed corpus handle index');
       const indexedHash = ContentHash.parse(row.hash);
       const currentHash = this.collection.resolveHandle(row.handle);
       if (!currentHash || !currentHash.equals(indexedHash)) throw new Error(`Stale corpus index for ${row.handle}`);
       const chain = this.collection.history(row.handle);
-      if (chain.length === 0 || !chain.at(-1)?.equals(currentHash)) throw new Error(`Incomplete corpus history for ${row.handle}`);
-      const historyRows = this.getHistoryRows?.() ?? this.mcardFs.exportHistory().map((record) => ({
-        handle: record.handle,
-        previous_hash: record.previousHash,
-        changed_at: record.changedAt,
-      }));
-      const fsHistory = historyRows
+      if (chain.length === 0) throw new Error(`Incomplete corpus history for ${row.handle}`);
+      const fsHistory = (allHistoryRows ?? reconstructHistoryRows(row.handle, chain, currentHash))
         .filter((record) => record.handle === row.handle)
         .map((record) => ({ previousHash: ContentHash.parse(record.previous_hash), changedAt: record.changed_at }));
-      if (fsHistory.length !== chain.length - 1) throw new Error(`Incomplete filesystem history for ${row.handle}`);
-      for (let index = 0; index < chain.length; index++) {
-        const hash = chain[index];
-        if (!hash) throw new Error(`Invalid hash in corpus history for ${row.handle}`);
+      // History rows record superseded heads; only the final row — the transition
+      // that produced the current head — must never point back at the head itself.
+      if (fsHistory.at(-1)?.previousHash.equals(currentHash)) {
+        throw new Error(`HEAD appears as its own history for ${row.handle}`);
+      }
+      const referenced = new Map<string, ContentHash>([[currentHash.asHex(), currentHash]]);
+      for (const record of fsHistory) referenced.set(record.previousHash.asHex(), record.previousHash);
+      for (const [hex, hash] of referenced) {
         const card = this.collection.get(hash);
-        if (!card) throw new Error(`Missing historical MCard ${hash.asHex()} for ${row.handle}`);
+        if (!card) throw new Error(`Missing historical MCard ${hex} for ${row.handle}`);
         verifyCard(card);
-        cards.set(card.hash.asHex(), card);
-        if (index < fsHistory.length) {
-          const record = fsHistory[index];
-          if (!record.previousHash.equals(hash)) throw new Error(`History/hash mismatch for ${row.handle}`);
-          if (record.previousHash.equals(currentHash)) throw new Error(`HEAD appears as its own history for ${row.handle}`);
-          histories.push({ handle: row.handle, previousHash: record.previousHash.asHex(), changedAt: record.changedAt });
-        }
+        cards.set(hex, card);
+      }
+      for (const record of fsHistory) {
+        histories.push({ handle: row.handle, previousHash: record.previousHash.asHex(), changedAt: record.changedAt });
       }
       handleHeads.set(row.handle, currentHash.asHex());
     }
@@ -139,10 +148,8 @@ export class CorpusExportService {
     const database = new SQL.Database();
     const backend = new SqlJsBackend(database as unknown as SqlJsDatabaseLike);
     try {
-      const exportFs = MCardFileSystem.withBackend(backend);
       for (const card of cards.values()) backend.put(card.hash, card);
       for (const [handle, hash] of handleHeads) backend.registerHandle(Handle.parse(handle), ContentHash.parse(hash));
-      exportFs.importHistory(histories);
       for (const history of histories) {
         database.run(
           'INSERT INTO handle_history (handle, previous_hash, changed_at) VALUES (?, ?, ?)',

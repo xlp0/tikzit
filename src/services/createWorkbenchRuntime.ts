@@ -91,10 +91,20 @@ export async function createWorkbenchRuntimeAsync(options: WorkbenchRuntimeStart
   }
   let runtime: WorkbenchRuntime | undefined;
   try {
-    const response = await fetch('/docs/examples/manifest.json');
+    const baseUrl = (import.meta.env?.BASE_URL as string | undefined) ?? '/';
+    const response = await fetch(`${baseUrl}docs/examples/manifest.json`);
     if (!response.ok) throw new Error(`Corpus manifest request failed: HTTP ${response.status}`);
     const manifest = await response.json() as CorpusManifestEntry[];
     if (!Array.isArray(manifest) || manifest.length !== 12) throw new Error('Corpus manifest must contain exactly 12 examples');
+    for (const entry of manifest) {
+      if (
+        !entry ||
+        typeof entry.id !== 'string' ||
+        typeof entry.tikz_file !== 'string' ||
+        typeof entry.tikz_bytes !== 'number' ||
+        !/^[0-9a-f]{64}$/i.test(entry.tikz_sha256)
+      ) throw new Error('Corpus manifest entry is malformed');
+    }
     const flush = async () => {
       if (persistence.state !== 'persistent') throw new Error(persistence.error ?? 'Persistent storage is unavailable');
       const [knowledge, executionLog, mcard] = storage.backends as [
@@ -200,7 +210,6 @@ function buildWorkbenchRuntime(options: WorkbenchRuntimeOptions = {}, bootstrap?
   const corpusExport = new CorpusExportService({
     triDb,
     collection: mcardCollection,
-    mcardFs,
     authorDid,
     getIndex: () => corpusExplorer.getCorpusIndex(),
     getHistoryRows: bootstrap?.getHistoryRows,
@@ -220,6 +229,21 @@ function buildWorkbenchRuntime(options: WorkbenchRuntimeOptions = {}, bootstrap?
   // 6. Bind Cordis events to Nanostores read-only projections
   const unbindBridge = bindCordisToNanostores(ctx, stores);
   disposers.push(unbindBridge);
+
+  // Clear corpus-specific projections when a non-corpus document becomes active,
+  // so a stale handle/CID never lingers after switching documents.
+  disposers.push(defaultWorkspaceManager.subscribe(() => {
+    const active = defaultWorkspaceManager.getActiveDocument();
+    if (!active || active.id.startsWith('zx:examples:')) return;
+    const head = stores.$documentHead.get();
+    if (head.hash || head.handle) {
+      stores.$documentHead.set({ handle: '', hash: '', sequence: 0, isValid: true });
+    }
+    const diagram = stores.$activeDiagram.get();
+    if (diagram.handle !== active.id || diagram.name !== active.title) {
+      stores.$activeDiagram.set({ name: active.title, handle: active.id });
+    }
+  }));
 
   // 7. Register core workbench command handlers
   disposers.push(
@@ -347,8 +371,11 @@ function buildWorkbenchRuntime(options: WorkbenchRuntimeOptions = {}, bootstrap?
       const active = defaultWorkspaceManager.getActiveDocument();
       if (!active || !active.id.startsWith('zx:examples:')) return null;
       const result = await corpusExplorer.commitCorpusDocument({ handle: active.id, sourceText: sourceText ?? active.content });
-      if (result.success && result.hash && !result.unchanged) {
-        defaultWorkspaceManager.markCommitted(active.id, result.hash, result.sequence ?? active.version);
+      if (result.success && result.unchanged) {
+        // A dirty buffer that matches the committed head still saves cleanly.
+        defaultWorkspaceManager.markClean(active.id);
+      } else if (result.success && result.hash) {
+        defaultWorkspaceManager.markCommitted(active.id, result.hash, result.sequence ?? active.version, result.ast);
       }
       if (!result.persisted) {
         const view = stores.$corpusView.get();

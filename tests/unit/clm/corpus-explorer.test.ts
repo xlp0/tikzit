@@ -3,6 +3,7 @@ import { AgentDid, MCard, structuredPayload, textPayload } from 'clm-kernel';
 import { describe, expect, it, vi } from 'vitest';
 import { createWorkbenchRuntime } from '../../../src/services/createWorkbenchRuntime';
 import { formatContentId, type CorpusManifestEntry } from '../../../src/services/clm/corpusExplorerService';
+import { defaultWorkspaceManager } from '../../../src/services/workspace/WorkspaceManager';
 
 const source = '\\begin{tikzpicture}\n\\node [style=none] (a) at (0, 0) {A};\n\\end{tikzpicture}\n';
 const digest = (text: string) => createHash('sha256').update(text).digest('hex');
@@ -228,5 +229,98 @@ describe('CorpusExplorerService', () => {
     expect(opened.ast.nodes).toHaveLength(1);
     expect(runtime.triDb.executionLog.list().length).toBe(receiptCount);
     runtime.dispose();
+  });
+
+  it('repairs a stale app-owned index row to the resolved head on reseed', async () => {
+    const { runtime, service } = setup();
+    await service.seedZxCorpus();
+    const handle = 'zx:examples:05_bialgebra_law';
+    const original = service.openEntry(handle);
+    await service.commitCorpusDocument({ handle, sourceText: `${original.source}% v2\n` });
+    const liveHash = service.getCorpusIndex().find((row) => row.handle === handle)!.hash;
+    expect(liveHash).not.toBe(original.entry.hash);
+
+    // Simulate a snapshot whose index row lags behind the resolved handle head.
+    service.restoreIndex([{ handle, hash: original.entry.hash, committedAt: 1 }]);
+    expect(service.listCorpusEntries().issues.map((issue) => issue.handle)).toContain(handle);
+
+    const reseed = await service.seedZxCorpus();
+    expect(reseed.complete).toBe(true);
+    expect(service.getCorpusIndex().find((row) => row.handle === handle)!.hash).toBe(liveHash);
+    expect(service.listCorpusEntries().issues).toEqual([]);
+    runtime.dispose();
+  });
+
+  it('reports seed persistence warnings separately from corpus asset failures', async () => {
+    const { runtime, service } = setup();
+    service.configure({ persistence: { flush: async () => { throw new Error('IndexedDB unavailable'); } } });
+
+    const result = await service.seedZxCorpus();
+
+    expect(result.committed).toBe(2);
+    expect(result.failed).toBe(0);
+    expect(result.complete).toBe(true);
+    expect(result.failures).toEqual([]);
+    expect(result.persistenceError).toMatch(/IndexedDB/i);
+    runtime.dispose();
+  });
+
+  it('rejects commits to non-corpus handles so the index stays corpus-scoped', async () => {
+    const { runtime, service } = setup();
+    const result = await service.commitCorpusDocument({ handle: 'scratch:local', sourceText: source });
+    expect(result.success).toBe(false);
+    expect(service.getCorpusIndex()).toEqual([]);
+    runtime.dispose();
+  });
+
+  it('marks a dirty buffer clean when a save resolves to an unchanged head', async () => {
+    const { runtime, service } = setup();
+    await service.seedZxCorpus();
+    const handle = 'zx:examples:05_bialgebra_law';
+    runtime.openCorpusEntry(handle);
+    const active = defaultWorkspaceManager.getActiveDocument()!;
+    defaultWorkspaceManager.updateContent(handle, active.content);
+    expect(defaultWorkspaceManager.getActiveDocument()!.isDirty).toBe(true);
+
+    const result = await runtime.saveActiveCorpusEntry();
+
+    expect(result?.success).toBe(true);
+    expect(result?.unchanged).toBe(true);
+    expect(defaultWorkspaceManager.getActiveDocument()!.isDirty).toBe(false);
+    runtime.dispose();
+  });
+
+  it('projects the opened head into status stores and clears them for non-corpus documents', async () => {
+    const { runtime, service } = setup();
+    await service.seedZxCorpus();
+    const handle = 'zx:examples:05_bialgebra_law';
+    const receipts = runtime.triDb.executionLog.list().length;
+
+    runtime.openCorpusEntry(handle);
+    const indexed = service.getCorpusIndex().find((row) => row.handle === handle)!;
+    expect(runtime.stores.$documentHead.get()).toMatchObject({ handle, hash: indexed.hash });
+    expect(runtime.stores.$activeDiagram.get().handle).toBe(handle);
+    // Opening an existing revision mints no receipt and fabricates no commit.
+    expect(runtime.triDb.executionLog.list()).toHaveLength(receipts);
+
+    defaultWorkspaceManager.setActiveDocument('default-doc');
+    expect(runtime.stores.$documentHead.get().hash).toBe('');
+    expect(runtime.stores.$documentHead.get().handle).toBe('');
+    expect(runtime.stores.$activeDiagram.get().handle).toBe('default-doc');
+    runtime.dispose();
+  });
+
+  it('keeps corpus projections isolated between runtimes sharing the workspace manager', async () => {
+    const { runtime: first, service: firstService } = setup();
+    const second = createWorkbenchRuntime({ bindKeybindings: false });
+    await firstService.seedZxCorpus();
+
+    first.openCorpusEntry('zx:examples:05_bialgebra_law');
+
+    expect(first.stores.$documentHead.get().hash).not.toBe('');
+    expect(second.stores.$documentHead.get().hash).toBe('');
+    expect(second.stores.$activeDiagram.get().handle).not.toBe('zx:examples:05_bialgebra_law');
+    first.dispose();
+    second.dispose();
   });
 });
