@@ -15,7 +15,7 @@ Welcome to the TikZiT technical documentation repository.
   - Cubical Logic Model (CLM) & Sovereign SQLite Tri-Database
   - Hybrid Vector-First TeX Preview & Multi-Format Exporters
   - Canonical 12-Diagram ZX-Calculus Verification Corpus
-  - Sprint Evolution (00–15) & Active Roadmap (16–19)
+  - Sprint Evolution (Sprints 00–19 Graduated) & Active Algebraic Architecture Series (Sprints 20–24)
   - **Parallel Multi-Workflow Architecture via Git Worktrees** (concurrent developer & autonomous agent workflows on a single machine)
 
 ---

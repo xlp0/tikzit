@@ -548,6 +548,20 @@ flowchart TD
     end
 ```
 
+### 11.2 Active Series Roadmap: The Algebraic Architecture Series (Sprints 20 – 24)
+
+Following the completion and graduation of Sprints 16–19, the active engineering roadmap focuses on **The Algebraic Architecture Series (Sprints 20–24)**, detailed in [`docs/sprints/_active/README.md`](file:///Users/bkoo/.gemini/antigravity/worktrees/tikzit/generate_project_summary/docs/sprints/_active/README.md):
+
+> **Key Architectural Decision D19**: The native C++ Qt codebase (`src/data/`, `src/gui/`) is **formally frozen as an immutable reference implementation and verification oracle**. All active development, feature additions, and modularization focus strictly on the JavaScript/TypeScript/TSX web stack.
+
+| Sprint | Subsystem | Focus & Scope | Target Deliverables |
+| :---: | :--- | :--- | :--- |
+| **20** | `orchestration` / `build` | Dual-System Makefile & Shared Protocol | Authored root `Makefile` driving CMake & npm; browser independence gate; shared protocol spec. |
+| **21** | `shell` / `sync` | Process Algebra & Petri Net Lifecycle | Petri Net document state machine; CSP communication channels; decompose `createWorkbenchRuntime.ts` (1,100 $\to < 350$ LOC). |
+| **22** | `interactions` / `styles` | Baldwin Splitting on God Components | Apply Carliss Baldwin's Six Modularity Operators on UI God components (`VersionPopover` 739 LOC, `PreviewPanel` 605 LOC, `CorpusExplorerDrawer` 572 LOC, `WorkbenchCommandBar` 472 LOC) $\to \le 250$ LOC. |
+| **23** | `corpus` / `storage` | CLM Tri-Database & Service Decoupling | Prune legacy `DocumentStore` shadow state; decompose `corpusExplorerService.ts` (652 LOC) & `corpusExportService.ts` (484 LOC) into CLM MVP Card actors. |
+| **24** | `parser` / `conformance` | Parser Combinator & Protocol Conformance | Modular combinator decomposition for `parser.ts` (494 $\to < 120$ LOC); automated dual-system conformance verification against unmodified C++ reference engine. |
+
 ---
 
 ## 12. Parallel Multi-Workflow Architecture via Git Worktrees
