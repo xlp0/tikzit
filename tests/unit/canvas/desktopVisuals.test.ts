@@ -91,6 +91,8 @@ describe('Sprint 10: Canvas Stage Visual Parity & Teardrop Self-Loop Engine', ()
   describe('10.3: AST Self-Loop TikZ Normalization', () => {
     it('normalizes unstyled self-loop omitting style=none with empty target ()', () => {
       const ast: GraphAST = {
+        data: [],
+        paths: [],
         nodes: [
           { id: 'v0', name: 'v0', label: '', position: { x: 0, y: 0 }, data: [{ key: 'style', value: 'none' }] },
         ],
@@ -120,6 +122,8 @@ describe('Sprint 10: Canvas Stage Visual Parity & Teardrop Self-Loop Engine', ()
 
     it('preserves non-none styles in canonical order [style=<name>, in=135, out=45, loop]', () => {
       const ast: GraphAST = {
+        data: [],
+        paths: [],
         nodes: [
           { id: 'u', name: 'u', label: '1', position: { x: 1, y: 1 }, data: [] },
         ],

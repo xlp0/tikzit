@@ -34,6 +34,8 @@ export const $graphAST = defaultStores.$graphAST;
 export const $documentHead = defaultStores.$documentHead;
 export const $stylesCatalog = defaultStores.$stylesCatalog;
 export const $activeStyle = defaultStores.$activeStyle;
+export const $styleFileName = defaultStores.$styleFileName;
+export const $styleFileBuffer = defaultStores.$styleFileBuffer;
 
 // ==========================================
 // 2. FLUX ACTIONS (Unidirectional Dispatchers)

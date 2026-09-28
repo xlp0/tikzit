@@ -41,6 +41,8 @@ export interface WorkbenchStores {
   readonly $documentHead: WritableAtom<DocumentHeadState>;
   readonly $stylesCatalog: WritableAtom<TikzStylesCatalog>;
   readonly $activeStyle: WritableAtom<string>;
+  readonly $styleFileName: WritableAtom<string>;
+  readonly $styleFileBuffer: WritableAtom<string>;
 }
 
 /**
@@ -73,5 +75,7 @@ export function createWorkbenchStores(): WorkbenchStores {
     }),
     $stylesCatalog: atom<TikzStylesCatalog>(getDefaultStylesCatalog()),
     $activeStyle: atom<string>('Z'),
+    $styleFileName: atom<string>('[no styles]'),
+    $styleFileBuffer: atom<string>(''),
   };
 }

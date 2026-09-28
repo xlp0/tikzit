@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { defaultWorkspaceManager } from '../../services/workspace/WorkspaceManager';
-import { parseTikz } from '../../core/parser/parser';
+import { parseTikz, parseTikzStyles } from '../../core/parser/parser';
+import { $stylesCatalog, $styleFileName, $styleFileBuffer } from '../../stores/workbench';
 
 export interface FileDropZoneProps {
   children?: React.ReactNode;
@@ -46,8 +47,29 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({ children, onFileInge
       const file = e.dataTransfer.files[0];
       const filename = file.name;
 
+      if (filename.endsWith('.tikzstyles')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target?.result as string;
+          if (!text) return;
+          try {
+            const catalog = parseTikzStyles(text);
+            $stylesCatalog.set(catalog);
+            $styleFileName.set(filename);
+            $styleFileBuffer.set(text);
+            if (onFileIngested) {
+              onFileIngested(filename, text);
+            }
+          } catch (err: any) {
+            alert('Failed to parse .tikzstyles file: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+        return;
+      }
+
       if (!filename.endsWith('.tikz') && !filename.endsWith('.tex') && !filename.endsWith('.md')) {
-        alert('Unsupported file format. Please drop .tikz, .tex, or .md files.');
+        alert('Unsupported file format. Please drop .tikz, .tex, .md, or .tikzstyles files.');
         return;
       }
 
