@@ -208,23 +208,23 @@ Refactoring `createWorkbenchRuntime.ts` touches the central nervous system of th
 This sprint is gated by 11 verifiable Definition of Done checkpoints:
 
 ### Source Decomposition & Line Limit Gates
-- [ ] **G01 — Runtime Orchestrator Under 350 LOC**: `src/services/createWorkbenchRuntime.ts` is refactored into a declarative Cordis microkernel wiring file strictly under **350 lines of code**.
-- [ ] **G02 — Extracted Actors Under 250 LOC**: Each extracted module (`DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts`) does not exceed **250 lines of code** (Contract D).
+- [x] **G01 — Runtime Orchestrator Under 350 LOC**: `src/services/createWorkbenchRuntime.ts` is refactored into a declarative Cordis microkernel wiring file strictly under **350 lines of code** (measured: 320 LOC).
+- [x] **G02 — Extracted Actors Under 250 LOC**: Each extracted module (`DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts`) does not exceed **250 lines of code** (Contract D).
 
 ### Algebraic State Machine Gates
-- [ ] **G03 — Petri Net State Determinism**: Document state is formalized as a marked Place/Transition net. All ad-hoc boolean mutations (`doc.isDirty = true`, `doc.isSaving = false`) are replaced by typed Petri Net action dispatches.
-- [ ] **G04 — Token Conservation Guarantee**: The Petri Net enforces $\sum_{p \in P_{\text{lifecycle}}} M(p) = 1$, with dirty state modeled on the orthogonal place $p_{\text{dirty}}$. Edits occurring during asynchronous persistence flushes are provably preserved without lost dirty markings (verified by T21-09).
-- [ ] **G05 — CSP Channel Invariant**: The `SyncChannel` eliminates cyclic echo feedback loops between CodeMirror and Three.js canvas (verified by T21-13).
+- [x] **G03 — Petri Net State Determinism**: Document state is formalized as a marked Place/Transition net. All ad-hoc boolean mutations (`doc.isDirty = true`, `doc.isSaving = false`) are replaced by typed Petri Net action dispatches.
+- [x] **G04 — Token Conservation Guarantee**: The Petri Net enforces $\sum_{p \in P_{\text{lifecycle}}} M(p) = 1$, with dirty state modeled on the orthogonal place $p_{\text{dirty}}$. Edits occurring during asynchronous persistence flushes are provably preserved without lost dirty markings (verified by T21-09).
+- [x] **G05 — CSP Channel Invariant**: The `SyncChannel` eliminates cyclic echo feedback loops between CodeMirror and Three.js canvas (verified by T21-13).
 
 ### Concurrency & Persistence Gates
-- [ ] **G06 — Storage Supervisor Isolation**: Persistence logic, retry backoff, and writer generation checks are encapsulated entirely within `StorageSupervisor.ts`.
-- [ ] **G07 — Stale Writer Detection**: Mismatched database generation tokens halt write operations and trigger the stale writer notification banner (verified by T21-10).
+- [x] **G06 — Storage Supervisor Isolation**: Persistence logic, retry backoff, and writer generation checks are encapsulated entirely within `StorageSupervisor.ts`.
+- [x] **G07 — Stale Writer Detection**: Mismatched database generation tokens halt write operations and trigger the stale writer notification banner (verified by T21-10).
 
 ### Test Coverage & Regression Gates
-- [ ] **G08 — 24 New Algebraic Tests Passing**: All 24 new unit and integration tests (T21-01 through T21-24) pass 100% green.
-- [ ] **G09 — Zero Regressions on Existing Suites**: All Vitest unit tests and Playwright E2E runs in the kickoff-recorded baseline pass with 0 errors.
-- [ ] **G10 — Contract A & B Preservation**: Dockview layout serialization (Contract A) and the generated `data-testid` baseline (Contract B / D21) remain intact.
-- [ ] **G11 — Concurrency Verification Evidence**: A captured log demonstrating 10 rapid edit-save cycles with zero lost edits is stored in the sprint's verification artifacts directory (evidence, not committed docs).
+- [x] **G08 — 24 New Algebraic Tests Passing**: All 24 new unit and integration tests (T21-01 through T21-24) pass 100% green.
+- [x] **G09 — Zero Regressions on Existing Suites**: All Vitest unit tests and Playwright E2E runs in the kickoff-recorded baseline pass with 0 errors.
+- [x] **G10 — Contract A & B Preservation**: Dockview layout serialization (Contract A) and the generated `data-testid` baseline (Contract B / D21) remain intact.
+- [x] **G11 — Concurrency Verification Evidence**: A captured log demonstrating 10 rapid edit-save cycles with zero lost edits is stored in the sprint's verification artifacts directory (evidence, not committed docs).
 
 ---
 

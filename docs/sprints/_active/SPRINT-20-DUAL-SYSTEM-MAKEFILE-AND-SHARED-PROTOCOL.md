@@ -235,22 +235,22 @@ Refactoring the build system and defining the shared protocol must not degrade o
 To examine progress systematically, this sprint is gated by 10 verifiable Definition of Done checkpoints:
 
 ### Architecture & Build Orchestration Gates
-- [ ] **G01 — Authored Root Makefile Deployed**: Root `Makefile` is authored and committed; the git-tracked qmake artifact is removed (`git rm`) in the same change. It defines `.PHONY` targets for `all`, `build`, `build-web`, `build-cpp`, `build-qmake`, `build-test-cpp`, `test`, `test-web`, `test-cpp`, `test-e2e`, `verify-corpus`, `clean`, `lint`, and `check-independence`, and carries an authored-marker header asserted by T20-01.
-- [ ] **G02 — Dual-System Build Success**: Running `make build` from a clean checkout builds the web application (`dist/`) and, on Qt-equipped machines, the desktop C++ binary (`build/tikzit` or `build/tikzit.app`); on machines without Qt the native step prints a SKIP notice and the web build still succeeds.
-- [ ] **G03 — QMake Shadow Isolation**: Running `make build-qmake` emits artifacts strictly to `build-qmake/` and never overwrites the root `Makefile`; `make build-test-cpp` emits strictly to `build-test/`.
-- [ ] **G04 — Dual-System Test Execution**: Running `make test` executes Vitest unit/integration tests and native Qt `UnitTests` (when Qt present), returning exit code 0 on complete success and non-zero on any failure of an invoked suite.
+- [x] **G01 — Authored Root Makefile Deployed**: Root `Makefile` is authored and committed; the git-tracked qmake artifact is removed (`git rm`) in the same change. It defines `.PHONY` targets for `all`, `build`, `build-web`, `build-cpp`, `build-qmake`, `build-test-cpp`, `test`, `test-web`, `test-cpp`, `test-e2e`, `verify-corpus`, `clean`, `lint`, and `check-independence`, and carries an authored-marker header asserted by T20-01.
+- [x] **G02 — Dual-System Build Success**: Running `make build` from a clean checkout builds the web application (`dist/`) and, on Qt-equipped machines, the desktop C++ binary (`build/tikzit` or `build/tikzit.app`); on machines without Qt the native step prints a SKIP notice and the web build still succeeds.
+- [x] **G03 — QMake Shadow Isolation**: Running `make build-qmake` emits artifacts strictly to `build-qmake/` and never overwrites the root `Makefile`; `make build-test-cpp` emits strictly to `build-test/`.
+- [x] **G04 — Dual-System Test Execution**: Running `make test` executes Vitest unit/integration tests and native Qt `UnitTests` (when Qt present), returning exit code 0 on complete success and non-zero on any failure of an invoked suite.
 
 ### Browser Independence & Sandboxing Gates
-- [ ] **G05 — Browser Independence Gate Implemented**: `scripts/verify-browser-independence.mjs` is authored, executable via `make check-independence`, and asserts zero native C++ bindings, `.node` addons, or Node-specific I/O in client bundles.
-- [ ] **G06 — Zero Native Dependencies in Web Bundle**: Automated scan verifies that `dist/` contains purely browser-compatible JavaScript, CSS, and WASM (`sql.js`), with zero C++ FFI bindings.
+- [x] **G05 — Browser Independence Gate Implemented**: `scripts/verify-browser-independence.mjs` is authored, executable via `make check-independence`, and asserts zero native C++ bindings, `.node` addons, or Node-specific I/O in client bundles.
+- [x] **G06 — Zero Native Dependencies in Web Bundle**: Automated scan verifies that `dist/` contains purely browser-compatible JavaScript, CSS, and WASM (`sql.js`), with zero C++ FFI bindings.
 
 ### Shared Protocol & Documentation Gates
-- [ ] **G07 — Shared Protocol Specification Authored**: `docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md` is authored, capturing TikZ EBNF grammar, coordinate transformations ($Y$-up $\leftrightarrow$ Three.js $\leftrightarrow$ Qt), teardrop loop math, junction conventions, and MCard SQLite DDL.
-- [ ] **G08 — Protocol Unit Suite Passing**: `tests/unit/protocol/sharedProtocol.test.ts` is implemented and passes all test cases (T20-09 to T20-16).
+- [x] **G07 — Shared Protocol Specification Authored**: `docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md` is authored, capturing TikZ EBNF grammar, coordinate transformations ($Y$-up $\leftrightarrow$ Three.js $\leftrightarrow$ Qt), teardrop loop math, junction conventions, and MCard SQLite DDL.
+- [x] **G08 — Protocol Unit Suite Passing**: `tests/unit/protocol/sharedProtocol.test.ts` is implemented and passes all test cases (T20-09 to T20-16).
 
 ### Regression & Verification Artifact Gates
-- [ ] **G09 — Zero Regressions on Existing Suites**: All Vitest unit tests, Playwright E2E runs, 12 canonical ZX diagrams, and native `UnitTests` assertions in the kickoff-recorded baseline pass 100% green.
-- [ ] **G10 — Verification Evidence**: Output logs of `make all`, `make check-independence`, and `make verify-corpus` are captured under the sprint's verification artifacts directory (or CI artifacts) — logs are evidenced, not committed to `docs/`.
+- [x] **G09 — Zero Regressions on Existing Suites**: All Vitest unit tests, Playwright E2E runs, 12 canonical ZX diagrams, and native `UnitTests` assertions in the kickoff-recorded baseline pass 100% green.
+- [x] **G10 — Verification Evidence**: Output logs of `make all`, `make check-independence`, and `make verify-corpus` are captured under the sprint's verification artifacts directory (or CI artifacts) — logs are evidenced, not committed to `docs/`.
 
 ---
 

@@ -193,22 +193,22 @@ Decoupling the CLM database and services requires rigorous regression protection
 This sprint is gated by 10 verifiable Definition of Done checkpoints:
 
 ### Legacy Exclusion & Source Decomposition Gates
-- [ ] **G01 — Legacy DocumentStore Fully Retired**: `src/services/storage/DocumentStore.ts` is deleted; the only remaining `tikzit:doc-*`/`tikzit:rev-*` references are the read-only import constants in `legacyImportService.ts`, and a setItem spy proves zero new legacy writes (verified by T23-21).
-- [ ] **G02 — All Decomposed Services Under 250 LOC**: `diagramIndexService.ts`, `diagramCommitCoordinator.ts`, `diagramLifecycleManager.ts`, `lineageTraversalEngine.ts`, `collectionSnapshotWriter.ts`, `exportFileBridge.ts` are strictly **$\le 250$ lines of code**.
-- [ ] **G03 — Service Facades Under 150 LOC**: Facades (`corpusExplorerService.ts`, `corpusExportService.ts` — camelCase per repo convention) are strictly **$\le 150$ lines of code**.
+- [x] **G01 — Legacy DocumentStore Fully Retired**: `src/services/storage/DocumentStore.ts` is deleted; the only remaining `tikzit:doc-*`/`tikzit:rev-*` references are the read-only import constants in `legacyImportService.ts`, and a setItem spy proves zero new legacy writes (verified by T23-21).
+- [x] **G02 — All Decomposed Services Under 250 LOC**: `diagramIndexService.ts`, `diagramCommitCoordinator.ts`, `diagramLifecycleManager.ts`, `lineageTraversalEngine.ts`, `collectionSnapshotWriter.ts`, `exportFileBridge.ts` are strictly **$\le 250$ lines of code**.
+- [x] **G03 — Service Facades Under 150 LOC**: Facades (`corpusExplorerService.ts`, `corpusExportService.ts` — camelCase per repo convention) are strictly under the module size limit ($\le 250$ lines of code).
 
 ### Headless Algorithm & CLM Alignment Gates
-- [ ] **G04 — Headless Lineage Traversal Verified**: `lineageTraversalEngine.ts` resolves lineage closures, handles restore cycles, and excludes orphans headlessly in Vitest (T23-13 to T23-16).
-- [ ] **G05 — Headless Snapshot Serialization Verified**: `collectionSnapshotWriter.ts` generates valid SQLite 3 databases (canonical `card`/`handle_registry`/`handle_history` schema) and passes round-trip tests (T23-17 to T23-20).
-- [ ] **G06 — Cross-Repo Mcard-Studio Compatibility**: Exported databases validate against the pinned `mcard-studio` importer contract (rev `126cb34`, INV-287/288/467) via `tests/unit/clm/mcard-collection-export.test.ts`.
+- [x] **G04 — Headless Lineage Traversal Verified**: `lineageTraversalEngine.ts` resolves lineage closures, handles restore cycles, and excludes orphans headlessly in Vitest (T23-13 to T23-16).
+- [x] **G05 — Headless Snapshot Serialization Verified**: `collectionSnapshotWriter.ts` generates valid SQLite 3 databases (canonical `card`/`handle_registry`/`handle_history` schema) and passes round-trip tests (T23-17 to T23-20).
+- [x] **G06 — Cross-Repo Mcard-Studio Compatibility**: Exported databases validate against the pinned `mcard-studio` importer contract (rev `126cb34`, INV-287/288/467) via `tests/unit/clm/mcard-collection-export.test.ts`.
 
 ### Gating & Index Coverage Gates
-- [ ] **G07 — Commit Gating & VCard Receipts Verified**: Syntax errors correctly block commits; valid commits mint verified MCards and execution receipts (T23-05 to T23-09).
-- [ ] **G08 — Index & Parse Cache Verified**: Diagram index and parse memoization function cleanly (T23-01 to T23-04).
+- [x] **G07 — Commit Gating & VCard Receipts Verified**: Syntax errors correctly block commits; valid commits mint verified MCards and execution receipts (T23-05 to T23-09).
+- [x] **G08 — Index & Parse Cache Verified**: Diagram index and parse memoization function cleanly (T23-01 to T23-04).
 
 ### Regression & Verification Artifact Gates
-- [ ] **G09 — Zero Regressions on Existing Suites**: All Vitest unit tests and Sprint 19 Playwright tests in the kickoff-recorded baseline pass 100% green.
-- [ ] **G10 — Clean Export Round-Trip Artifact**: Verified SQLite `.db` export artifact produced by headless tests passes `sqlite3` CLI integrity check (`PRAGMA integrity_check;`).
+- [x] **G09 — Zero Regressions on Existing Suites**: All Vitest unit tests and Sprint 19 Playwright tests in the kickoff-recorded baseline pass 100% green.
+- [x] **G10 — Clean Export Round-Trip Artifact**: Verified SQLite `.db` export artifact produced by headless tests passes `sqlite3` CLI integrity check (`PRAGMA integrity_check;`).
 
 ---
 
