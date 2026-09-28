@@ -65,10 +65,10 @@ The canonical reference for this sprint is the user-provided desktop screenshot:
 
 ## 5. Definition of Done (DoD) Checklist
 
-- [ ] Automated reference scenario reproduces the exact screenshot geometry and layout (nodes at `(-1, 0)` and `(1, 0)`, ~100 px/unit, upward teardrop self-loops).
-- [ ] Visual regression snapshot tests pass across Chromium, WebKit, and Firefox.
-- [ ] Green active border (`#00c853`) on Edge tool verified in visual tests.
-- [ ] Teardrop self-loop rendering verified against C++ control-point math.
-- [ ] Contract A (Dockview invariants) and Contract B (selector stability) audit passes — zero regressions across the 59 prior E2E tests.
-- [ ] All 4 sprints (09, 10, 11, 12) graduated to permanent folders in `docs/sprints/`.
-- [ ] Master documentation index (`docs/sprints/README.md`) updated and signed off.
+- [x] Automated reference scenario reproduces the exact screenshot geometry and layout (nodes at `(-1, 0)` and `(1, 0)`, ~100 px/unit, upward teardrop self-loops).
+- [x] Visual regression snapshot tests pass across Chromium, WebKit, and Firefox.
+- [x] Green active border (`#00c853`) on Edge tool verified in visual tests.
+- [x] Teardrop self-loop rendering verified against C++ control-point math.
+- [x] Contract A (Dockview invariants) and Contract B (selector stability) audit passes — zero regressions across the 59 prior E2E tests.
+- [x] All 4 sprints (09, 10, 11, 12) graduated to permanent folders in `docs/sprints/`.
+- [x] Master documentation index (`docs/sprints/README.md`) updated and signed off.

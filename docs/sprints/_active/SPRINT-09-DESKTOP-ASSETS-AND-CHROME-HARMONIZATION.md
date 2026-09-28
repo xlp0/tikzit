@@ -77,7 +77,7 @@ The `images/` directory is the single source of truth; `tikzit.qrc` bundles a su
 | **09.3** | macOS Window Chrome | `src/components/workbench/MacWindowChrome.tsx` | Traffic light buttons, centered reactive title (`untitled* - TikZiT`), dark #2a2a2a chrome |
 | **09.4** | Desktop Tool Palette | `src/components/workbench/DesktopToolPalette.tsx` | 32x32px square buttons with SVG icons, bright green border (`#00c853`) on active tool |
 | **09.5** | Workbench Integration | `src/components/workbench/TikzitSpatialWorkbench.tsx` | Seamless integration replacing legacy pill buttons while preserving all Contract B selectors |
-| **09.6** | Unit & E2E Test Verification | `tests/unit/ui/desktopChrome.test.ts` & `e2e/sprint-09/desktop-chrome.spec.ts` | 100% green tests verifying icons, active tool states, title updates, and 59 prior tests |
+| **09.6** | Unit & E2E Test Verification | `tests/unit/ui/desktopChrome.test.tsx` & `e2e/sprint-09/desktop-chrome.spec.ts` | 100% green tests verifying icons, active tool states, title updates, and 59 prior tests |
 
 ### Detailed Acceptance Criteria:
 - **AC-09-01**: `public/icons/tikzit-tool-select.svg`, `tikzit-tool-node.svg`, `tikzit-tool-edge.svg`, `document-new.svg`, `document-open.svg`, `text-x-generic_with_pencil.svg`, and `refresh.svg` exist and match C++ source hashes.
@@ -104,13 +104,13 @@ The `images/` directory is the single source of truth; `tikzit.qrc` bundles a su
 
 ## 6. Definition of Done (DoD) Checklist
 
-- [ ] All required C++ SVG and PNG media assets synchronized from `images/` to `public/icons/` via `scripts/sync-desktop-icons.mjs` in `prebuild` and `predev`.
-- [ ] Type-safe React icon components authored in `src/components/common/TikzitIcons.tsx`.
-- [ ] macOS window chrome implemented in `src/components/workbench/MacWindowChrome.tsx` with traffic light buttons and reactive `title* - TikZiT` document title.
-- [ ] Desktop-parity Tool Palette implemented in `src/components/workbench/DesktopToolPalette.tsx` with 32x32px square buttons, exact C++ SVGs, and bright green active border (`#00c853`).
-- [ ] Keyboard shortcuts (`S`, `V`, `N`, `E`, `B`) seamlessly toggle tool modes and visually update active borders.
-- [ ] macOS window chrome preserves all pre-existing header features (undo/redo, version popover, tabs menu, reset layout, theme toggle, doc tab + `+` button) and every selector in Contract B.
-- [ ] Tool palette keeps `data-tool`/`data-testid="tool-*"` attributes; no prior E2E test regresses.
-- [ ] Unit tests in `tests/unit/ui/desktopChrome.test.ts` pass 100%.
-- [ ] Playwright E2E tests in `e2e/sprint-09/desktop-chrome.spec.ts` pass 100%.
-- [ ] Zero TypeScript errors (`npx tsc --noEmit`) and zero build warnings.
+- [x] All required C++ SVG and PNG media assets synchronized from `images/` to `public/icons/` via `scripts/sync-desktop-icons.mjs` in `prebuild` and `predev`.
+- [x] Type-safe React icon components authored in `src/components/common/TikzitIcons.tsx`.
+- [x] macOS window chrome implemented in `src/components/workbench/MacWindowChrome.tsx` with traffic light buttons and reactive `title* - TikZiT` document title.
+- [x] Desktop-parity Tool Palette implemented in `src/components/workbench/DesktopToolPalette.tsx` with 32x32px square buttons, exact C++ SVGs, and bright green active border (`#00c853`).
+- [x] Keyboard shortcuts (`S`, `V`, `N`, `E`, `B`) seamlessly toggle tool modes and visually update active borders.
+- [x] macOS window chrome preserves all pre-existing header features (undo/redo, version popover, tabs menu, reset layout, theme toggle, doc tab + `+` button) and every selector in Contract B.
+- [x] Tool palette keeps `data-tool`/`data-testid="tool-*"` attributes; no prior E2E test regresses.
+- [x] Unit tests in `tests/unit/ui/desktopChrome.test.tsx` pass 100%.
+- [x] Playwright E2E tests in `e2e/sprint-09/desktop-chrome.spec.ts` pass 100%.
+- [x] Zero TypeScript errors (`npx tsc --noEmit`) and zero build warnings.

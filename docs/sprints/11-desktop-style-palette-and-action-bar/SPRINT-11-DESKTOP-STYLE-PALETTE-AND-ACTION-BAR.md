@@ -85,7 +85,7 @@ The styles dock panel mounts as a **Dockview panel**, preserving full workspace 
 | **11.3** | Desktop 48x48 Swatch Grid | `src/components/styles/DesktopSwatchGrid.tsx` | 48x48px cells on `#181818`; label underneath; synthetic `none` pinned at index 0 |
 | **11.4** | StylePalette Re-architecture | `src/components/styles/StylePalette.tsx` | Complete re-assembly into desktop layout with node/edge split; Dockview integration |
 | **11.5** | Stylesheet Ingestion & Refresh | `src/components/workspace/FileDropZone.tsx` & `src/stores/workbench.ts` | `.tikzstyles` accepted by drop zone + Open button; `styleFileName` tracked; Refresh re-parses buffer |
-| **11.6** | Test Suite Verification | `tests/unit/styles/desktopStylePalette.test.ts` & `e2e/sprint-11/desktop-style-palette.spec.ts` | 100% green tests for 4 actions, category filter, swatch double-click, and 59 prior tests |
+| **11.6** | Test Suite Verification | `tests/unit/styles/desktopStylePalette.test.tsx` & `e2e/sprint-11/desktop-style-palette.spec.ts` | 100% green tests for 4 actions, category filter, swatch double-click, and 59 prior tests |
 
 ### Detailed Acceptance Criteria:
 - **AC-11-01**: 4 toolbar buttons render using canonical SVGs (`document-new.svg`, `document-open.svg`, `text-x-generic_with_pencil.svg`, `refresh.svg`) at 16×16 icon size.
@@ -114,13 +114,13 @@ The styles dock panel mounts as a **Dockview panel**, preserving full workspace 
 
 ## 6. Definition of Done (DoD) Checklist
 
-- [ ] Right dock panel restructured into desktop layout matching `stylepalette.ui`, mounted inside Dockview with all capabilities intact (Contract A).
-- [ ] 4-button action bar implemented with original SVG icons at 16×16; New/Open/Edit/Refresh mapped to web storage and file API.
-- [ ] `FileDropZone.tsx` updated to accept and parse `.tikzstyles` files.
-- [ ] Category combobox implemented as full-width dark `<select>`, populated from node-style categories with `""` (all) first, filtering only the node grid.
-- [ ] Node styles and Edge styles rendered in distinct split 48×48 icon-grid sections on `#181818`, `none` pinned at index 0.
-- [ ] Single-click = set active style; double-click = apply to selection.
-- [ ] Contract-B selectors preserved; zero regressions in the 59 prior E2E tests.
-- [ ] Unit tests in `tests/unit/styles/desktopStylePalette.test.ts` pass 100%.
-- [ ] Playwright E2E tests in `e2e/sprint-11/desktop-style-palette.spec.ts` pass 100%.
-- [ ] TypeScript compilation (`npx tsc --noEmit`) passes with 0 errors.
+- [x] Right dock panel restructured into desktop layout matching `stylepalette.ui`, mounted inside Dockview with all capabilities intact (Contract A).
+- [x] 4-button action bar implemented with original SVG icons at 16×16; New/Open/Edit/Refresh mapped to web storage and file API.
+- [x] `FileDropZone.tsx` updated to accept and parse `.tikzstyles` files.
+- [x] Category combobox implemented as full-width dark `<select>`, populated from node-style categories with `""` (all) first, filtering only the node grid.
+- [x] Node styles and Edge styles rendered in distinct split 48×48 icon-grid sections on `#181818`, `none` pinned at index 0.
+- [x] Single-click = set active style; double-click = apply to selection.
+- [x] Contract-B selectors preserved; zero regressions in the 59 prior E2E tests.
+- [x] Unit tests in `tests/unit/styles/desktopStylePalette.test.tsx` pass 100%.
+- [x] Playwright E2E tests in `e2e/sprint-11/desktop-style-palette.spec.ts` pass 100%.
+- [x] TypeScript compilation (`npx tsc --noEmit`) passes with 0 errors.

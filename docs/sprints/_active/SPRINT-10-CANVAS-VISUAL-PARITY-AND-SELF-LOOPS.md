@@ -108,12 +108,12 @@ When creating an edge where `sourceId === targetId` (node identity, not coordina
 
 ## 5. Definition of Done (DoD) Checklist
 
-- [ ] Canvas background calibrated to pure white (`#FFFFFF`) with exact axes (`#DCDCF0`) and grid lines (`#F0F0FA` / `#FAFAFF`).
-- [ ] Canvas paper sheet decoupled from outer dark window chrome.
-- [ ] Junction nodes (`style=none`) render with center dot (`#B4B4C8`) and geometric dashed boundary ring (`#B4B4DC`, dash 0.05 / gap 0.10).
-- [ ] Edge tool creates self-loops with upward teardrop geometry (`in=135°`, `out=45°`, `weight=1.0`) on node click/drag-to-self.
-- [ ] Edges render as crisp solid black ribbons (`#000000`, `0.05` TikZ units = 2.0 scene px) on the white paper canvas.
-- [ ] AST and emitter round-trip self-loop properties in canonical order `[style?, in=135, out=45, loop]` with `style=none` omitted and `to ()` target.
-- [ ] Unit tests in `tests/unit/canvas/desktopVisuals.test.ts` pass 100%.
-- [ ] Playwright E2E tests in `e2e/sprint-10/canvas-desktop-parity.spec.ts` pass 100%.
-- [ ] TypeScript compilation (`npx tsc --noEmit`) passes with 0 errors.
+- [x] Canvas background calibrated to pure white (`#FFFFFF`) with exact axes (`#DCDCF0`) and grid lines (`#F0F0FA` / `#FAFAFF`).
+- [x] Canvas paper sheet decoupled from outer dark window chrome.
+- [x] Junction nodes (`style=none`) render with center dot (`#B4B4C8`) and geometric dashed boundary ring (`#B4B4DC`, dash 0.05 / gap 0.10).
+- [x] Edge tool creates self-loops with upward teardrop geometry (`in=135°`, `out=45°`, `weight=1.0`) on node click/drag-to-self.
+- [x] Edges render as crisp solid black ribbons (`#000000`, `0.05` TikZ units = 2.0 scene px) on the white paper canvas.
+- [x] AST and emitter round-trip self-loop properties in canonical order `[style?, in=135, out=45, loop]` with `style=none` omitted and `to ()` target.
+- [x] Unit tests in `tests/unit/canvas/desktopVisuals.test.ts` pass 100%.
+- [x] Playwright E2E tests in `e2e/sprint-10/canvas-desktop-parity.spec.ts` pass 100%.
+- [x] TypeScript compilation (`npx tsc --noEmit`) passes with 0 errors.
