@@ -47,6 +47,7 @@ win32-deps
 /cmake_install.cmake
 /Testing/
 /tikzit_autogen/
+node_modules
 /node_modules/
 /.astro/
 /coverage/
