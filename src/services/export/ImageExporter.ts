@@ -35,6 +35,29 @@ export function downloadText(content: string, filename: string, mimeType: string
 
 export class ImageExporter {
   /**
+   * Generates pure SVG string from GraphAST
+   */
+  public static generateSvg(
+    ast: GraphAST,
+    stylesCatalog?: TikzStylesCatalog,
+    options: SvgGeneratorOptions = {}
+  ): string {
+    return generateSvg(ast, stylesCatalog, options);
+  }
+
+  /**
+   * Generates pure SVG Blob from GraphAST
+   */
+  public static generateSvgBlob(
+    ast: GraphAST,
+    stylesCatalog?: TikzStylesCatalog,
+    options: SvgGeneratorOptions = {}
+  ): Blob {
+    const svg = this.generateSvg(ast, stylesCatalog, options);
+    return new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  }
+
+  /**
    * Export vector SVG file
    */
   public static exportSvg(
@@ -43,23 +66,21 @@ export class ImageExporter {
     options: SvgGeneratorOptions = {},
     filename: string = 'diagram.svg'
   ): string {
-    const svg = generateSvg(ast, stylesCatalog, options);
+    const svg = this.generateSvg(ast, stylesCatalog, options);
     downloadText(svg, filename, 'image/svg+xml');
     return svg;
   }
 
   /**
-   * Export high-resolution PNG image
+   * Generates high-resolution PNG image Blob without triggering download
    */
-  public static async exportPng(
+  public static async generatePngBlob(
     ast: GraphAST,
     stylesCatalog?: TikzStylesCatalog,
-    options: PngExportOptions = {},
-    filename: string = 'diagram.png'
+    options: PngExportOptions = {}
   ): Promise<Blob> {
     const scaleFactor = options.scaleFactor ?? 2;
-    // Generate base SVG
-    const svgString = generateSvg(ast, stylesCatalog, {
+    const svgString = this.generateSvg(ast, stylesCatalog, {
       scale: 60,
       padding: 40,
       theme: options.theme,
@@ -67,7 +88,6 @@ export class ImageExporter {
     });
 
     if (typeof window === 'undefined' || typeof Image === 'undefined') {
-      // In SSR/Node test environment, return a dummy mock blob
       return new Blob([svgString], { type: 'image/png' });
     }
 
@@ -92,7 +112,6 @@ export class ImageExporter {
             return;
           }
 
-          // Crisp rendering
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           ctx.scale(scaleFactor, scaleFactor);
@@ -102,7 +121,6 @@ export class ImageExporter {
 
           canvas.toBlob((blob) => {
             if (blob) {
-              downloadBlob(blob, filename);
               resolve(blob);
             } else {
               reject(new Error('Failed to create PNG blob from canvas'));
@@ -114,13 +132,27 @@ export class ImageExporter {
         }
       };
 
-      img.onerror = (e) => {
+      img.onerror = () => {
         URL.revokeObjectURL(url);
         reject(new Error('Failed to load SVG into Image for rasterization'));
       };
 
       img.src = url;
     });
+  }
+
+  /**
+   * Export high-resolution PNG image
+   */
+  public static async exportPng(
+    ast: GraphAST,
+    stylesCatalog?: TikzStylesCatalog,
+    options: PngExportOptions = {},
+    filename: string = 'diagram.png'
+  ): Promise<Blob> {
+    const blob = await this.generatePngBlob(ast, stylesCatalog, options);
+    downloadBlob(blob, filename);
+    return blob;
   }
 
   /**
@@ -133,17 +165,28 @@ export class ImageExporter {
   }
 
   /**
+   * Generates complete standalone LaTeX document (.tex) from raw TikZ code or GraphAST
+   */
+  public static generateStandaloneTex(
+    sourceOrAst: string | GraphAST,
+    stylesCatalog?: TikzStylesCatalog,
+    config?: PreambleConfig
+  ): string {
+    const tikzCode = typeof sourceOrAst === 'string' ? sourceOrAst : emitTikz(sourceOrAst);
+    const stylesCode = stylesCatalog ? emitTikzStyles(stylesCatalog) : undefined;
+    return defaultPreambleManager.generateStandaloneDocument(tikzCode, stylesCode, config);
+  }
+
+  /**
    * Export complete standalone LaTeX document (.tex)
    */
   public static exportTex(
-    ast: GraphAST,
+    sourceOrAst: string | GraphAST,
     stylesCatalog?: TikzStylesCatalog,
     config?: PreambleConfig,
     filename: string = 'diagram.tex'
   ): string {
-    const tikzCode = emitTikz(ast);
-    const stylesCode = stylesCatalog ? emitTikzStyles(stylesCatalog) : undefined;
-    const texDoc = defaultPreambleManager.generateStandaloneDocument(tikzCode, stylesCode, config);
+    const texDoc = this.generateStandaloneTex(sourceOrAst, stylesCatalog, config);
     downloadText(texDoc, filename, 'application/x-latex');
     return texDoc;
   }

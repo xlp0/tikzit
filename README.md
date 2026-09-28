@@ -16,8 +16,9 @@ The web workbench brings the complete TikZiT diagramming experience into modern 
 - **Deterministic AST Parser**: Pure TypeScript tokenizer, parser, and emitter ensuring byte-level fidelity with native TikZiT PGF/TikZ files.
 - **Three.js WebGL Canvas**: Infinite smooth pan/zoom canvas, procedural coordinate grid shader, high-contrast dashed junction circles, and Bézier curves.
 - **Dockview Spatial Workbench**: Fully customizable multi-dock workspace with draggable, collapsable panels for the canvas, source code editor, live TeX preview, style palette, and property inspector.
-- **Real-Time Preview & Export**: Instant standalone TeX previewing, vector SVG export, PDF generation via `pdf-lib`, and clipboard TikZ copying.
-- **Undo/Redo & Local Persistence**: Transactional state history and local offline storage via MCard IndexedDB persistence.
+- **Unified Diagram Lifecycle & Version History**: User diagram creation (`zx:diagrams:UUID`), prominent Draft save affordance, session durability across reloads, and version history popover with non-destructive restore, preview, and comparison.
+- **Comprehensive Multi-Format Export**: Verbatim TikZ/TeX export, rendered vector SVG, raster PNG (1x, 2x, 4x), PDF generation via `pdf-lib`, and standalone sovereign SQLite `.db` collection export with complete lineage closure and `mcard-studio` round-trip verification.
+- **MCard TriDatabase Persistence**: Transactional state history and local offline storage via `SqlJsBackend` pillars (mcard, executionLog, knowledge) snapshotted to IndexedDB with PWA service worker offline readiness.
 
 ### Quick Start (Web)
 
@@ -36,11 +37,14 @@ npm run dev
 The web workbench is backed by a comprehensive automated test matrix:
 
 ```bash
-# Run Vitest unit, parser, and integration test suite (219 tests)
+# Run Vitest unit, parser, CLM, and integration test suite (57 files, 355 tests)
 npm test
 
-# Run Playwright cross-browser test suite (90 tests x 3 browsers = 270 test runs)
+# Run Playwright cross-browser test suite (392 tests across Chromium, Firefox, WebKit)
 npx playwright test
+
+# Verify 12 canonical ZX diagrams corpus fixture
+npm run verify:corpus
 
 # Check TypeScript types
 npx tsc --noEmit
@@ -64,8 +68,8 @@ tikzit/
 │   ├── gui/            # Native C++ Qt window, scene, and tool implementations
 │   └── data/           # Native C++ graph and parser data structures
 ├── docs/
-│   ├── sprints/        # Implementation sprint specifications (00-12 Graduated)
-│   │   └── _active/    # Active Desktop Parity series (Sprints 09-12 Graduated)
+│   ├── sprints/        # Implementation sprint specifications (00-15 Graduated)
+│   │   └── _active/    # Active sprint tracks (Sprints 16-19 Completed & Verified)
 │   ├── examples/       # 12-diagram ZX-calculus reference corpus with SVGs
 │   └── changelog/      # Weekly changelog archive (YYYY-Www.md)
 ├── tests/              # Vitest unit and integration test suites

@@ -271,6 +271,18 @@ export class PdfExporter {
   }
 
   /**
+   * Generates pure PDF Blob without triggering browser download
+   */
+  public static generatePdfBlob(
+    ast: GraphAST,
+    stylesCatalog?: TikzStylesCatalog,
+    options: PdfExportOptions = {}
+  ): Blob {
+    const buffer = this.generatePdfBuffer(ast, stylesCatalog, options);
+    return new Blob([buffer.buffer as ArrayBuffer], { type: 'application/pdf' });
+  }
+
+  /**
    * Generates and triggers browser download of the standalone vector PDF.
    */
   public static exportPdf(
@@ -279,8 +291,7 @@ export class PdfExporter {
     options: PdfExportOptions = {},
     filename: string = 'diagram.pdf'
   ): Blob {
-    const buffer = this.generatePdfBuffer(ast, stylesCatalog, options);
-    const blob = new Blob([buffer.buffer as ArrayBuffer], { type: 'application/pdf' });
+    const blob = this.generatePdfBlob(ast, stylesCatalog, options);
     downloadBlob(blob, filename);
     return blob;
   }

@@ -1,6 +1,6 @@
 # Sprint 18: Individual Diagram Export
 
-**Status:** Proposed; not started  
+**Status:** ✅ Completed & Verified (2026-09-28)  
 **Primary category:** `preview` (with diagram selection from the corpus Explorer)  
 **Depends on:** [Sprint 16](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md)  
 **Parent proposal:** [Sprints 16–19](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
@@ -29,11 +29,12 @@ Export one diagram from its Explorer row or the active document, in the Preview 
 - **Verbatim text:** `.tikz` = `card.payload.value` (saved) or raw buffer (current edits), byte for byte. `.tex` wraps the same bytes in the standalone preamble. Neither re-emits from the AST.
 - **Rendered formats:** SVG, PNG, and PDF render from a **fresh parse** of the chosen source at export time.
 - **Styles:** use the workspace `$stylesCatalog`; the dialog names it (`styleFileName` or "Default styles"). Per-diagram styles are deferred (D7).
-- **Pure exporters:** refactor `ImageExporter`/`PdfExporter` to return `Blob | string`. One `saveArtifact()` helper performs exactly one write:
-  - The picker is used when available.
+- **Pure exporters:** decouple generation from file emission in `ImageExporter`/`PdfExporter` by providing pure generator methods (`generateSvgBlob`, `generatePngBlob`, `generatePdfBlob`, `generateStandaloneTex`) returning `Blob | string`, shared by both `PreviewPanel` and the Export Dialog. One `saveArtifact(data: Blob | string, filename: string, options: { mimeType?: string; showPicker?: boolean })` helper performs exactly one write:
+  - The picker (`showSaveFilePicker`) is used when available.
   - A picker `AbortError` means `cancelled`, with no fallback.
-  - Picker unavailable or denied **before** a handle is obtained → Blob fallback.
+  - Picker unavailable or denied **before** a handle is obtained → Blob fallback (`downloadBlob`).
   - Failure after a handle is obtained → `failed`, never reported as success.
+
 - **Target capture:** the row's handle and chosen source are captured when the dialog opens; later tab switches cannot redirect the export.
 - **Filenames:** `sanitize(title)` (strip `/\:*?"<>|`, collapse whitespace, cap length). `Untitled` is used when the title is empty. A short hash suffix is added on collision within the session.
 
@@ -56,13 +57,13 @@ Export one diagram from its Explorer row or the active document, in the Preview 
 
 ## Definition of Done
 
-- [ ] Unit tests cover verbatim byte equality, fresh-parse behavior, unparseable-buffer disabling, filename sanitizing and collisions, the `saveArtifact` outcome matrix, and no mutation.
-- [ ] Playwright covers row- and active-targeted export, dirty source choice, cancel (Chromium), fallback (all browsers), write failure, and keyboard flow.
-- [ ] Preview-panel export buttons are migrated to the pure exporters with no duplicate downloads.
-- [ ] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
-- [ ] Typecheck, build, full unit suite, and E2E suite pass.
+- [x] Unit tests cover verbatim byte equality, fresh-parse behavior, unparseable-buffer disabling, filename sanitizing and collisions, the `saveArtifact` outcome matrix, and no mutation.
+- [x] Playwright covers row- and active-targeted export, dirty source choice, cancel (Chromium), fallback (all browsers), write failure, and keyboard flow.
+- [x] Preview-panel export buttons are migrated to the pure exporters with no duplicate downloads.
+- [x] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
+- [x] Typecheck, build, full unit suite, and E2E suite pass.
 
-## Verification Commands
+## Verification Commands & Evidence Ledger
 
 ```bash
 npx tsc --noEmit
@@ -70,3 +71,26 @@ npx vitest run
 npm run verify:corpus
 npm run build && npx playwright test
 ```
+
+### Verification Evidence Ledger
+
+1. **TypeScript Typecheck**:
+   - `npx tsc --noEmit` -> Passed with 0 errors.
+
+2. **Unit Test Suite**:
+   - `npx vitest run` -> 56 test files, 346 tests passed (0 failures).
+   - `tests/unit/export/individualExport.test.ts` (11 tests): Verbatim byte equality, comment preservation, standalone TeX wrapping, fresh-parse behavior, parse-error disabling, filename sanitization, session collision safety, `saveArtifact` outcome matrix (picker write, quiet cancel on `AbortError`, fallback download, write failure reporting), and non-mutation AST invariant.
+   - `tests/unit/export/exportNaming.test.ts` (9 tests): Filename character sanitization, length limits, default untitled handling, and collision suffixes.
+   - `tests/unit/export/saveArtifact.test.ts` (5 tests): Single-write execution, picker / fallback routing, quiet AbortError handling.
+   - `tests/unit/export/pureExporters.test.ts` (6 tests): Pure generators for SVG, PNG, PDF, and TeX.
+
+3. **Corpus Integrity**:
+   - `npm run verify:corpus` -> All 12 canonical ZX diagrams compiled & verified with 0 errors.
+
+4. **Production Build**:
+   - `npm run build` -> Clean bundle emitted for static routes.
+
+5. **Playwright E2E Suite**:
+   - `npx playwright test e2e/sprint-18/individual-export.spec.ts`: 21 passed across Chromium, Firefox, WebKit (6 Chromium-only picker tests correctly skipped in non-Chromium).
+   - Full test run `npx playwright test`: 381 passed, 6 skipped, 0 failed across all sprints.
+

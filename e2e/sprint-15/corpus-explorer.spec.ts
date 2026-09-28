@@ -218,8 +218,10 @@ test('exports a SQLite database through the picker without relying on a Node cod
       }),
     });
   });
-  await page.getByTestId('corpus-save-btn').click();
-  await expect(page.getByText('Corpus saved.')).toBeVisible();
+  await page.getByTestId('btn-export-collection').click();
+  await expect(page.getByTestId('export-collection-dialog')).toBeVisible();
+  await page.getByTestId('btn-confirm-collection-export').click();
+  await expect(page.getByTestId('collection-export-success')).toBeVisible();
   const bytes = await page.evaluate(() => (window as Window & { __exportBytes?: number[] }).__exportBytes ?? []);
   expect(bytes.slice(0, 16)).toEqual(Array.from(new TextEncoder().encode('SQLite format 3\0')));
 });
@@ -236,10 +238,12 @@ test('uses Blob download only when the picker is unavailable and revokes its obj
     URL.revokeObjectURL = (url) => { revoked.push(url); originalRevoke(url); };
     target.__revokedUrls = revoked;
   });
+  await page.getByTestId('btn-export-collection').click();
+  await expect(page.getByTestId('export-collection-dialog')).toBeVisible();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByTestId('corpus-save-btn').click();
+  await page.getByTestId('btn-confirm-collection-export').click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toBe('tikzit-corpus.db');
-  await expect(page.getByText('Corpus saved.')).toBeVisible();
+  expect(download.suggestedFilename()).toMatch(/^tikzit-diagrams-\d{8}\.db$/);
+  await expect(page.getByTestId('collection-export-success')).toBeVisible();
   await page.waitForFunction(() => ((window as Window & { __revokedUrls?: string[] }).__revokedUrls?.length ?? 0) > 0);
 });

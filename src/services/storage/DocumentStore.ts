@@ -16,6 +16,8 @@ export interface DocumentRecord {
   updatedAt: number;
   version: number;
   isDirty?: boolean;
+  isDraft?: boolean;
+  legacyId?: string;
 }
 
 export interface DocumentRevision {

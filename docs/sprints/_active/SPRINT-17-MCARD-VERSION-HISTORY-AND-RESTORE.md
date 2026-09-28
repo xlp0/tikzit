@@ -1,6 +1,6 @@
 # Sprint 17: MCard Version History & Restore
 
-**Status:** Proposed; not started  
+**Status:** Completed & Verified  
 **Primary category:** `corpus` (reusing the shell History affordance)  
 **Depends on:** [Sprint 16](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md)  
 **Parent proposal:** [Sprints 16–19](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
@@ -35,8 +35,10 @@ Bind the existing **History** popover to the active diagram's real MCard lineage
 - **Restore** = `putWithHandle(historicalCard, handle)`: one new history row, no new card, true A→B→A.
 - **Compare-and-set:** capture `expectedHead` when the user picks a version and bail with `conflict` if `resolveHandle()` differs at restore time.
 - Restoring the current head returns `already-current`; nothing is written.
-- `applyRestoredHead(handle, content, ast, hash)` atomically sets buffer content, AST, head, and clean state, then emits `document:change`; `document:persisted` follows the flush.
+- `applyRestoredHead(handle, content, ast, hash)` atomically updates `defaultWorkspaceManager` (`doc.content = content`, `doc.ast = ast`, `doc.hash = hash`, `doc.isDirty = false`, `doc.updatedAt = Date.now()`), synchronizes canvas projection via `ctx.graph.setAST(ast)`, and emits `document:change`; `document:persisted` follows the flush.
+- Lazy card loading: timeline rows are populated from `handle_history` timestamps and hashes; full card payloads are fetched from `collection` lazily only when previewed, diffed, or restored.
 - Legacy (non-MCard) documents keep the `DocumentStore` path with an explicit "Local revisions (not MCard history)" heading. MCard-backed documents never write `DocumentStore` revisions.
+
 
 ## Acceptance Criteria
 
@@ -59,11 +61,11 @@ Bind the existing **History** popover to the active diagram's real MCard lineage
 
 ## Definition of Done
 
-- [ ] Unit tests cover lineage ordering with duplicate-hash rows, missing/corrupt cards, re-register restore, CAS conflict, already-current, dirty-buffer guard, atomic apply, and labels.
-- [ ] Playwright covers history for a seeded example and a user diagram, preview, compare, restore with dirty prompt, switching while open, and keyboard flow.
-- [ ] Legacy document behavior is tested and visibly distinguished.
-- [ ] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
-- [ ] Typecheck, build, full unit suite, and E2E suite pass.
+- [x] Unit tests cover lineage ordering with duplicate-hash rows, missing/corrupt cards, re-register restore, CAS conflict, already-current, dirty-buffer guard, atomic apply, and labels.
+- [x] Playwright covers history for a seeded example and a user diagram, preview, compare, restore with dirty prompt, switching while open, and keyboard flow.
+- [x] Legacy document behavior is tested and visibly distinguished.
+- [x] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
+- [x] Typecheck, build, full unit suite, and E2E suite pass.
 
 ## Verification Commands
 

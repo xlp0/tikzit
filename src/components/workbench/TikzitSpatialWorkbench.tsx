@@ -1,5 +1,5 @@
 import { FileDropZone } from '../workspace/FileDropZone';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import { type DockviewReadyEvent, type DockviewApi } from 'dockview-react';
 import 'dockview-react/dist/styles/dockview.css';
@@ -10,7 +10,9 @@ import { WorkbenchStatusBar } from './WorkbenchStatusBar';
 
 import { createWorkbenchRuntimeAsync, type WorkbenchRuntime } from '../../services/createWorkbenchRuntime';
 import { formatContentId } from '../../services/clm/corpusExplorerService';
+import { defaultWorkspaceManager } from '../../services/workspace/WorkspaceManager';
 import { WorkbenchRuntimeProvider } from './WorkbenchRuntimeContext';
+import { selectDiagramSaveState } from '../../services/clm/saveAffordanceState';
 
 export interface TikzitSpatialWorkbenchProps {
   runtime?: WorkbenchRuntime;
@@ -24,6 +26,32 @@ const TikzitSpatialWorkbenchReady: React.FC<{ runtime: WorkbenchRuntime; ownsRun
   const layout = useStore(runtime.stores.$workbenchLayout);
   const activeDiagram = useStore(runtime.stores.$activeDiagram);
   const documentHead = useStore(runtime.stores.$documentHead);
+  const corpusView = useStore(runtime.stores.$corpusView);
+  const saveStates = useStore(runtime.stores.$diagramSaveState);
+  const [workspaceState, setWorkspaceState] = useState(defaultWorkspaceManager.getState());
+
+  useEffect(() => {
+    return defaultWorkspaceManager.subscribe(setWorkspaceState);
+  }, []);
+
+  const activeDoc = workspaceState.openDocs.find((d) => d.id === workspaceState.activeDocId);
+  const affordance = activeDoc
+    ? selectDiagramSaveState({
+        handle: activeDoc.id,
+        workspaceDoc: activeDoc,
+        documentHead,
+        corpusView,
+        saveState: activeDoc.id ? saveStates[activeDoc.id] : undefined,
+      })
+    : null;
+
+  const isSessionOnly = affordance?.isSessionOnly ?? false;
+  const saveStatusText = affordance?.statusText ?? '';
+
+  const handleRetryFlush = useCallback(() => {
+    void runtime.retryFlush();
+  }, [runtime]);
+
   const contentId = (() => {
     try {
       return formatContentId(documentHead.hash);
@@ -207,6 +235,9 @@ const TikzitSpatialWorkbenchReady: React.FC<{ runtime: WorkbenchRuntime; ownsRun
         isWorkbenchDepressed={isWorkbenchDepressed}
         panelCount={panelCount}
         contentId={contentId}
+        saveStatusText={saveStatusText}
+        isSessionOnly={isSessionOnly}
+        onRetryFlush={handleRetryFlush}
         onToggleFocal={() => (isWorkbenchDepressed ? restoreWorkbench() : depressWorkbench())}
       />
       </div>

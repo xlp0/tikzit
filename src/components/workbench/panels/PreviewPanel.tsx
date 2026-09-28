@@ -6,6 +6,9 @@ import { $graphAST as defaultGraphAST, $stylesCatalog as defaultStylesCatalog } 
 import { generateSvg } from '../../../services/preview/SvgGenerator';
 import { ImageExporter } from '../../../services/export/ImageExporter';
 import { PdfExporter } from '../../../services/export/PdfExporter';
+import { saveArtifact } from '../../../services/export/saveArtifact';
+import { sanitizeFilename } from '../../../services/export/exportNaming';
+import { emitTikz } from '../../../core/parser/emitter';
 import { defaultPreambleManager } from '../../../services/preview/PreambleManager';
 import type { PreambleConfig } from '../../../services/preview/PreambleManager';
 
@@ -138,10 +141,16 @@ export const PreviewPanel: React.FC<IDockviewPanelProps> = () => {
     showToast(ok ? 'TikZ code copied to clipboard!' : 'Failed to copy TikZ code');
   };
 
-  const handleExportSvg = () => {
+  const handleExportSvg = async () => {
     if (!graph) return;
-    ImageExporter.exportSvg(graph, stylesCatalog, { scale: 60, padding: 40 });
-    showToast('Exported diagram.svg');
+    const svgBlob = ImageExporter.generateSvgBlob(graph, stylesCatalog, { scale: 60, padding: 40 });
+    const filename = sanitizeFilename('diagram', 'svg');
+    const res = await saveArtifact(svgBlob, filename, { mimeType: 'image/svg+xml' });
+    if (res.status === 'success') {
+      showToast(`Exported ${res.filename}`);
+    } else if (res.status === 'failure') {
+      showToast(`Export error: ${res.error}`);
+    }
     setShowExportMenu(false);
   };
 
@@ -149,34 +158,59 @@ export const PreviewPanel: React.FC<IDockviewPanelProps> = () => {
     if (!graph) return;
     showToast(`Generating ${pngScale}x PNG...`);
     try {
-      await ImageExporter.exportPng(graph, stylesCatalog, { scaleFactor: pngScale });
-      showToast(`Exported diagram.png (${pngScale}x)`);
+      const pngBlob = await ImageExporter.generatePngBlob(graph, stylesCatalog, { scaleFactor: pngScale });
+      const filename = sanitizeFilename('diagram', 'png');
+      const res = await saveArtifact(pngBlob, filename, { mimeType: 'image/png' });
+      if (res.status === 'success') {
+        showToast(`Exported ${res.filename} (${pngScale}x)`);
+      } else if (res.status === 'failure') {
+        showToast(`Export error: ${res.error}`);
+      }
     } catch (err: any) {
       showToast(`PNG export error: ${err.message}`);
     }
     setShowExportMenu(false);
   };
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     if (!graph) return;
-    PdfExporter.exportPdf(graph, stylesCatalog);
-    showToast('Exported diagram.pdf');
+    const pdfBlob = PdfExporter.generatePdfBlob(graph, stylesCatalog);
+    const filename = sanitizeFilename('diagram', 'pdf');
+    const res = await saveArtifact(pdfBlob, filename, { mimeType: 'application/pdf' });
+    if (res.status === 'success') {
+      showToast(`Exported ${res.filename}`);
+    } else if (res.status === 'failure') {
+      showToast(`Export error: ${res.error}`);
+    }
     setShowExportMenu(false);
   };
 
-  const handleExportTikz = () => {
+  const handleExportTikz = async () => {
     if (!graph) return;
-    ImageExporter.exportTikz(graph);
-    showToast('Exported diagram.tikz');
+    const code = emitTikz(graph);
+    const filename = sanitizeFilename('diagram', 'tikz');
+    const res = await saveArtifact(code, filename, { mimeType: 'text/plain' });
+    if (res.status === 'success') {
+      showToast(`Exported ${res.filename}`);
+    } else if (res.status === 'failure') {
+      showToast(`Export error: ${res.error}`);
+    }
     setShowExportMenu(false);
   };
 
-  const handleExportTex = () => {
+  const handleExportTex = async () => {
     if (!graph) return;
-    ImageExporter.exportTex(graph, stylesCatalog);
-    showToast('Exported standalone diagram.tex');
+    const texDoc = ImageExporter.generateStandaloneTex(graph, stylesCatalog);
+    const filename = sanitizeFilename('diagram', 'tex');
+    const res = await saveArtifact(texDoc, filename, { mimeType: 'application/x-latex' });
+    if (res.status === 'success') {
+      showToast(`Exported standalone ${res.filename}`);
+    } else if (res.status === 'failure') {
+      showToast(`Export error: ${res.error}`);
+    }
     setShowExportMenu(false);
   };
+
 
   return (
     <div

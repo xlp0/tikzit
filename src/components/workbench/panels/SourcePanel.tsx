@@ -20,6 +20,8 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
   const graph = useStore(graphStore);
   const [code, setCode] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const isEditingRef = useRef(false);
+  const codeRef = useRef('');
   const [diagnostics, setDiagnostics] = useState<SyncDiagnostic[]>([]);
   const isUpdatingFromExternal = useRef(false);
   const activeDocIdRef = useRef<string | null>(null);
@@ -37,9 +39,21 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
         setIsDocDirty(active.isDirty ?? false);
         if (activeDocIdRef.current !== ws.activeDocId) {
           activeDocIdRef.current = ws.activeDocId;
-          suppressGraphEchoRef.current = !active.isDirty;
+          suppressGraphEchoRef.current = true;
           setCode(active.content);
+          codeRef.current = active.content;
           setIsEditing(active.isDirty ?? false);
+          isEditingRef.current = active.isDirty ?? false;
+        } else if (!active.isDirty) {
+          suppressGraphEchoRef.current = true;
+          setCode(active.content);
+          codeRef.current = active.content;
+          setIsEditing(false);
+          isEditingRef.current = false;
+        } else if (!isEditingRef.current && active.content !== codeRef.current) {
+          suppressGraphEchoRef.current = true;
+          setCode(active.content);
+          codeRef.current = active.content;
         }
       }
     });
@@ -68,6 +82,7 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
       isUpdatingFromExternal.current = true;
       const emitted = emitTikz(graph);
       setCode(emitted);
+      codeRef.current = emitted;
       defaultSyncController.commitFromCanvas(graph);
       setDiagnostics([]);
       isUpdatingFromExternal.current = false;
@@ -76,7 +91,9 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
 
   const handleChange = (newCode: string) => {
     setCode(newCode);
+    codeRef.current = newCode;
     setIsEditing(true);
+    isEditingRef.current = true;
 
     // Update workspace dirty state
     const active = defaultWorkspaceManager.getActiveDocument();
@@ -86,7 +103,7 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
 
     const editedDocId = active?.id;
     defaultSyncController.updateFromEditor(newCode, (ast) => {
-      if (editedDocId) defaultWorkspaceManager.updateContent(editedDocId, newCode, ast);
+      if (editedDocId) defaultWorkspaceManager.updateAst(editedDocId, ast);
       // A debounced edit must never apply its AST to a different active document.
       if (defaultWorkspaceManager.getActiveDocument()?.id !== editedDocId) return;
       if (runtime) {
@@ -101,6 +118,7 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
 
   const handleBlur = () => {
     setIsEditing(false);
+    isEditingRef.current = false;
   };
 
   return (

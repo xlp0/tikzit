@@ -19,6 +19,7 @@ interface TriDatabaseRuntimeBase {
 
 export interface SqlJsTriDatabaseRuntime extends TriDatabaseRuntimeBase {
   backends: [SqlJsBackend, SqlJsBackend, SqlJsBackend];
+  pillarDatabases: Record<'knowledge' | 'executionLog' | 'mcard', SqlJsDatabase>;
 }
 
 export interface MemoryTriDatabaseRuntime extends TriDatabaseRuntimeBase {
@@ -61,10 +62,13 @@ export async function createSqlJsTriDatabase(
   const SQL = await initializeSqlJs();
   const pillarNames = ['knowledge', 'executionLog', 'mcard'] as const;
   const databases: SqlJsDatabase[] = [];
+  const pillarDatabases = {} as Record<'knowledge' | 'executionLog' | 'mcard', SqlJsDatabase>;
   try {
     for (const name of pillarNames) {
       const bytes = snapshot?.pillars[name];
-      databases.push(new SQL.Database(bytes ? new Uint8Array(bytes) : undefined));
+      const db = new SQL.Database(bytes ? new Uint8Array(bytes) : undefined);
+      databases.push(db);
+      pillarDatabases[name] = db;
     }
   } catch (error) {
     databases.forEach((database) => database.close());
@@ -96,6 +100,7 @@ export async function createSqlJsTriDatabase(
     }),
     backends,
     databases,
+    pillarDatabases,
     close() {
       if (closed) return;
       closed = true;

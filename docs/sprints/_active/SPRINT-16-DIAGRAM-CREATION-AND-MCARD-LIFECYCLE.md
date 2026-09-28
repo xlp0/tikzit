@@ -48,12 +48,15 @@ These defects are live in shipped code. Each gets a failing test first.
 ## Data & Event Contract
 
 - `isDiagramHandle(handle)` covers `zx:examples:` and `zx:diagrams:`. All seven sites migrate to it, except manifest seeding, which keeps an examples-only check marked with a comment.
-- Creation mints `zx:diagrams:<uuid>` and uses it as the workspace document id. No remapping happens later.
+- Creation mints `zx:diagrams:<uuid>` and uses it as the workspace document id. No remapping happens later. Cmd+S in `WorkbenchCommandBar.tsx` routes all `isDiagramHandle(active.id)` documents to `runtime.saveActiveCorpusEntry()` (not the legacy `DocumentStore`).
 - On first commit, a metadata card `zx:meta:diagrams:<uuid>` is written with `{ title, archived: false, createdAt, source: 'user' }`. The corpus index row caches `title`, and the cache can be rebuilt from metadata cards during index repair.
-- Snapshot format v2: `validateSnapshot` uses `isDiagramHandle`, v1 snapshots migrate as identity, and the optional `title` cache field is allowed. The IDB database version becomes an independent constant, so a format bump does not trigger a blockable IDB upgrade.
+- Snapshot format v2: `validateSnapshot` uses `isDiagramHandle`, v1 snapshots migrate as identity, and the optional `title` cache field is allowed. Decouple IndexedDB schema from snapshot format: `CORPUS_INDEXEDDB_SCHEMA_VERSION = 1` governs `indexedDB.open()`, while `CORPUS_SNAPSHOT_VERSION = 2` validates the snapshot payload. Format bumps no longer trigger blockable IDB upgrades.
+- Multi-tab writer protection (D10): stale-snapshot rejection sets persistence to `'stale'` (added to `CorpusPersistenceState` and `CorpusViewState.persistence`), blocking further commits and prompting reload.
+- Parser performance caching: `CorpusExplorerService` caches parsed node and edge counts keyed by immutable card hash (`parseCache: Map<string, { nodeCount: number; edgeCount: number }>`), eliminating redundant parsing during Explorer updates.
 - The commit gate drops the `EMPTY_DIAGRAM` bail (D1). `INVALID_TIKZ_SYNTAX` and `NULL_AST` still bail.
 - `commitCorpusDocument` generalizes to `commitDiagram` for both namespaces, keeping the gate, receipt, and index update.
-- Emit `tikzit/document:persisted { handle, hash }` after a successful flush. The saved-state UI subscribes to it.
+- Emit `tikzit/document:persisted { handle, hash }` after a successful flush (declared under `Events` in `src/services/events.ts`). The saved-state UI subscribes to it.
+
 
 ## Acceptance Criteria
 
@@ -75,12 +78,12 @@ These defects are live in shipped code. Each gets a failing test first.
 
 ## Definition of Done
 
-- [ ] All `startsWith('zx:examples:')` sites migrated or annotated as examples-only.
-- [ ] Unit tests cover H1–H8, create, commit (empty and non-empty), unique identity, no-op save with flush, gate bail, persistence failure, metadata card creation, v1→v2 snapshot load, and reload with user handles.
-- [ ] Playwright covers Explorer create, header `+`, first save, reload, switching with a dirty buffer, and the saved/unsaved/session-only indicator.
-- [ ] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
-- [ ] Typecheck, build, full unit suite, and E2E suite pass.
-- [ ] New selectors are added to Contract B in `_active/README.md`; states are keyboard-accessible and announced.
+- [x] All `startsWith('zx:examples:')` sites migrated or annotated as examples-only.
+- [x] Unit tests cover H1–H8, create, commit (empty and non-empty), unique identity, no-op save with flush, gate bail, persistence failure, metadata card creation, v1→v2 snapshot load, and reload with user handles.
+- [x] Playwright covers Explorer create, header `+`, first save, reload, switching with a dirty buffer, and the saved/unsaved/session-only indicator.
+- [x] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
+- [x] Typecheck, build, full unit suite, and E2E suite pass.
+- [x] New selectors are added to Contract B in `_active/README.md`; states are keyboard-accessible and announced.
 
 ## Verification Commands
 

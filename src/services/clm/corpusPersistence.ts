@@ -1,12 +1,19 @@
 export const CORPUS_DATABASE_NAME = 'tikzit_corpus_db';
-export const CORPUS_SNAPSHOT_VERSION = 1;
+export const CORPUS_INDEXEDDB_SCHEMA_VERSION = 1;
+export const CORPUS_SNAPSHOT_VERSION = 2;
 const SNAPSHOT_STORE = 'snapshots';
 const SNAPSHOT_KEY = 'current';
+
+export function isDiagramHandle(handle: string): boolean {
+  return typeof handle === 'string' && (handle.startsWith('zx:examples:') || handle.startsWith('zx:diagrams:'));
+}
 
 export interface CorpusIndexRecord {
   handle: string;
   hash: string;
   committedAt: number;
+  title?: string;
+  archived?: boolean;
 }
 
 export interface CorpusSnapshotInput {
@@ -24,17 +31,17 @@ export interface CorpusSnapshot extends CorpusSnapshotInput {
   savedAt: number;
 }
 
-export type CorpusPersistenceState = 'closed' | 'persistent' | 'non-persistent' | 'recovery-required';
+export type CorpusPersistenceState = 'closed' | 'persistent' | 'non-persistent' | 'recovery-required' | 'stale';
 
 export interface CorpusPersistenceOptions {
   databaseName?: string;
   indexedDB?: IDBFactory | null;
 }
 
-function validateSnapshot(value: unknown): CorpusSnapshot {
+export function validateSnapshot(value: unknown): CorpusSnapshot {
   if (!value || typeof value !== 'object') throw new Error('Corrupt corpus snapshot');
   const snapshot = value as CorpusSnapshot;
-  if (snapshot.version !== CORPUS_SNAPSHOT_VERSION) {
+  if (snapshot.version !== 1 && snapshot.version !== CORPUS_SNAPSHOT_VERSION) {
     throw new Error(`Unsupported corpus snapshot version: ${String(snapshot.version)}`);
   }
   if (!Number.isInteger(snapshot.generation) || snapshot.generation < 0) throw new Error('Invalid snapshot generation');
@@ -45,13 +52,16 @@ function validateSnapshot(value: unknown): CorpusSnapshot {
   for (const row of snapshot.corpusIndex) {
     if (
       typeof row?.handle !== 'string' ||
-      !row.handle.startsWith('zx:examples:') ||
+      !isDiagramHandle(row.handle) ||
       !/^[0-9a-f]{64}$/i.test(row.hash) ||
-      !Number.isFinite(row.committedAt)
+      !Number.isFinite(row.committedAt) ||
+      (row.title !== undefined && typeof row.title !== 'string') ||
+      (row.archived !== undefined && typeof row.archived !== 'boolean')
     ) throw new Error('Malformed corpus handle index row');
   }
-  return snapshot;
+  return { ...snapshot, version: CORPUS_SNAPSHOT_VERSION };
 }
+
 
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -85,7 +95,7 @@ export class CorpusPersistence {
     }
     try {
       this.database = await new Promise<IDBDatabase>((resolve, reject) => {
-        const request = this.indexedDBFactory!.open(this.databaseName, CORPUS_SNAPSHOT_VERSION);
+        const request = this.indexedDBFactory!.open(this.databaseName, CORPUS_INDEXEDDB_SCHEMA_VERSION);
         request.onupgradeneeded = () => {
           if (!request.result.objectStoreNames.contains(SNAPSHOT_STORE)) request.result.createObjectStore(SNAPSHOT_STORE);
         };
@@ -105,7 +115,13 @@ export class CorpusPersistence {
     }
   }
 
+  markStale(reason?: string): void {
+    this.state = 'stale';
+    this.error = reason ?? 'Corpus persistence is stale; another session wrote changes';
+  }
+
   async readSnapshot(): Promise<CorpusSnapshot | null> {
+    if (this.state === 'stale') throw new Error(this.error ?? 'Corpus persistence is stale');
     if (this.state === 'recovery-required') throw new Error('Corpus snapshot requires recovery');
     if (this.state === 'non-persistent') return null;
     if (!this.database) throw new Error('Corpus persistence is not open');
@@ -121,6 +137,7 @@ export class CorpusPersistence {
   }
 
   private async writeSnapshotNow(input: CorpusSnapshotInput): Promise<CorpusSnapshot> {
+    if (this.state === 'stale') throw new Error(this.error ?? 'Persistent storage is stale; reload required');
     if (this.state === 'non-persistent' || !this.database) throw new Error('Persistent storage is unavailable');
     if (this.state !== 'persistent') throw new Error('Corpus snapshot requires recovery');
     const next = validateSnapshot({ ...input, version: CORPUS_SNAPSHOT_VERSION, savedAt: Date.now() });
@@ -155,6 +172,7 @@ export class CorpusPersistence {
       };
       tx.onabort = () => {
         if (stale) {
+          this.markStale('Stale corpus snapshot writer rejected');
           reject(new Error('Stale corpus snapshot writer rejected'));
         } else {
           this.state = 'non-persistent';
@@ -164,6 +182,7 @@ export class CorpusPersistence {
       };
       tx.onerror = () => {
         if (stale) {
+          this.markStale('Stale corpus snapshot writer rejected');
           reject(new Error('Stale corpus snapshot writer rejected'));
           return;
         }
@@ -174,6 +193,7 @@ export class CorpusPersistence {
           : cause?.message ?? 'IndexedDB snapshot transaction failed';
         reject(new Error(this.error));
       };
+
     });
   }
 

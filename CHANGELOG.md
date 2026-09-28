@@ -5,9 +5,15 @@ All notable changes to the TikZiT project are documented weekly in the [`docs/ch
 ## Latest Entries
 
 - [**2026-W40 (2026-09-28 – 2026-10-04)**](docs/changelog/2026-W40.md):
-  - **Web Spatial Workbench Implementation**: Sprints 00 through 08 graduated into production with 183 Vitest tests and 59 Playwright E2E tests passing.
-  - **Core Engines**: TypeScript TikZ AST parser/lexer, Three.js WebGL infinite canvas, Dockview multi-dock workbench, Nanostores/Cordis state flux, live TeX preview, PDF/SVG exporters, and MCard persistence.
-  - **Desktop Parity Series (Sprints 09–12)**: Authored full implementation specifications for media asset pipeline, macOS dark window chrome, green active tool borders, white paper canvas calibration, and teardrop self-loop mathematics — then audited against the C++ source, correcting constants (`#DCDCF0` axes, `0.05`-unit edges) and adding Dockview-preservation and selector-stability contracts plus per-AC verification tables.
+  - **Diagram Lifecycle, History & Sovereign Export Series (Sprints 16–19 Completed & Verified)**:
+    - **Sprint 16 (Diagram Creation & Unified MCard Lifecycle)**: User diagram creation (`zx:diagrams:UUID`), explicit save to MCard, companion metadata cards (`zx:meta:diagrams:*`), snapshot v2 schema, and carry-over hardening (H1–H8).
+    - **Sprint 16B (Diagram Library Management & Session Durability)**: Rename, duplicate, archive/unarchive via metadata-card lineage, dirty-buffer recovery across reloads, and idempotent legacy `DocumentStore` import.
+    - **Sprint 17 (MCard Version History & Restore)**: History popover with real lineage ordering, version labels, non-destructive preview and visual compare modes, and card restore via historical head re-registration.
+    - **Sprint 17B (Prominent Draft-to-MCard Save Affordance)**: High-visibility Draft save button and in-canvas dismissible callout card providing 1-click MCard commit with smooth transition to Diagram mode.
+    - **Sprint 18 (Individual Diagram Export)**: Multi-format diagram export modal dialog supporting verbatim TikZ, vector SVG, raster PNG (1x, 2x, 4x), and PDF with style presets, File System Access API picker, and Blob fallback.
+    - **Sprint 19 (Complete MCard Diagram Collection Export)**: Verified sovereign SQLite `.db` collection export of all diagram and metadata handles with complete lineage closure (including A→B→A restore lineage), orphan card exclusion (D3), pre-write cryptographic hash validation, and pinned `mcard-studio` round-trip compatibility.
+    - **Verification Matrix**: 57 Vitest test files (355 unit tests 100% green), 392 Playwright E2E browser tests (100% green across Chromium, Firefox, WebKit), and 12/12 canonical ZX diagrams verified.
+  - **Desktop Parity Series (Sprints 09–15 Graduated)**: Shared C++ icon pipeline, macOS dark window chrome, green active tool borders, white paper canvas calibration, teardrop self-loop mathematics, desktop style palette, live preview curvature synchronization, and MCard-backed Corpus Explorer.
 - [**2026-W39 (2026-09-21 – 2026-09-27)**](docs/changelog/2026-W39.md):
   - Initial web-rebuild roadmap and architecture specifications.
   - 12-diagram ZX-calculus reference corpus with SVGs and build scripts.

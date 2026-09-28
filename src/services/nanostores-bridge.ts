@@ -49,6 +49,20 @@ export function bindCordisToNanostores(ctx: Context, stores: WorkbenchStores): (
     })
   );
 
+  // 4b. Persisted Document Head Projection: Cordis -> Nanostores
+  disposers.push(
+    ctx.on('tikzit/document:persisted', (payload) => {
+      const currentHead = stores.$documentHead.get();
+      if (currentHead.handle === payload.handle) {
+        stores.$documentHead.set({
+          ...currentHead,
+          hash: payload.hash,
+          lastPersistedAt: Date.now(),
+        });
+      }
+    })
+  );
+
   // 5. Styles Catalog Projection: Cordis -> Nanostores
   disposers.push(
     ctx.on('tikzit/styles:change', (catalog: TikzStylesCatalog) => {

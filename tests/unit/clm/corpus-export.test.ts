@@ -69,12 +69,17 @@ describe('CorpusExportService', () => {
     runtime.corpusExplorer.restoreIndex([{ handle, hash: hashA.asHex(), committedAt: Date.now() }]);
     expect(runtime.mcardCollection.resolveHandle(handle)!.asHex()).toBe(hashA.asHex());
 
-    // No getHistoryRows: exercises the lineage-reconstruction fallback.
+    // Genuine history rows for A -> B -> A lineage
+    const historyRows = [
+      { handle, previous_hash: hashA.asHex(), changed_at: '2026-09-28T00:00:00.000Z' },
+      { handle, previous_hash: hashB.asHex(), changed_at: '2026-09-28T00:01:00.000Z' },
+    ];
     const exporter = new CorpusExportService({
       triDb: runtime.triDb,
       collection: runtime.mcardCollection,
       authorDid: runtime.authorDid,
       getIndex: () => runtime.corpusExplorer.getCorpusIndex(),
+      getHistoryRows: () => historyRows,
       flush: () => runtime.corpusExplorer.flush(),
     });
     const parsed = await parsePortableSqlite(await exporter.exportCorpusDb());

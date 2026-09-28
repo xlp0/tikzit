@@ -117,17 +117,29 @@ describe('Gated Document Commit & CLM Verification Pipeline (Sprint 02B)', () =>
     runtime.dispose();
   });
 
-  it('bails on a syntactically valid but empty diagram, matching the non-empty gate policy', () => {
+  it('allows committing a syntactically valid empty diagram (Sprint 16 D1)', () => {
     const runtime = createWorkbenchRuntime();
     const result = runtime.ctx.documentCommit.saveDocumentWithGate({
       handle: 'zx:empty_diagram',
       sourceText: '\\begin{tikzpicture}\n\\end{tikzpicture}\n',
     });
 
-    expect(result.success).toBe(false);
-    expect(result.reason).toMatch(/non-empty/i);
-    expect(runtime.mcardCollection.resolveHandle('zx:empty_diagram')).toBeUndefined();
+    expect(result.success).toBe(true);
+    expect(runtime.mcardCollection.resolveHandle('zx:empty_diagram')).toBeDefined();
     expect(runtime.triDb.executionLog.list()).toHaveLength(1);
+    runtime.dispose();
+  });
+
+  it('bails on invalid TikZ syntax', () => {
+    const runtime = createWorkbenchRuntime();
+    const result = runtime.ctx.documentCommit.saveDocumentWithGate({
+      handle: 'zx:bad_diagram',
+      sourceText: '\\begin{tikzpicture}\n\\invalid [syntax;\n',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.reason).toBeDefined();
+    expect(runtime.mcardCollection.resolveHandle('zx:bad_diagram')).toBeUndefined();
     runtime.dispose();
   });
 

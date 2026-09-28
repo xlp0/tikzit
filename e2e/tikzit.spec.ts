@@ -75,7 +75,7 @@ test.describe('Master TikZiT Web E2E Suite: Full Lifecycle Verification', () => 
     await newDocBtn.click();
 
     const tabTitle = page.locator('[data-testid="doc-tab-title"]');
-    await expect(tabTitle).toContainText('New Diagram.tikz');
+    await expect(tabTitle).toContainText(/Untitled diagram|New Diagram/);
 
     // Version history
     const historyBtn = page.locator('[data-testid="btn-version-history"]');

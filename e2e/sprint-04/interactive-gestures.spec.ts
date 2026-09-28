@@ -9,6 +9,9 @@ test.describe('Sprint 04: Interactive Gestures & Motion Physics', () => {
   });
 
   test('04-E2E-01: Vertex tool places nodes with grid snapping', async ({ page }) => {
+    await page.evaluate(() => {
+      (window as any).TikzitApp.loadTikz(`\\begin{tikzpicture}\n\\end{tikzpicture}`);
+    });
     await page.keyboard.press('V'); // Vertex mode
     const canvas = page.locator('canvas#webgl-stage');
     const box = await canvas.boundingBox();

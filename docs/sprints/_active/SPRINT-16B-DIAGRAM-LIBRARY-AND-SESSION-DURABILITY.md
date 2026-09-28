@@ -1,6 +1,6 @@
 # Sprint 16B: Diagram Library Management & Session Durability
 
-**Status:** Proposed; not started  
+**Status:** Completed & Verified  
 **Primary category:** `corpus` (with workspace/shell work)  
 **Depends on:** [Sprint 16](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md)  
 **Parent proposal:** [Sprints 16–19](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
@@ -31,8 +31,9 @@ Give users the tools to manage a growing library of evolving diagrams (rename, d
 - **Rename** commits a new version of `zx:meta:diagrams:<uuid>` with the updated title. The diagram handle and its cards are untouched, and rename history is auditable through the metadata handle's lineage.
 - **Archive/Un-archive** commits a metadata version with `archived: true|false`. Archived diagrams are excluded from default listing and search but stay resolvable and exportable. There is **no hard delete** (D6).
 - **Duplicate** creates a new `zx:diagrams:<uuid>`. Its first head is a new card with the source's payload (a different URI gives a distinct hash), and its metadata records `source: 'duplicate'` and `forkedFrom: '<handle>@<hash>'`. The source handle is unchanged.
-- **Session state** writes `{ activeDocId, openHandles[], dirtyBuffers: { [handle]: { content, updatedAt } } }` to `tikzit:workspace-state`, debounced and on `visibilitychange`/`pagehide`. Restored buffers are marked dirty; they are **not** MCards (D2). If the recovered content equals the current head, the buffer is dropped silently.
+- **Session state** writes `{ activeDocId, openHandles[], dirtyBuffers: { [handle]: { content, updatedAt } } }` to `tikzit:workspace-state` (debounced by 300ms, and synchronously on `visibilitychange`/`pagehide`). A window `beforeunload` listener alerts the user when any buffer is dirty (`doc.isDirty === true`). Restored buffers are marked dirty; they are **not** MCards (D2). If the recovered content equals the current head, the buffer is dropped silently.
 - **Legacy import** runs once and idempotently at startup. For each `tikzit:doc-index` entry without a matching `legacyId` in any metadata card, it creates a `zx:diagrams:` handle and commits the latest content through the gate. Metadata records `{ source: 'legacy-import', legacyId, legacySavedAt }`. Content that fails the gate becomes a recovered draft. Legacy revisions remain readable through the legacy History path (Sprint 17 AC-07). `localStorage` data is never modified or deleted.
+
 
 ## Acceptance Criteria
 
@@ -52,11 +53,11 @@ Give users the tools to manage a growing library of evolving diagrams (rename, d
 
 ## Definition of Done
 
-- [ ] Unit tests cover rename/archive/duplicate lineage effects, session serialize/restore (including quota errors), bulk-close policy, last-tab close, and idempotent legacy import.
-- [ ] Playwright covers rename, archive/un-archive, duplicate, reload recovery, close prompts, and a seeded `localStorage` legacy fixture being imported.
-- [ ] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
-- [ ] Typecheck, build, full unit suite, and E2E suite pass.
-- [ ] New selectors are added to Contract B in `_active/README.md`.
+- [x] Unit tests cover rename/archive/duplicate lineage effects, session serialize/restore (including quota errors), bulk-close policy, last-tab close, and idempotent legacy import.
+- [x] Playwright covers rename, archive/un-archive, duplicate, reload recovery, close prompts, and a seeded `localStorage` legacy fixture being imported.
+- [x] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
+- [x] Typecheck, build, full unit suite, and E2E suite pass.
+- [x] New selectors are added to Contract B in `_active/README.md`.
 
 ## Verification Commands
 

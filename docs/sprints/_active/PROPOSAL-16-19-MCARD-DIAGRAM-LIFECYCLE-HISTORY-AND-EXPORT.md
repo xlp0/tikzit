@@ -33,14 +33,17 @@ The review also found that the `zx:examples:` prefix is enforced in seven places
 - **One predicate.** A single exported `isDiagramHandle(handle)` replaces all seven scattered `startsWith('zx:examples:')` checks. Manifest seeding keeps its stricter examples-only rule on purpose.
 - **Handle = document id from creation.** A draft is an uncommitted handle. Nothing is remapped at first save.
 - **Metadata is itself an MCard.** Title, `archived`, `createdAt`, `source` (`user` / `duplicate` / `legacy-import`), and provenance (`forkedFrom: handle@hash`, `legacyId`) are a structured payload under `zx:meta:diagrams:<uuid>`. Renames and archives get versioned lineage for free and travel in the collection export as ordinary handles, with no custom SQLite table. The IndexedDB corpus index stores the title as a rebuildable cache. Seeded examples keep manifest titles.
-- **Snapshot format v2.** `validateSnapshot` accepts both diagram namespaces and reads v1 snapshots through an identity migration. **Decouple the IndexedDB schema version from `CORPUS_SNAPSHOT_VERSION`:** today `indexedDB.open(name, CORPUS_SNAPSHOT_VERSION)` means a format bump triggers an IDB upgrade, which another open tab can block, pushing the app into `recovery-required`.
+- **Snapshot format v2.** `validateSnapshot` accepts both diagram namespaces and reads v1 snapshots through an identity migration. **Decouple the IndexedDB schema version from `CORPUS_SNAPSHOT_VERSION`:** define `CORPUS_INDEXEDDB_SCHEMA_VERSION = 1` for `indexedDB.open()`, while `CORPUS_SNAPSHOT_VERSION = 2` governs snapshot payload validation. Format bumps no longer trigger blockable IDB upgrades or push the app into `recovery-required`.
 - **Explicit saves only.** Buffer edits mark a document dirty. A successful save appends the superseded head to `handle_history`, advances the head, and updates projections. A failed gate changes nothing.
-- **Durability signal.** `tikzit/document:change` means *committed in memory*. A new `tikzit/document:persisted` fires only after the IndexedDB flush succeeds. The UI shows *saved* only after `persisted`; otherwise it shows *saved in this session only* with Retry.
+- **Durability signal & events.** `tikzit/document:change` means *committed in memory*. A new `tikzit/document:persisted` (declared in `src/services/events.ts`) fires only after the IndexedDB flush succeeds. The UI shows *saved* only after `persisted`; otherwise it shows *saved in this session only* with Retry.
+- **Multi-tab writer protection (D10).** Stale-snapshot rejection sets persistence to `'stale'` (added to `CorpusPersistenceState` and `CorpusViewState.persistence`), blocking further commits and rendering an actionable reload banner.
+- **Parser performance caching.** Because MCards are content-addressed and immutable, `CorpusExplorerService` caches parsed node and edge counts keyed by card hash (`parseCache: Map<string, { nodeCount: number; edgeCount: number }>`), avoiding repeated TikZ parsing on corpus listing updates.
 - **Empty diagrams are persistable (confirmed).** The gate rejects unparseable source but no longer requires nodes or edges.
 - **Restore = re-register.** `putWithHandle(historicalCard, handle)` adds one history row and no new card, giving true A→B→A lineage. Re-committing the payload would mint a different hash (A→B→A′) and is rejected as the semantics.
 - **Lineage API.** Kernel `handleHistory()` returns superseded heads in order and appends the current head only if it is absent, so after a revert its last element is not the head. Consumers use `documentHistory(handle) → { head, rows: [{ hash, changedAt, position }] }`, joined from `handle_history`. Timeline order is position, never `card.sequence`.
 - **Collection export** includes every registered diagram handle and its metadata handle, each head, the full lineage closure, and history rows with real `changed_at` values. Excluded: CLM `executionLog` and `knowledge` pillars, plus orphan cards, which are counted and disclosed. Every card is re-hashed, every handle resolves to its exported head, and the round-trip rewrites nothing.
 - **Text exports are verbatim.** `.tikz` and `.tex` use the card payload or buffer bytes, never AST re-emission (which drops comments and formatting).
+
 
 ## Proposed Sequence
 
@@ -92,5 +95,8 @@ The review also found that the `zx:examples:` prefix is enforced in seven places
 - Explorer and workbench: `src/components/workbench/CorpusExplorerDrawer.tsx`, `WorkbenchCommandBar.tsx`, `MacWindowChrome.tsx`
 - Lifecycle and persistence: `src/services/clm/corpusExplorerService.ts`, `documentCommitService.ts`, `corpusPersistence.ts`, `corpusExportService.ts`, `src/services/createWorkbenchRuntime.ts`, `src/services/workspace/WorkspaceManager.ts`
 - Version UI and legacy revisions: `src/components/workbench/panels/VersionPopover.tsx`, `src/services/storage/DocumentStore.ts`
+
 - Export pipeline: `src/components/workbench/panels/PreviewPanel.tsx`, `src/services/export/ImageExporter.ts`, `src/services/export/PdfExporter.ts`
-- CLM kernel: `clm/kernel/clm_js_core/src/collection.ts` (`putWithHandle`, `history`), `src/layer0/storage/sqljs.ts` (`registerHandle`, `handleHistory`)
+- CLM kernel: `clm-kernel` and `clm-kernel/layer0` npm packages (`MCardCollection`, `putWithHandle`, `history`, `SqlJsBackend`, `registerHandle`, `handleHistory`; upstream monorepo sources at `clm/kernel/clm_js_core/src/collection.ts` and `src/layer0/storage/sqljs.ts`)
+
+

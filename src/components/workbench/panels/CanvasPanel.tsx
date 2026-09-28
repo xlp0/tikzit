@@ -2,6 +2,7 @@ import { defaultTransactionManager, ASTSnapshotCommand } from '../../../core/his
 import React, { useRef, useEffect, useState } from 'react';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { useStore } from '@nanostores/react';
+import { atom, map } from 'nanostores';
 import { useWorkbenchRuntime } from '../WorkbenchRuntimeContext';
 import {
   $theme as defaultTheme,
@@ -20,12 +21,20 @@ import type { CameraState } from '../../../canvas/CameraController';
 import type { ToolMode } from '../../../services/kernel';
 import type { GraphAST } from '../../../core/domain/types';
 import { parseTikz, emitTikz } from '../../../core/parser';
+import { defaultWorkspaceManager } from '../../../services/workspace/WorkspaceManager';
+import { selectDiagramSaveState } from '../../../services/clm/saveAffordanceState';
+import type { CorpusViewState, DocumentHeadState, DiagramSaveState } from '../../../stores/createWorkbenchStores';
 
 declare global {
   interface Window {
     TikzitApp?: any;
   }
 }
+
+const fallbackDismissed = atom<string[]>([]);
+const fallbackSaveState = map<Record<string, DiagramSaveState>>({});
+const fallbackCorpusView = atom<CorpusViewState>({ status: 'ready', persistence: 'persistent', seedFailures: [] });
+const fallbackDocumentHead = atom<DocumentHeadState>({ handle: '', hash: '', sequence: 0, isValid: true });
 
 export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
   let runtime: ReturnType<typeof useWorkbenchRuntime> | null = null;
@@ -40,6 +49,30 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
   const selectedElements = useStore(runtime ? runtime.stores.$selectedElements : defaultSelected);
   const toolMode = useStore(runtime ? runtime.stores.$toolMode : defaultToolMode);
   const stylesCatalog = useStore(runtime ? runtime.stores.$stylesCatalog : defaultStylesCatalog);
+
+  const [activeDoc, setActiveDoc] = useState(() => defaultWorkspaceManager.getActiveDocument());
+  useEffect(() => {
+    return defaultWorkspaceManager.subscribe((state) => {
+      const doc = state.openDocs.find((d) => d.id === state.activeDocId);
+      setActiveDoc(doc);
+    });
+  }, []);
+
+  const dismissedList = useStore(runtime ? runtime.stores.$dismissedDraftCallouts : fallbackDismissed);
+  const saveStates = useStore(runtime ? runtime.stores.$diagramSaveState : fallbackSaveState);
+  const corpusView = useStore(runtime ? runtime.stores.$corpusView : fallbackCorpusView);
+  const documentHead = useStore(runtime ? runtime.stores.$documentHead : fallbackDocumentHead);
+
+  const isDismissed = activeDoc ? (runtime?.isDraftCalloutDismissed(activeDoc.id) || dismissedList.includes(activeDoc.id)) : false;
+
+  const affordance = activeDoc ? selectDiagramSaveState({
+    handle: activeDoc.id,
+    workspaceDoc: activeDoc,
+    documentHead,
+    corpusView,
+    saveState: saveStates[activeDoc.id],
+    isDismissed,
+  }) : null;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<Stage | null>(null);
@@ -78,6 +111,10 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
         const prev = runtime ? runtime.stores.$graphAST.get() : defaultGraphAST.get();
         defaultTransactionManager.execute(
           new ASTSnapshotCommand('Canvas edit', prev, ast, (targetAST) => {
+            const active = defaultWorkspaceManager.getActiveDocument();
+            if (active) {
+              defaultWorkspaceManager.updateContent(active.id, emitTikz(targetAST), targetAST);
+            }
             if (runtime) {
               runtime.ctx.graph.setAST(targetAST);
             } else {
@@ -85,6 +122,10 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
             }
           })
         );
+        const active = defaultWorkspaceManager.getActiveDocument();
+        if (active) {
+          defaultWorkspaceManager.updateContent(active.id, emitTikz(ast), ast);
+        }
         if (runtime) {
           runtime.ctx.graph.setAST(ast);
         } else {
@@ -175,6 +216,11 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
               runtime.ctx.styles.applyStyleToNodes([elementId], styleName);
             } else {
               runtime.ctx.styles.applyStyleToEdges([elementId], styleName);
+            }
+            const active = defaultWorkspaceManager.getActiveDocument();
+            if (active) {
+              const updatedAst = runtime.ctx.graph.ast;
+              defaultWorkspaceManager.updateContent(active.id, emitTikz(updatedAst), updatedAst);
             }
           } else {
             styleActions.applyStyleToSelected(styleName);
@@ -290,6 +336,57 @@ export const CanvasPanel: React.FC<IDockviewPanelProps> = () => {
       data-testid="panel-canvas"
       data-panel="canvas"
     >
+      {/* Draft Save Callout Notice */}
+      {affordance?.showCallout && activeDoc && (
+        <div
+          data-testid="draft-canvas-callout"
+          className="absolute top-3 inset-x-0 mx-auto max-w-sm flex justify-center pointer-events-none z-30 px-3"
+        >
+          <div
+            className="pointer-events-auto bg-[#1e2330]/90 backdrop-blur-md border border-[#3b455e] text-xs text-slate-200 rounded-full px-3 py-1 flex items-center gap-2.5 shadow-lg max-w-full"
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
+          >
+            <span className="font-normal text-slate-300 truncate">
+              Draft diagram · Not yet saved to MCard history
+            </span>
+            <button
+              type="button"
+              data-testid="btn-canvas-save-draft"
+              disabled={affordance.isSaving}
+              aria-busy={affordance.isSaving}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (runtime && activeDoc) {
+                  void runtime.saveDiagram(activeDoc.id);
+                }
+              }}
+              className="px-2 py-0.5 rounded text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {affordance.isSaving ? 'Saving…' : 'Save'}
+            </button>
+            <button
+              type="button"
+              data-testid="btn-dismiss-draft-callout"
+              title="Dismiss notice"
+              aria-label="Dismiss notice"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (runtime && activeDoc) {
+                  runtime.dismissDraftCallout(activeDoc.id);
+                }
+              }}
+              className="text-slate-400 hover:text-slate-200 text-xs px-1.5 py-0.5 rounded transition-colors shrink-0"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Floating Canvas HUD */}
       <div className="absolute bottom-3 left-3 bg-[#1a1d26]/80 backdrop-blur-md px-2.5 py-1.5 rounded border border-[#2e3446] text-xs text-[#94a3b8] flex items-center space-x-3 pointer-events-none z-30">
         <span className="flex items-center">

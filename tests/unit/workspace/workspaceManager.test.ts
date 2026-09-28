@@ -1,10 +1,22 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { WorkspaceManager } from '../../../src/services/workspace/WorkspaceManager';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { WorkspaceManager, STORAGE_KEY } from '../../../src/services/workspace/WorkspaceManager';
+
+class MemoryStorage {
+  private store = new Map<string, string>();
+  getItem(key: string) { return this.store.get(key) ?? null; }
+  setItem(key: string, value: string) { this.store.set(key, String(value)); }
+  removeItem(key: string) { this.store.delete(key); }
+  clear() { this.store.clear(); }
+}
 
 describe('WorkspaceManager', () => {
   let wm: WorkspaceManager;
+  let mockStorage: MemoryStorage;
 
   beforeEach(() => {
+    mockStorage = new MemoryStorage();
+    (globalThis as any).localStorage = mockStorage;
+    (globalThis as any).window = globalThis;
     wm = new WorkspaceManager();
   });
 
@@ -26,7 +38,7 @@ describe('WorkspaceManager', () => {
     expect(wm.getActiveDocument()?.id).toBe(defaultDoc.id);
   });
 
-  it('closes document tabs while maintaining at least one active tab', () => {
+  it('closes document tabs and closing last remaining tab opens a fresh draft', () => {
     const newDoc = wm.createNewDocument('Temp.tikz');
     expect(wm.getOpenDocuments().length).toBe(2);
 
@@ -34,10 +46,19 @@ describe('WorkspaceManager', () => {
     expect(closed).toBe(true);
     expect(wm.getOpenDocuments().length).toBe(1);
 
-    // Cannot close last remaining tab
-    const closeLast = wm.closeDocument(wm.getOpenDocuments()[0].id);
-    expect(closeLast).toBe(false);
+    // Closing last remaining tab opens a fresh draft (16B-AC-05, D8)
+    const initialDocId = wm.getOpenDocuments()[0].id;
+    const closeLast = wm.closeDocument(initialDocId);
+    expect(closeLast).toBe(true);
     expect(wm.getOpenDocuments().length).toBe(1);
+    expect(wm.getOpenDocuments()[0].id).not.toBe(initialDocId);
+    expect(wm.getActiveDocument()?.id).toBe(wm.getOpenDocuments()[0].id);
+  });
+
+  it('renames document and updates title in open documents', () => {
+    const active = wm.getActiveDocument()!;
+    wm.renameDocument(active.id, 'Renamed.tikz');
+    expect(wm.getActiveDocument()?.title).toBe('Renamed.tikz');
   });
 
   it('marks a gated commit clean and advances its hash and sequence version', () => {
@@ -59,5 +80,66 @@ describe('WorkspaceManager', () => {
 
     wm.markClean(active.id);
     expect(wm.getActiveDocument()?.isDirty).toBe(false);
+  });
+
+  it('serializes session state to localStorage and restores dirty buffers', () => {
+    const doc1 = wm.getActiveDocument()!;
+    wm.updateContent(doc1.id, 'dirty content 1');
+    wm.flushSessionState();
+
+    const stored = localStorage.getItem(STORAGE_KEY);
+    expect(stored).toBeDefined();
+    const parsed = JSON.parse(stored!);
+    expect(parsed.activeDocId).toBe(doc1.id);
+    expect(parsed.openHandles).toContain(doc1.id);
+    expect(parsed.dirtyBuffers[doc1.id].content).toBe('dirty content 1');
+
+    // Create a new WorkspaceManager instance and restore
+    const wm2 = new WorkspaceManager();
+    const recovery = wm2.restoreSessionState({
+      resolveHeadContent: (handle) => (handle === doc1.id ? 'clean head content' : null),
+    });
+    expect(recovery.recoveredCount).toBe(1);
+    expect(recovery.dirtyHandles).toContain(doc1.id);
+    expect(wm2.getActiveDocument()?.content).toBe('dirty content 1');
+    expect(wm2.getActiveDocument()?.isDirty).toBe(true);
+  });
+
+  it('silently drops recovered buffer if buffer content matches head content', () => {
+    const doc1 = wm.getActiveDocument()!;
+    wm.updateContent(doc1.id, 'matching content');
+    wm.flushSessionState();
+
+    const wm2 = new WorkspaceManager();
+    const recovery = wm2.restoreSessionState({
+      resolveHeadContent: (handle) => (handle === doc1.id ? 'matching content' : null),
+    });
+    expect(recovery.recoveredCount).toBe(0);
+    expect(recovery.dirtyHandles).toHaveLength(0);
+    expect(wm2.getActiveDocument()?.isDirty).toBe(false);
+  });
+
+  it('discards all recovered edits cleanly', () => {
+    const doc1 = wm.getActiveDocument()!;
+    wm.updateContent(doc1.id, 'unsaved edits');
+    expect(wm.getActiveDocument()?.isDirty).toBe(true);
+
+    wm.discardAllRecovered({
+      resolveHeadContent: (handle) => (handle === doc1.id ? 'clean original head' : null),
+    });
+    expect(wm.getActiveDocument()?.content).toBe('clean original head');
+    expect(wm.getActiveDocument()?.isDirty).toBe(false);
+  });
+
+  it('handles localStorage quota or write errors gracefully without throwing', () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+
+    expect(() => {
+      wm.flushSessionState();
+    }).not.toThrow();
+
+    setItemSpy.mockRestore();
   });
 });

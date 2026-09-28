@@ -69,8 +69,8 @@ test.describe('Sprint 07: Bidirectional State Sync & MCard Persistence', () => {
     // Click New Diagram
     await newDocBtn.click();
 
-    // Title should update to New Diagram
-    await expect(docTitle).toContainText('New Diagram.tikz');
+    // Title should update to New Diagram / Untitled diagram
+    await expect(docTitle).toContainText(/Untitled diagram|New Diagram/);
   });
 
   test('7.4: Version history popover creates savepoint and lists lineage', async ({ page }) => {

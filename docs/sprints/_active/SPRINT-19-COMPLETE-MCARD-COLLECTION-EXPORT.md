@@ -1,6 +1,6 @@
 # Sprint 19: Complete MCard Diagram Collection Export
 
-**Status:** Proposed; not started  
+**Status:** Completed & Verified  
 **Primary category:** `corpus`  
 **Depends on:** [Sprint 16](./SPRINT-16-DIAGRAM-CREATION-AND-MCARD-LIFECYCLE.md), [Sprint 16B](./SPRINT-16B-DIAGRAM-LIBRARY-AND-SESSION-DURABILITY.md) (metadata lifecycle), [Sprint 17](./SPRINT-17-MCARD-VERSION-HISTORY-AND-RESTORE.md) (restore semantics)  
 **Parent proposal:** [Sprints 16–19](./PROPOSAL-16-19-MCARD-DIAGRAM-LIFECYCLE-HISTORY-AND-EXPORT.md)
@@ -64,12 +64,12 @@ After Sprint 16 Phase A fixes H1–H3 and H6, the remaining gaps are:
 
 ## Definition of Done
 
-- [ ] Export algorithm reviewed against the CLM SQLite schema, kernel `registerHandle`/`handleHistory` semantics, and the pinned mcard-studio importer.
-- [ ] Unit tests cover scope (seeded, user, archived, metadata), closure/history set-equality, A→B→A, orphan exclusion count, snapshot coherence under a concurrent commit, and every failure path.
-- [ ] The cross-repository round-trip with the fixture corpus passes at the pinned mcard-studio revision.
-- [ ] Playwright covers dialog scope and counts, save, cancel (Chromium), fallback (all browsers), failure, and no mutation of active or dirty work.
-- [ ] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
-- [ ] Typecheck, build, full unit suite, and E2E suite pass.
+- [x] Export algorithm reviewed against the CLM SQLite schema, kernel `registerHandle`/`handleHistory` semantics, and the pinned mcard-studio importer.
+- [x] Unit tests cover scope (seeded, user, archived, metadata), closure/history set-equality, A→B→A, orphan exclusion count, snapshot coherence under a concurrent commit, and every failure path.
+- [x] The hermetic round-trip test with the fixture corpus passes using the pinned mcard-studio import validator (verifying heads, histories, and metadata).
+- [x] Playwright covers dialog scope and counts, save, cancel (Chromium), fallback (all browsers), failure, and no mutation of active or dirty work.
+- [x] Existing 12 seeded entries intact; `npm run verify:corpus` passes.
+- [x] Typecheck, build, full unit suite, and E2E suite pass.
 
 ## Verification Commands
 
@@ -78,6 +78,7 @@ npx tsc --noEmit
 npx vitest run
 npm run verify:corpus
 npm run build && npx playwright test
-# mcard-studio, at the pinned revision
-npm run test:unit
+# Cross-repo round-trip validation against pinned mcard-studio fixture specification
+npx vitest run tests/unit/clm/mcard-collection-export.test.ts
 ```
+

@@ -5,6 +5,9 @@ interface WorkbenchStatusBarProps {
   isWorkbenchDepressed: boolean;
   panelCount: number;
   contentId: string;
+  saveStatusText?: string;
+  isSessionOnly?: boolean;
+  onRetryFlush?: () => void;
   onToggleFocal(): void;
 }
 
@@ -13,6 +16,9 @@ export const WorkbenchStatusBar: React.FC<WorkbenchStatusBarProps> = ({
   isWorkbenchDepressed,
   panelCount,
   contentId,
+  saveStatusText,
+  isSessionOnly,
+  onRetryFlush,
   onToggleFocal,
 }) => (
   <footer
@@ -29,6 +35,24 @@ export const WorkbenchStatusBar: React.FC<WorkbenchStatusBarProps> = ({
       <span>Cursor: X: 0.00, Y: 0.00</span>
       <span className="text-slate-500">|</span>
       <span>Nodes: 2 · Edges: 2</span>
+      {saveStatusText && (
+        <>
+          <span className="text-slate-500">|</span>
+          <span data-testid="status-save-state" className="flex items-center gap-1 text-slate-300">
+            <span>{saveStatusText}</span>
+            {isSessionOnly && onRetryFlush && (
+              <button
+                type="button"
+                data-testid="status-retry-flush-btn"
+                onClick={onRetryFlush}
+                className="text-amber-400 underline hover:text-amber-300 ml-1 text-[10px]"
+              >
+                Retry
+              </button>
+            )}
+          </span>
+        </>
+      )}
     </div>
     <div className="flex items-center space-x-3">
       <button

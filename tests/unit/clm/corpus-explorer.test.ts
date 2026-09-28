@@ -85,7 +85,7 @@ describe('CorpusExplorerService', () => {
     runtime.dispose();
   });
 
-  it('reports a commit-gate bail for a syntactically valid but empty seeded asset', async () => {
+  it('allows committing a syntactically valid empty seeded asset (Sprint 16 D1)', async () => {
     const empty = '\\begin{tikzpicture}\n\\end{tikzpicture}\n';
     const bailManifest: CorpusManifestEntry[] = [
       {
@@ -108,13 +108,10 @@ describe('CorpusExplorerService', () => {
 
     const result = await service.seedZxCorpus();
 
-    expect(result.committed).toBe(1);
-    expect(result.failed).toBe(1);
-    expect(result.complete).toBe(false);
-    expect(result.failures).toEqual([
-      expect.objectContaining({ handle: 'zx:examples:empty_diagram' }),
-    ]);
-    expect(runtime.mcardCollection.resolveHandle('zx:examples:empty_diagram')).toBeUndefined();
+    expect(result.committed).toBe(2);
+    expect(result.failed).toBe(0);
+    expect(result.complete).toBe(true);
+    expect(runtime.mcardCollection.resolveHandle('zx:examples:empty_diagram')).toBeDefined();
     runtime.dispose();
   });
 
