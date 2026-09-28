@@ -16,7 +16,7 @@ test.describe('Sprint 00: TikZiT Web Spatial Workbench & Dockview Shell', () => 
 
     const statusBar = page.locator('[data-testid="status-bar"]');
     await expect(statusBar).toBeVisible();
-    await expect(statusBar).toContainText('CID: blake3:');
+    await expect(page.getByTestId('status-cid')).toHaveText('CID: —');
   });
 
   test('00-E2E-02: Renders all five core workbench panels', async ({ page }) => {

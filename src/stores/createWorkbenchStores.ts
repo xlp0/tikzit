@@ -3,6 +3,7 @@ import type { ToolMode } from '../services/kernel';
 import type { GraphAST, TikzStylesCatalog } from '../core/domain/types';
 import { getDefaultStylesCatalog } from '../core/styles/presets';
 import { createEmptyAST } from '../core/parser/parser';
+import type { CorpusEntry, CorpusIndexIssue } from '../services/clm/corpusExplorerService';
 
 export interface SelectionState {
   nodes: string[];
@@ -31,7 +32,17 @@ export interface DocumentHeadState {
   lastCommittedAt?: number;
 }
 
+export interface CorpusViewState {
+  status: 'loading' | 'ready' | 'error';
+  persistence: 'loading' | 'persistent' | 'non-persistent' | 'recovery-required';
+  persistenceError?: string;
+  seedFailures: CorpusIndexIssue[];
+}
+
 export interface WorkbenchStores {
+  readonly $corpusQuery: WritableAtom<string>;
+  readonly $corpusEntries: WritableAtom<CorpusEntry[]>;
+  readonly $corpusView: WritableAtom<CorpusViewState>;
   readonly $toolMode: WritableAtom<ToolMode>;
   readonly $theme: WritableAtom<'dark' | 'light'>;
   readonly $selectedElements: MapStore<SelectionState>;
@@ -51,6 +62,13 @@ export interface WorkbenchStores {
  */
 export function createWorkbenchStores(): WorkbenchStores {
   return {
+    $corpusQuery: atom(''),
+    $corpusEntries: atom<CorpusEntry[]>([]),
+    $corpusView: atom<CorpusViewState>({
+      status: 'loading',
+      persistence: 'loading',
+      seedFailures: [],
+    }),
     $toolMode: atom<ToolMode>('select'),
     $theme: atom<'dark' | 'light'>('dark'),
     $selectedElements: map<SelectionState>({ nodes: [], edges: [] }),
@@ -64,11 +82,11 @@ export function createWorkbenchStores(): WorkbenchStores {
     }),
     $activeDiagram: atom<ActiveDiagramState>({
       name: '01_spider_fusion.tikz',
-      handle: 'zx:01_spider_fusion',
+      handle: '',
     }),
     $graphAST: atom<GraphAST>(createEmptyAST()),
     $documentHead: atom<DocumentHeadState>({
-      handle: 'zx:01_spider_fusion',
+      handle: '',
       hash: '',
       sequence: 0,
       isValid: true,

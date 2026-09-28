@@ -30,9 +30,9 @@ export const DEFAULT_AUTHOR_DID = 'did:key:z6MkhaXgBZDvotDkL5257faiz48Z8x288nn64
  */
 export function initTriDatabase(
   ctx: Context,
-  authorDidStr: string = DEFAULT_AUTHOR_DID
+  authorDidStr: string = DEFAULT_AUTHOR_DID,
+  triDb: TriDatabaseManager = TriDatabaseManager.newInMemory()
 ): ClmContextBridge {
-  const triDb = TriDatabaseManager.newInMemory();
   const authorDid = AgentDid.create(authorDidStr);
 
   // Register 'mcard.fs' service in Cordis

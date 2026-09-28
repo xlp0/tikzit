@@ -39,11 +39,13 @@ export interface CommitDocumentOptions {
   uri?: string;
   authorDid?: AgentDid;
   sequence?: number;
+  activate?: boolean;
 }
 
 export interface CommitDocumentResult {
   success: boolean;
   hash?: string;
+  sequence?: number;
   reason?: string;
   receiptHash: string;
   ast?: GraphAST;
@@ -114,6 +116,13 @@ export class DocumentCommitService extends Service {
             invariantCode: 'NULL_AST',
           };
         }
+        if (parseResult.ast.nodes.length === 0 && parseResult.ast.edges.length === 0) {
+          return {
+            verdict: 'bail',
+            reason: 'Diagram must be non-empty',
+            invariantCode: 'EMPTY_DIAGRAM',
+          };
+        }
         return { verdict: 'pass' };
       }
     );
@@ -125,17 +134,20 @@ export class DocumentCommitService extends Service {
 
     // 5. Mint audit receipt into executionLog pillar
     const receiptUri = `tikzit://receipt/eval/${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const receiptPayload = structuredPayload({
+    const receiptValue: Record<string, unknown> = {
       verdict: isPass ? 'pass' : 'bail',
       handle: options.handle,
       candidateHash: candidateCard.hash.asHex(),
       sequence,
-      reason: isPass ? undefined : reason,
       diagnostics: parseResult.errors,
-      nodeCount: parseResult.ast?.nodes?.length,
-      edgeCount: parseResult.ast?.edges?.length,
       timestamp: Date.now(),
-    });
+    };
+    if (!isPass && reason !== undefined) receiptValue.reason = reason;
+    if (parseResult.ast) {
+      receiptValue.nodeCount = parseResult.ast.nodes.length;
+      receiptValue.edgeCount = parseResult.ast.edges.length;
+    }
+    const receiptPayload = structuredPayload(receiptValue);
 
     const receiptCard = MCard.create(receiptUri, receiptPayload, authorDid, 0);
     this.triDb.executionLog.putCard(receiptCard);
@@ -145,6 +157,7 @@ export class DocumentCommitService extends Service {
       this.ctx.emit('tikzit/diagnostics:emit', parseResult.errors);
       return {
         success: false,
+        sequence,
         reason: reason || 'Document validation bailed',
         receiptHash: receiptCard.hash.asHex(),
         diagnostics: parseResult.errors,
@@ -154,21 +167,24 @@ export class DocumentCommitService extends Service {
     // Gate passed: Record candidate in mcard pillar under handle
     this.collection.putWithHandle(candidateCard, options.handle);
 
-    // Update active working AST on Cordis GraphService
-    if (parseResult.ast && this.ctx.graph) {
-      this.ctx.graph.setAST(parseResult.ast);
-    }
+    if (options.activate !== false) {
+      // Update active working AST on Cordis GraphService
+      if (parseResult.ast && this.ctx.graph) {
+        this.ctx.graph.setAST(parseResult.ast);
+      }
 
-    // Emit typed document change event
-    this.ctx.emit('tikzit/document:change', {
-      handle: options.handle,
-      hash: candidateCard.hash.asHex(),
-      sequence: candidateCard.sequence,
-    });
+      // Emit typed document change event
+      this.ctx.emit('tikzit/document:change', {
+        handle: options.handle,
+        hash: candidateCard.hash.asHex(),
+        sequence: candidateCard.sequence,
+      });
+    }
 
     return {
       success: true,
       hash: candidateCard.hash.asHex(),
+      sequence: candidateCard.sequence,
       receiptHash: receiptCard.hash.asHex(),
       ast: parseResult.ast ?? undefined,
     };

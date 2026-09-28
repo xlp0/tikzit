@@ -192,6 +192,7 @@ export class Stage {
       this.selectedEdgeIds = new Set();
     }
 
+    this.nodeRenderer.clear();
     const nodesMap = new Map<string, NodeData>();
     for (const node of ast.nodes) {
       nodesMap.set(node.id, node);

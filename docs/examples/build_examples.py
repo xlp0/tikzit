@@ -29,6 +29,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ZX_DIR = os.path.join(SCRIPT_DIR, "zx-calculus")
 STYLE_FILE = os.path.join(ZX_DIR, "pqp-zx.tikzstyles")
 MANIFEST_FILE = os.path.join(SCRIPT_DIR, "manifest.json")
+PUBLIC_MANIFEST_FILE = os.path.join(SCRIPT_DIR, "../../public/docs/examples/manifest.json")
 EXPECTED_DIAGRAM_COUNT = 12
 
 def sha256_file(filepath):
@@ -186,6 +187,8 @@ def main():
     # Save enriched manifest
     with open(MANIFEST_FILE, "w") as f:
         json.dump(manifest, f, indent=2)
+    if os.path.realpath(MANIFEST_FILE) != os.path.realpath(PUBLIC_MANIFEST_FILE):
+        shutil.copyfile(MANIFEST_FILE, PUBLIC_MANIFEST_FILE)
     print(f"\nManifest successfully updated at {MANIFEST_FILE}")
     print(f"All {EXPECTED_DIAGRAM_COUNT} diagrams compiled & verified with 0 errors.")
 

@@ -22,6 +22,8 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [diagnostics, setDiagnostics] = useState<SyncDiagnostic[]>([]);
   const isUpdatingFromExternal = useRef(false);
+  const activeDocIdRef = useRef<string | null>(null);
+  const suppressGraphEchoRef = useRef(false);
 
   // Active document from workspace
   const [activeDocTitle, setActiveDocTitle] = useState('01_spider_fusion.tikz');
@@ -33,6 +35,12 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
       if (active) {
         setActiveDocTitle(active.title);
         setIsDocDirty(active.isDirty ?? false);
+        if (activeDocIdRef.current !== ws.activeDocId) {
+          activeDocIdRef.current = ws.activeDocId;
+          suppressGraphEchoRef.current = !active.isDirty;
+          setCode(active.content);
+          setIsEditing(active.isDirty ?? false);
+        }
       }
     });
 
@@ -48,6 +56,10 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
 
   // Sync AST -> Code editor when graph changes externally
   useEffect(() => {
+    if (suppressGraphEchoRef.current) {
+      suppressGraphEchoRef.current = false;
+      return;
+    }
     if (!isEditing && graph) {
       isUpdatingFromExternal.current = true;
       const emitted = emitTikz(graph);
@@ -69,6 +81,7 @@ export const SourcePanel: React.FC<IDockviewPanelProps> = () => {
     }
 
     defaultSyncController.updateFromEditor(newCode, (ast) => {
+      if (active) defaultWorkspaceManager.updateContent(active.id, newCode, ast);
       if (runtime) {
         runtime.ctx.graph.setAST(ast);
       } else {

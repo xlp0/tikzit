@@ -21,7 +21,9 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^26.6.3"
+    "@types/node": "^26.6.3",
+    "@types/sql.js": "1.4.11",
+    "fake-indexeddb": "6.2.5"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",
@@ -37,6 +39,7 @@
     "nanostores": "^1.5.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "sql.js": "1.13.0",
     "tailwindcss": "^4.3.3",
     "three": "^0.186.1",
     "typescript": "^7.0.2",

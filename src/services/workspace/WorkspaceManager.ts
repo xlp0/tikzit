@@ -141,6 +141,15 @@ export class WorkspaceManager {
     this.notify();
   }
 
+  public markCommitted(id: string, hash: string, sequence: number): void {
+    const doc = this.openDocs.get(id);
+    if (!doc) return;
+    doc.hash = hash;
+    doc.version = sequence + 1;
+    doc.isDirty = false;
+    this.notify();
+  }
+
   public async saveActive(): Promise<DocumentRecord | null> {
     const doc = this.getActiveDocument();
     if (!doc) return null;

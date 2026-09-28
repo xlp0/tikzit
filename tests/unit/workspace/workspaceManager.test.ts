@@ -40,6 +40,16 @@ describe('WorkspaceManager', () => {
     expect(wm.getOpenDocuments().length).toBe(1);
   });
 
+  it('marks a gated commit clean and advances its hash and sequence version', () => {
+    const active = wm.getActiveDocument()!;
+    wm.updateContent(active.id, 'edited source');
+    wm.markCommitted(active.id, 'a'.repeat(64), 4);
+
+    expect(wm.getActiveDocument()?.hash).toBe('a'.repeat(64));
+    expect(wm.getActiveDocument()?.version).toBe(5);
+    expect(wm.getActiveDocument()?.isDirty).toBe(false);
+  });
+
   it('tracks dirty buffer state on content update', () => {
     const active = wm.getActiveDocument()!;
     expect(active.isDirty).toBe(false);

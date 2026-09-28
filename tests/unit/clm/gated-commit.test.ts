@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { MCard } from 'clm-kernel';
 import { createWorkbenchRuntime } from '../../../src/services/createWorkbenchRuntime';
 
 describe('Gated Document Commit & CLM Verification Pipeline (Sprint 02B)', () => {
@@ -51,6 +52,10 @@ describe('Gated Document Commit & CLM Verification Pipeline (Sprint 02B)', () =>
     expect(receiptPayload.candidateHash).toBe(result.hash);
     expect(receiptPayload.nodeCount).toBe(2);
     expect(receiptPayload.edgeCount).toBe(1);
+    const serializedReceipt = JSON.stringify(receipts[0].toJSON());
+    const restoredReceipt = MCard.fromJSON(JSON.parse(serializedReceipt));
+    expect(MCard.create(restoredReceipt.uri, restoredReceipt.payload, restoredReceipt.author, restoredReceipt.sequence).hash)
+      .toEqual(restoredReceipt.hash);
 
     // 4. Nanostores $documentHead projection was updated
     expect(runtime.stores.$documentHead.get().handle).toBe('zx:test_diagram');
@@ -109,6 +114,20 @@ describe('Gated Document Commit & CLM Verification Pipeline (Sprint 02B)', () =>
       expect(card.uri.startsWith('tikzit://receipt/')).toBe(false);
     }
 
+    runtime.dispose();
+  });
+
+  it('bails on a syntactically valid but empty diagram, matching the non-empty gate policy', () => {
+    const runtime = createWorkbenchRuntime();
+    const result = runtime.ctx.documentCommit.saveDocumentWithGate({
+      handle: 'zx:empty_diagram',
+      sourceText: '\\begin{tikzpicture}\n\\end{tikzpicture}\n',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.reason).toMatch(/non-empty/i);
+    expect(runtime.mcardCollection.resolveHandle('zx:empty_diagram')).toBeUndefined();
+    expect(runtime.triDb.executionLog.list()).toHaveLength(1);
     runtime.dispose();
   });
 
