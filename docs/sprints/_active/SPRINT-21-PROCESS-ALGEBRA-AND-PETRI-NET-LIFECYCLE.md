@@ -51,15 +51,15 @@ Following the **Kenotic Principle of CLM**, the document lifecycle is structured
 - **Transitions ($T$) (Pure Functions with Standardized `clm-kernel` Verdicts)**:
   - $t_{\text{edit}}: p_{\text{Clean}} \to p_{\text{Dirty}}$: User input on canvas or editor.
   - $t_{\text{parse\_ok}}: p_{\text{Dirty}} \to p_{\text{ASTValid}}$: Combinator succeeds, yields verified AST.
-  - $t_{\text{parse\_err}}: p_{\text{Dirty}} \to p_{\text{ASTInvalid}}$: Combinator fails, yields `BailVerdict.SyntaxError`.
+  - $t_{\text{parse\_err}}: p_{\text{Dirty}} \to p_{\text{ASTInvalid}}$: Combinator fails, yields `BailVerdict.bail(reason, 'SYNTAX_ERROR')`. *API note:* `BailVerdict` is a factory over a discriminated union, not an enum — categories are `invariantCode` strings.
   - $t_{\text{save\_req}}: p_{\text{ASTValid}} \to p_{\text{Gating}}$: Save action triggers VCard Sandwich check.
-  - $t_{\text{commit}}: p_{\text{Gating}} \to p_{\text{Committed}}$: Gate passes; mints MCard, yields `VCardResult.Success`.
+  - $t_{\text{commit}}: p_{\text{Gating}} \to p_{\text{Committed}}$: Gate passes; mints MCard, yields a `VCardResult` witness.
   - $t_{\text{flush}}: p_{\text{Committed}} \to p_{\text{Persisted}}$: Atomic IDB write via `SqlJsBackend`.
-  - $t_{\text{stale\_detect}}: p_{\text{Flushing}} \to p_{\text{Stale}}$: Writer generation conflict yields `BailVerdict.StaleConflict`.
+  - $t_{\text{stale\_detect}}: p_{\text{Flushing}} \to p_{\text{Stale}}$: Writer generation conflict yields `BailVerdict.bail(reason, 'STALE_CONFLICT')`.
 
 - **Petri Net Invariants**:
   $$\forall M \in \mathcal{R}(M_0), \quad \sum_{p \in P_{\text{lifecycle}}} M(p) = 1$$
-  *(Token Conservation: Exactly one active lifecycle marking per open document tab).*
+  *(Token Conservation: Exactly one active lifecycle marking per open document tab. The dirty flag is **not** part of this sum — it is modeled as a separate single-capacity place $p_{\text{dirty}}$ orthogonal to the lifecycle places, since an edit arriving while the lifecycle token sits in $p_{\text{Flushing}}$ must still be recorded. Flush completion clears $p_{\text{dirty}}$ only when the flushed content equals the current buffer; this is the formal guard for the H5 "dirty-cleared-early" race.)*
 
 ### 3.2 Communicating Sequential Processes (CSP) Synchronization
 
@@ -76,9 +76,9 @@ To guarantee modular independence and eliminate spatial and temporal information
    - Each decomposed actor (`DocumentProcess`, `SyncChannel`, `StorageSupervisor`, `TabSessionController`) runs in an isolated Cordis Context, explicitly injecting its required dependencies (`ctx.inject(['storage', 'protocol'])`).
    - Zero ambient state: Components never reach into global window state, foreign DOM nodes, or Three.js scene graphs.
 2. **Temporal Fiber Lifecycle & The VCard Sandwich**:
-   - Every active document tab is governed by a **Cordis Fiber** and a `DisposableList`.
+   - Every active document tab is governed by a **Cordis Fiber** and a `DisposableList` (exported by `clm-kernel` `./disposable.js` — not a Cordis export; imports must come from `clm-kernel`).
    - Transitions follow the **VCard Sandwich** ($\text{setup} \to \text{action} \to \text{teardown}$).
-   - When a tab is closed, unmounted, or swapped, `DisposableList.dispose()` unregisters all event listeners, cancels pending debounces, and rolls back transient state using `SavepointGuard`.
+   - When a tab is closed, unmounted, or swapped, `DisposableList.dispose()` unregisters all event listeners, cancels pending debounces, and rolls back transient state using `SavepointGuard` (also `clm-kernel`). *Adoption note:* these primitives are new to `src/` — existing runtime code uses `ctx.command.register` and nanostores subscriptions with manual unsubscribe; this sprint introduces the DisposableList discipline rather than extending an existing pattern.
 
 ---
 
@@ -90,7 +90,7 @@ Deconstruct `src/services/createWorkbenchRuntime.ts` into four focused modules:
 src/services/
 ├── createWorkbenchRuntime.ts              # Shell orchestrator & Cordis service assembly (<= 350 LOC)
 ├── lifecycle/
-│   ├── DocumentProcess.ts                 # Petri Net document lifecycle actor (<= 280 LOC)
+│   ├── DocumentProcess.ts                 # Petri Net document lifecycle actor (<= 250 LOC per Contract D)
 │   └── TabSessionController.ts            # Multi-document tab routing & focus (<= 200 LOC)
 ├── sync/
 │   └── SyncChannel.ts                     # CSP message channel (Editor <-> Canvas) (<= 180 LOC)
@@ -124,11 +124,11 @@ src/services/
 ## 5. Acceptance Criteria
 
 - **AC-21-01 (Runtime Line Count Limit)**: `src/services/createWorkbenchRuntime.ts` is reduced from 1,100 lines to **fewer than 350 lines of code**.
-- **AC-21-02 (Modular Component Line Limit)**: Each newly created actor (`DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts`) does not exceed **300 lines of code**.
+- **AC-21-02 (Modular Component Line Limit)**: Each newly created actor (`DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts`) does not exceed **250 lines of code** (Contract D ceiling — stricter than an earlier draft of this sprint).
 - **AC-21-03 (Petri Net State Determinism)**: Document lifecycle states follow the formal Petri Net state machine. All ad-hoc boolean mutations are replaced by atomic action dispatches.
 - **AC-21-04 (Token Conservation Verification)**: Edits performed during an active asynchronous persistence flush are provably preserved and maintain the dirty marking until the subsequent save completes.
-- **AC-21-05 (Zero Regressions)**: All existing Vitest unit tests (355 tests) and Playwright E2E suites (392 tests) pass 100% green without modification to external test contracts.
-- **AC-21-06 (Standardized clm-kernel Result & Bail Modes)**: Transitions emit `VCardResult` upon success and `BailVerdict` on failure, eliminating ad-hoc string exceptions.
+- **AC-21-05 (Zero Regressions)**: All existing Vitest unit tests and Playwright E2E runs in the kickoff-recorded baseline (334 unit / 402 E2E at planning; re-record at kickoff) pass 100% green without modification to external test contracts.
+- **AC-21-06 (Standardized clm-kernel Result & Bail Modes)**: Transitions emit `VCardResult` upon success and `BailVerdict.bail(reason, invariantCode)` on failure, eliminating ad-hoc string exceptions.
 - **AC-21-07 (Spatiotemporal Fiber Lifecycle)**: Document tabs use Cordis Fibers with `DisposableList` to guarantee 100% subscription cleanup on tab closure.
 
 ---
@@ -146,10 +146,10 @@ This sprint introduces 24 new unit, concurrency, and integration tests verifying
 | **T21-03** | `test_transition_user_edit_to_dirty` | DocumentProcess | Fires transition $t_{\text{edit}}$ from $p_{\text{Clean}}$ or $p_{\text{Draft}}$; asserts marking moves to $p_{\text{Dirty}}$ and emits dirty event. |
 | **T21-04** | `test_transition_canvas_edit_to_dirty` | DocumentProcess | Fires transition $t_{\text{canvas\_edit}}$ on node move; asserts marking moves to $p_{\text{Dirty}}$ and updates internal graph model. |
 | **T21-05** | `test_transition_parse_success_ast_valid` | DocumentProcess | Debounced parser succeeds on valid TikZ; asserts transition $t_{\text{parse\_ok}}$ moves token from $p_{\text{Dirty}}$ to $p_{\text{ASTValid}}$ and updates AST cache. |
-| **T21-06** | `test_transition_parse_failure_ast_invalid` | DocumentProcess | Parser fails on syntax error; asserts transition $t_{\text{parse\_err}}$ moves token to $p_{\text{ASTInvalid}}$ and populates diagnostic error records. |
+| **T21-06** | `test_transition_parse_failure_ast_invalid` | DocumentProcess | Parser fails on syntax error; asserts transition $t_{\text{parse\_err}}$ moves token to $p_{\text{ASTInvalid}}$ and the emitted verdict is `BailVerdict.bail` with `invariantCode: 'SYNTAX_ERROR'` plus diagnostic error records. |
 | **T21-07** | `test_save_gating_blocks_invalid_ast` | DocumentProcess | Dispatches save action while token is in $p_{\text{ASTInvalid}}$; asserts commit gate rejects save and retains token in $p_{\text{ASTInvalid}}$. |
-| **T21-08** | `test_transition_commit_mints_mcard` | DocumentProcess | Dispatches save while in $p_{\text{ASTValid}}$; asserts transition $t_{\text{commit}}$ computes card hash, mints MCard, updates handle sequence, and moves token to $p_{\text{Committed}}$. |
-| **T21-09** | `test_token_conservation_during_async_flush` | Concurrency Safety | **Critical Race Guard**: Initiates $t_{\text{flush}}$ ($p_{\text{Committed}} \to p_{\text{Flushing}}$). While flush is pending in simulated slow I/O, user types new text ($t_{\text{edit}}$). When flush resolves, asserts document marking remains $p_{\text{Dirty}}$ and token count equals 1. |
+| **T21-08** | `test_transition_commit_mints_mcard` | DocumentProcess | Dispatches save while in $p_{\text{ASTValid}}$; asserts transition $t_{\text{commit}}$ computes card hash, mints MCard, updates handle registry, and moves the lifecycle token to $p_{\text{Committed}}$. |
+| **T21-09** | `test_token_conservation_during_async_flush` | Concurrency Safety | **Critical Race Guard**: Initiates $t_{\text{flush}}$ ($p_{\text{Committed}} \to p_{\text{Flushing}}$, which clears $p_{\text{dirty}}$ provisionally). While flush is pending in simulated slow I/O, user types new text ($t_{\text{edit}}$ sets $M(p_{\text{dirty}}) = 1$). When flush resolves, asserts the flush's clear is conditional on buffer-equality, the document still reports dirty, and the lifecycle token count remains exactly 1 throughout. |
 | **T21-10** | `test_stale_writer_generation_conflict` | Concurrency Safety | Simulates external tab bumping database writer generation counter; asserts transition $t_{\text{stale\_detect}}$ shifts token to $p_{\text{Stale}}$ and disables further save operations. |
 
 ### 6.2 CSP Synchronization Channel Verification (`tests/unit/services/sync/SyncChannel.test.ts`)
@@ -196,10 +196,10 @@ Refactoring `createWorkbenchRuntime.ts` touches the central nervous system of th
    - The public reactive stores exported by the runtime (`$activeDocument`, `$corpusIndex`, `$persistenceState`, `$workbenchLayout`) must retain their identical TypeScript signatures and event emission semantics.
 2. **Cordis Microkernel Compatibility**:
    - Plugins and services registering via `ctx.provide(...)` or listening on `ctx.on(...)` must remain completely functional without requiring changes in downstream consumers.
-3. **Strict 355 Unit Test Preservation**:
-   - All 57 test files and 355 unit tests must execute and pass 100% green via `npm test`.
-4. **Strict 392 Playwright E2E Run Preservation**:
-   - All 18 Playwright test suites (covering Sprints 00–19) must pass without altering any `data-testid` query selectors or workflow timings.
+3. **Strict Unit Test Preservation**:
+   - All test files and unit tests in the kickoff-recorded baseline (55 files / 334 tests at planning) must execute and pass 100% green via `npm test`.
+4. **Strict Playwright E2E Run Preservation**:
+   - All Playwright spec files (26 files / 402 runs at planning, covering Sprints 00–19) must pass without altering any `data-testid` query selectors or workflow timings.
 
 ---
 
@@ -209,11 +209,11 @@ This sprint is gated by 11 verifiable Definition of Done checkpoints:
 
 ### Source Decomposition & Line Limit Gates
 - [ ] **G01 — Runtime Orchestrator Under 350 LOC**: `src/services/createWorkbenchRuntime.ts` is refactored into a declarative Cordis microkernel wiring file strictly under **350 lines of code**.
-- [ ] **G02 — Extracted Actors Under 300 LOC**: Each extracted module (`DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts`) does not exceed **300 lines of code**.
+- [ ] **G02 — Extracted Actors Under 250 LOC**: Each extracted module (`DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts`) does not exceed **250 lines of code** (Contract D).
 
 ### Algebraic State Machine Gates
 - [ ] **G03 — Petri Net State Determinism**: Document state is formalized as a marked Place/Transition net. All ad-hoc boolean mutations (`doc.isDirty = true`, `doc.isSaving = false`) are replaced by typed Petri Net action dispatches.
-- [ ] **G04 — Token Conservation Guarantee**: The Petri Net enforces $\sum_{p \in P} M(p) = 1$. Edits occurring during asynchronous persistence flushes are provably preserved without lost dirty markings (verified by T21-09).
+- [ ] **G04 — Token Conservation Guarantee**: The Petri Net enforces $\sum_{p \in P_{\text{lifecycle}}} M(p) = 1$, with dirty state modeled on the orthogonal place $p_{\text{dirty}}$. Edits occurring during asynchronous persistence flushes are provably preserved without lost dirty markings (verified by T21-09).
 - [ ] **G05 — CSP Channel Invariant**: The `SyncChannel` eliminates cyclic echo feedback loops between CodeMirror and Three.js canvas (verified by T21-13).
 
 ### Concurrency & Persistence Gates
@@ -222,9 +222,9 @@ This sprint is gated by 11 verifiable Definition of Done checkpoints:
 
 ### Test Coverage & Regression Gates
 - [ ] **G08 — 24 New Algebraic Tests Passing**: All 24 new unit and integration tests (T21-01 through T21-24) pass 100% green.
-- [ ] **G09 — Zero Regressions on Existing Suites**: All 355 Vitest unit tests and 392 Playwright E2E test runs pass with 0 errors.
-- [ ] **G10 — Contract A & B Preservation**: Dockview layout serialization (Contract A) and all 59 E2E selectors (Contract B) remain intact.
-- [ ] **G11 — Clean Concurrency Verification Log**: Concurrency stress test log demonstrating 10 rapid edit-save cycles with zero lost edits is committed to verification artifacts.
+- [ ] **G09 — Zero Regressions on Existing Suites**: All Vitest unit tests and Playwright E2E runs in the kickoff-recorded baseline pass with 0 errors.
+- [ ] **G10 — Contract A & B Preservation**: Dockview layout serialization (Contract A) and the generated `data-testid` baseline (Contract B / D21) remain intact.
+- [ ] **G11 — Concurrency Verification Evidence**: A captured log demonstrating 10 rapid edit-save cycles with zero lost edits is stored in the sprint's verification artifacts directory (evidence, not committed docs).
 
 ---
 
@@ -246,7 +246,7 @@ wc -l src/services/createWorkbenchRuntime.ts \
       src/services/sync/SyncChannel.ts \
       src/services/storage/StorageSupervisor.ts
 
-# 4. Run entire Vitest unit test suite (355 tests)
+# 4. Run entire Vitest unit test suite (full baseline)
 npm test
 
 # 5. Run complete Playwright E2E suite

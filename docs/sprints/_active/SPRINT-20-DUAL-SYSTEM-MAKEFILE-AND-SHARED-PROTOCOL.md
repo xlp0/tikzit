@@ -19,9 +19,10 @@ Under our architectural policy (Decision Record D19), the native C++ desktop imp
 ## 2. Current Gaps & Architectural Tension
 
 1. **Auto-Generated Root Makefile Pollution**:
-   - The current root `Makefile` is an auto-generated 3,553-line artifact produced by `qmake tikzit.pro`.
+   - The current root `Makefile` is an auto-generated 3,552-line artifact produced by `qmake tikzit.pro` and **is git-tracked** — replacing it requires `git rm` plus the authored replacement in the same commit.
    - Running `qmake` overwrites custom Makefile targets, creating confusion between desktop C++ build recipes and web scripts.
    - Developers must manually alternate between `npm run dev`/`npm test` and `cmake --build` / `UnitTests`.
+   - *Verified constraint:* `CMakeLists.txt` builds only the `tikzit` app (`add_executable(tikzit …)`); there is **no CMake test target**. `UnitTests` is produced exclusively by the qmake testcase configuration (`tikzit.pro` sets `CONFIG += testcase` / `TARGET = UnitTests` inside its `test {}` scope) and today lands in `build-test/UnitTests.app` (see `npm run test:native`).
 
 2. **Absence of a Formal Browser Independence Gate**:
    - While the web workbench currently runs in browser environments, there is no automated gate in CI or the build system verifying that no native C++ dependency, node-gyp module, or platform-specific binary is accidentally introduced into `src/`.
@@ -46,11 +47,16 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := all
 
 # Build directories
-BUILD_DIR_CPP ?= build
-BUILD_DIR_QMAKE ?= build-qmake
+BUILD_DIR_CPP ?= build          # CMake app build (tikzit binary only — no test target exists)
+BUILD_DIR_TEST ?= build-test    # qmake testcase build (UnitTests) — matches `npm run test:native`
+BUILD_DIR_QMAKE ?= build-qmake  # qmake app build, kept shadowed so `qmake` never clobbers this Makefile
 DIST_DIR_WEB ?= dist
 
-.PHONY: all build build-web build-cpp test test-web test-cpp test-e2e verify-corpus clean clean-web clean-cpp lint check-independence
+QMAKE ?= qmake
+UNITTESTS ?= $(BUILD_DIR_TEST)/UnitTests.app/Contents/MacOS/UnitTests
+
+.PHONY: all build build-web build-cpp build-qmake build-test-cpp \
+        test test-web test-cpp test-e2e verify-corpus clean clean-web clean-cpp lint check-independence
 
 all: build test
 
@@ -59,17 +65,23 @@ all: build test
 build: build-web build-cpp
 
 build-web:
-	npm run prebuild
-	npm run build
+	npm run build          # npm lifecycle already runs `prebuild`; do not invoke it twice
 
 build-cpp:
-	@mkdir -p $(BUILD_DIR_CPP)
+	@command -v cmake >/dev/null 2>&1 || { echo "SKIP: cmake/Qt toolchain not installed"; exit 0; }
 	cmake -B $(BUILD_DIR_CPP) -S . -GNinja -DCMAKE_BUILD_TYPE=Release
 	cmake --build $(BUILD_DIR_CPP)
 
 build-qmake:
 	@mkdir -p $(BUILD_DIR_QMAKE)
-	cd $(BUILD_DIR_QMAKE) && qmake ../tikzit.pro && $(MAKE)
+	cd $(BUILD_DIR_QMAKE) && $(QMAKE) ../tikzit.pro && $(MAKE)
+
+# Native test binary: qmake testcase config (tikzit.pro `test { CONFIG += testcase; TARGET = UnitTests }`).
+# There is intentionally no CMake test target — see D20.
+build-test-cpp:
+	@command -v $(QMAKE) >/dev/null 2>&1 || { echo "SKIP: qmake not installed"; exit 0; }
+	@mkdir -p $(BUILD_DIR_TEST)
+	cd $(BUILD_DIR_TEST) && $(QMAKE) ../tikzit.pro "CONFIG+=test" && $(MAKE)
 
 ## --- Test & Verification Targets ---
 
@@ -78,20 +90,20 @@ test: test-web test-cpp
 test-web:
 	npm run test
 
-test-cpp:
-	@if [ -d "$(BUILD_DIR_CPP)/UnitTests.app" ]; then \
-		./$(BUILD_DIR_CPP)/UnitTests.app/Contents/MacOS/UnitTests; \
-	elif [ -f "$(BUILD_DIR_CPP)/UnitTests" ]; then \
-		./$(BUILD_DIR_CPP)/UnitTests; \
+test-cpp: build-test-cpp
+	@if [ -f "$(UNITTESTS)" ]; then \
+		$(UNITTESTS); \
+	elif [ -f "$(BUILD_DIR_TEST)/UnitTests" ]; then \
+		./$(BUILD_DIR_TEST)/UnitTests; \
 	else \
-		echo "Native UnitTests binary not found. Run 'make build-cpp' first."; exit 1; \
+		echo "SKIP: UnitTests binary not found (Qt not installed?)"; \
 	fi
 
 test-e2e:
 	npm run test:e2e
 
 verify-corpus:
-	python3 docs/examples/build_examples.py --verify-only
+	npm run verify:corpus
 
 check-independence:
 	@echo "Checking browser runtime independence (zero native C++ bindings in web bundle)..."
@@ -99,9 +111,11 @@ check-independence:
 
 ## --- Hygiene & Lint Targets ---
 
+# The repository's real static gate is `npx tsc --noEmit` (what CI runs).
+# No ESLint config exists today; if one is added later, extend this target —
+# but a lint target MUST fail the build on failure (no `|| true` / `|| echo`).
 lint:
-	npm run lint 2>/dev/null || npx eslint . --ext .ts,.tsx || echo "Linting passed"
-	cmake -B $(BUILD_DIR_CPP) -S . --warn-uninitialized
+	npx tsc --noEmit
 
 clean: clean-web clean-cpp
 
@@ -109,13 +123,13 @@ clean-web:
 	rm -rf $(DIST_DIR_WEB) .astro .tmp
 
 clean-cpp:
-	rm -rf $(BUILD_DIR_CPP) $(BUILD_DIR_QMAKE)
+	rm -rf $(BUILD_DIR_CPP) $(BUILD_DIR_QMAKE) $(BUILD_DIR_TEST)
 ```
 
 ### 3.2 Automated Browser Independence Gate (`scripts/verify-browser-independence.mjs`)
 
 An automated verification script ensuring:
-1. **Zero Native Addons**: Inspects `package.json` dependencies and `dist/` bundle chunks to ensure zero `.node` binary references, `node-gyp` builds, or Node.js native bindings exist.
+1. **Zero Native Addons**: Inspects `package.json` dependencies (incl. `install`/`postinstall` scripts for `node-gyp`) and scans `dist/` bundle chunks for `.node` binary references, `bindings(` calls, and Node core-module import specifiers (`node:fs`, `fs`, `node:child_process`, `child_process`, `node:path`, `path`). *Scanning note:* match on import/require specifiers and module-registration patterns, not bare substrings — a naive `grep` for `fs`/`path` inside bundled JS produces false positives on legitimate code.
 2. **Pure WASM/WebCrypto Primitives**: Asserts that all SQLite storage operations resolve strictly to `sql.js` WASM, and all cryptographic hashing uses standard `crypto.subtle` or pure-JS hash primitives.
 3. **Pure DOM/WebGL Sandboxing**: Verifies that `src/canvas/` and `src/services/` do not import or invoke C++ FFI or native operating system handles.
 
@@ -128,13 +142,17 @@ Formally documents the shared protocol under the **Kenotic Principle of CLM**: t
    - $f_{\text{geom}}: (x, y)_{\text{TikZ}} \to (x, y)_{\text{Canvas}}$: Bijective coordinate transformation function.
    - $f_{\text{teardrop}}: (u, \text{params}) \to \text{BézierControlPoints}$: Deterministic self-loop math ($in = 135^\circ, out = 45^\circ, \text{weight} = 1.0$).
 2. **Petri Net MCard Storage Transitions**:
-   - $t_{\text{mint}}: (\text{AST}, \text{Metadata}) \to \text{MCard}$: Minting content-addressed block $\text{BLAKE3}(c)$.
+   - $t_{\text{mint}}: (\text{AST}, \text{Metadata}) \to \text{MCard}$: Minting content-addressed block $\text{BLAKE3}(c)$ (SHA-256 provider used for mcard-studio export compatibility).
    - $t_{\text{read}}: \text{Handle} \to \text{MCard}_{\text{head}}$: Pure query transition reading the active head.
-   - DDL schema: `cards (hash, content, mime_type, created_at)`, `handles (name, current_hash, head_hash, sequence)`, `handle_history (handle, hash, position, changed_at, message, author)`.
+   - DDL schema (**canonical — `clm-kernel` `types/schemas/mcard_schema.sql` v3.0.3**, do not improvise):
+     - `card(hash TEXT PRIMARY KEY, content BLOB NOT NULL, g_time TEXT NOT NULL)`
+     - `handle_registry(handle TEXT PRIMARY KEY, current_hash TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`
+     - `handle_history(id INTEGER PRIMARY KEY AUTOINCREMENT, handle TEXT NOT NULL, previous_hash TEXT NOT NULL, changed_at TEXT NOT NULL)`
+     - Note `handle_history` stores *superseded* hashes (`previous_hash`), not snapshots of the current head — the head is reconstructed from `handle_registry` + the latest history row. This is what makes A→B→A restore positionally valid.
 3. **Standardized `clm-kernel` Success & Failure Modes**:
    - All protocol validation and cross-engine testing outcomes use `clm-kernel` types:
      - `VCardResult`: Returned upon successful graph isomorphism match and verified DDL conformance.
-     - `BailVerdict`: Categorizes mismatches (`BailVerdict.ProtocolMismatch`, `BailVerdict.SyntaxError`, `BailVerdict.CoordinateDrift`).
+     - `BailVerdict.bail(reason, invariantCode)`: Categorizes mismatches via `invariantCode` strings (`'PROTOCOL_MISMATCH'`, `'SYNTAX_ERROR'`, `'COORDINATE_DRIFT'`). *API note:* `BailVerdict` is a factory + discriminated union, not an enum — no `BailVerdict.X` members exist.
      - Sealed via `sealWitness()` or `sealBailRecord()`.
 4. **Cross-Engine Conformance Tests**:
    - Automated script (`scripts/verify-protocol-conformance.mjs`) compiling identical canonical diagrams through both C++ `UnitTests` and TS `vitest` to assert AST and attribute equality.
@@ -143,13 +161,13 @@ Formally documents the shared protocol under the **Kenotic Principle of CLM**: t
 
 ## 4. Acceptance Criteria
 
-- **AC-20-01 (Root Makefile Developer Interface)**: A developer typing `make build` successfully builds both the web spatial workbench (`dist/`) and the native desktop C++ binary (`build/tikzit` or `build/tikzit.app`).
-- **AC-20-02 (Unified Test Command)**: `make test` executes both Vitest unit/integration tests and native Qt `UnitTests`, returning a nonzero exit code if either fails.
-- **AC-20-03 (Browser Independence Gate)**: `make check-independence` completes cleanly with 0 violations. Any accidental import of native bindings in `src/` triggers immediate build failure.
-- **AC-20-04 (QMake Shadow Directory Isolation)**: `tikzit.pro` is updated or wrapped such that running `qmake` outputs into `build-qmake/` and never clobbers the root `Makefile`.
-- **AC-20-05 (Protocol Specification Document)**: `docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md` is authored, capturing TikZ grammar, coordinate mapping, and MCard schema as pure functions and Petri Net transitions.
+- **AC-20-01 (Root Makefile Developer Interface)**: A developer typing `make build` successfully builds the web spatial workbench (`dist/`) and, when the Qt toolchain is present, the native desktop C++ binary (`build/tikzit` or `build/tikzit.app`); without Qt, native targets print a clear SKIP notice and do not fail the web pipeline.
+- **AC-20-02 (Unified Test Command)**: `make test` executes Vitest unit/integration tests and — when Qt is available — native `UnitTests` built via `make build-test-cpp` (qmake `CONFIG+=test` into `build-test/`). Native steps auto-skip with a visible notice on machines without Qt; a *failure* of an invoked suite always propagates a nonzero exit code.
+- **AC-20-03 (Browser Independence Gate)**: `make check-independence` completes cleanly with 0 violations. Any accidental import of native bindings in `src/` or `dist/` triggers immediate build failure.
+- **AC-20-04 (QMake Shadow Directory Isolation)**: The qmake app build (`make build-qmake`) generates its Makefile and artifacts strictly inside `build-qmake/`; the authored root `Makefile` carries an unmistakable "authored, do not regenerate" header, and a unit test (T20-04) asserts the root file is the authored one (e.g. by marker comment), catching an accidental root-level `qmake` run.
+- **AC-20-05 (Protocol Specification Document)**: `docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md` is authored, capturing TikZ grammar, coordinate mapping, and the **canonical** MCard DDL (`card` / `handle_registry` / `handle_history` per `clm-kernel` `mcard_schema.sql` v3.0.3) as pure functions and Petri Net transitions.
 - **AC-20-06 (Corpus Verification Integration)**: `make verify-corpus` executes the 12-diagram ZX-Calculus verification and passes 100% green.
-- **AC-20-07 (Standardized clm-kernel Result Modes)**: Cross-system conformance checks emit structured `VCardResult` witnesses and `BailVerdict` failure records from `clm-kernel`.
+- **AC-20-07 (Standardized clm-kernel Result Modes)**: Cross-system conformance checks emit structured `VCardResult` witnesses and `BailVerdict.bail(reason, invariantCode)` failure records from `clm-kernel`.
 
 ---
 
@@ -161,10 +179,11 @@ This sprint introduces automated verification suites across build orchestration,
 
 | Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
 | :--- | :--- | :--- | :--- |
-| **T20-01** | `test_makefile_syntax_and_phony_targets` | Build Harness | Reads root `Makefile` and asserts that all essential targets (`all`, `build`, `build-web`, `build-cpp`, `test`, `test-web`, `test-cpp`, `test-e2e`, `verify-corpus`, `clean`, `lint`, `check-independence`) are declared in `.PHONY` and contain valid shell syntax. |
+| **T20-01** | `test_makefile_syntax_and_phony_targets` | Build Harness | Reads root `Makefile` and asserts that all essential targets (`all`, `build`, `build-web`, `build-cpp`, `build-qmake`, `build-test-cpp`, `test`, `test-web`, `test-cpp`, `test-e2e`, `verify-corpus`, `clean`, `lint`, `check-independence`) are declared in `.PHONY` and contain valid shell syntax; also asserts the authored-marker header is present (proving the file is not a qmake artifact). |
 | **T20-02** | `test_makefile_parallel_execution` | Build Harness | Asserts that running `make -j4` does not produce race conditions between C++ build directory creation and web compilation. |
 | **T20-03** | `test_makefile_error_exit_code_propagation` | Build Harness | Simulates a sub-command failure in `build-web` or `build-cpp` and verifies that `make` immediately terminates with a non-zero exit code. |
-| **T20-04** | `test_qmake_shadow_directory_isolation` | Build Harness | Verifies that executing `make build-qmake` generates artifacts strictly in `build-qmake/` without touching or modifying the root `Makefile`. |
+| **T20-04** | `test_qmake_shadow_directory_isolation` | Build Harness | Verifies that executing `make build-qmake` generates artifacts strictly in `build-qmake/` without touching or modifying the root `Makefile`, and that `make build-test-cpp` produces `build-test/UnitTests` (skipped when qmake is absent). |
+| **T20-04b** | `test_native_test_binary_route` | Build Harness | Asserts `test-cpp` resolves `UnitTests` from `build-test/` (qmake testcase build), matching `npm run test:native` — never from the CMake `build/` tree, which contains no test target. |
 
 ### 5.2 Browser Runtime Independence Gate (`scripts/verify-browser-independence.mjs`)
 
@@ -195,19 +214,19 @@ This sprint introduces automated verification suites across build orchestration,
 Refactoring the build system and defining the shared protocol must not degrade or destabilize the existing codebase:
 
 1. **Vitest Unit & Integration Suite Protection**:
-   - Baseline: **57 test files, 355 tests** passing 100% green.
-   - Requirement: `npm test` and `make test-web` must continue executing all 355 existing tests with zero failures or skipped suites.
+   - Baseline (recorded 2026-09-29 via `npx vitest list`): **55 test files, 334 tests** passing 100% green.
+   - Requirement: `npm test` and `make test-web` must continue executing the full kickoff-recorded baseline with zero failures or skipped suites.
 2. **Playwright End-to-End Suite Protection**:
-   - Baseline: **18 test suites, 392 test runs** across Chromium, Firefox, WebKit.
+   - Baseline (recorded 2026-09-29 via `npx playwright test --list`): **26 spec files, 402 test runs** across Chromium, Firefox, WebKit.
    - Requirement: `npm run test:e2e` and `make test-e2e` must pass cleanly without modification to any existing test scripts.
 3. **PQP Canonical ZX-Calculus Corpus Invariant**:
-   - Baseline: **12/12 diagrams verified** (`python3 docs/examples/build_examples.py --verify-only`).
+   - Baseline: **12/12 diagrams verified** (`npm run verify:corpus`).
    - Requirement: `make verify-corpus` must pass 100% green.
 4. **Native C++ Qt6 UnitTests Invariant**:
-   - Baseline: `UnitTests` binary executing **20/20 passing assertions**.
-   - Requirement: `make test-cpp` must execute the native test binary and assert full pass.
+   - Baseline: `UnitTests` binary (qmake testcase build at `build-test/`) executing all assertions green.
+   - Requirement: `make test-cpp` must execute the native test binary and assert full pass (or SKIP with notice when Qt is absent — skip is not a pass and must be visible in logs).
 5. **NPM Script Backward Compatibility**:
-   - All standard `package.json` scripts (`npm run dev`, `npm run build`, `npm run preview`, `npm test`) must remain completely functional and unaltered.
+   - All standard `package.json` scripts (`npm run dev`, `npm run build`, `npm run preview`, `npm test`, `npm run test:native`, `npm run verify:corpus`) must remain completely functional and unaltered.
 
 ---
 
@@ -216,10 +235,10 @@ Refactoring the build system and defining the shared protocol must not degrade o
 To examine progress systematically, this sprint is gated by 10 verifiable Definition of Done checkpoints:
 
 ### Architecture & Build Orchestration Gates
-- [ ] **G01 — Authored Root Makefile Deployed**: Root `Makefile` is authored, committed, and replaces the generated qmake artifact. It defines `.PHONY` targets for `all`, `build`, `build-web`, `build-cpp`, `test`, `test-web`, `test-cpp`, `test-e2e`, `verify-corpus`, `clean`, `lint`, and `check-independence`.
-- [ ] **G02 — Dual-System Build Success**: Running `make build` from a clean checkout builds both the web application (`dist/`) and the desktop C++ binary (`build/tikzit` or `build/tikzit.app`) without manual intervention.
-- [ ] **G03 — QMake Shadow Isolation**: Running `make build-qmake` emits artifacts strictly to `build-qmake/` and never overwrites the root `Makefile`.
-- [ ] **G04 — Dual-System Test Execution**: Running `make test` executes both Vitest unit/integration tests and native Qt `UnitTests`, returning exit code 0 on complete success and non-zero on any failure.
+- [ ] **G01 — Authored Root Makefile Deployed**: Root `Makefile` is authored and committed; the git-tracked qmake artifact is removed (`git rm`) in the same change. It defines `.PHONY` targets for `all`, `build`, `build-web`, `build-cpp`, `build-qmake`, `build-test-cpp`, `test`, `test-web`, `test-cpp`, `test-e2e`, `verify-corpus`, `clean`, `lint`, and `check-independence`, and carries an authored-marker header asserted by T20-01.
+- [ ] **G02 — Dual-System Build Success**: Running `make build` from a clean checkout builds the web application (`dist/`) and, on Qt-equipped machines, the desktop C++ binary (`build/tikzit` or `build/tikzit.app`); on machines without Qt the native step prints a SKIP notice and the web build still succeeds.
+- [ ] **G03 — QMake Shadow Isolation**: Running `make build-qmake` emits artifacts strictly to `build-qmake/` and never overwrites the root `Makefile`; `make build-test-cpp` emits strictly to `build-test/`.
+- [ ] **G04 — Dual-System Test Execution**: Running `make test` executes Vitest unit/integration tests and native Qt `UnitTests` (when Qt present), returning exit code 0 on complete success and non-zero on any failure of an invoked suite.
 
 ### Browser Independence & Sandboxing Gates
 - [ ] **G05 — Browser Independence Gate Implemented**: `scripts/verify-browser-independence.mjs` is authored, executable via `make check-independence`, and asserts zero native C++ bindings, `.node` addons, or Node-specific I/O in client bundles.
@@ -230,8 +249,8 @@ To examine progress systematically, this sprint is gated by 10 verifiable Defini
 - [ ] **G08 — Protocol Unit Suite Passing**: `tests/unit/protocol/sharedProtocol.test.ts` is implemented and passes all test cases (T20-09 to T20-16).
 
 ### Regression & Verification Artifact Gates
-- [ ] **G09 — Zero Regressions on Existing Suites**: All 355 Vitest unit tests, 392 Playwright E2E tests, 12 canonical ZX diagrams, and 20 native C++ tests pass 100% green.
-- [ ] **G10 — Clean Verification Log**: Build logs demonstrating successful execution of `make all`, `make check-independence`, and `make verify-corpus` are generated and verified.
+- [ ] **G09 — Zero Regressions on Existing Suites**: All Vitest unit tests, Playwright E2E runs, 12 canonical ZX diagrams, and native `UnitTests` assertions in the kickoff-recorded baseline pass 100% green.
+- [ ] **G10 — Verification Evidence**: Output logs of `make all`, `make check-independence`, and `make verify-corpus` are captured under the sprint's verification artifacts directory (or CI artifacts) — logs are evidenced, not committed to `docs/`.
 
 ---
 

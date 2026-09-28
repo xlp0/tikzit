@@ -37,10 +37,10 @@ npm run dev
 The web workbench is backed by a comprehensive automated test matrix:
 
 ```bash
-# Run Vitest unit, parser, CLM, and integration test suite (57 files, 355 tests)
+# Run Vitest unit, parser, CLM, and integration test suite (55 files, 334 tests)
 npm test
 
-# Run Playwright cross-browser test suite (392 tests across Chromium, Firefox, WebKit)
+# Run Playwright cross-browser test suite (402 tests across Chromium, Firefox, WebKit)
 npx playwright test
 
 # Verify 12 canonical ZX diagrams corpus fixture
@@ -68,8 +68,8 @@ tikzit/
 │   ├── gui/            # Native C++ Qt window, scene, and tool implementations
 │   └── data/           # Native C++ graph and parser data structures
 ├── docs/
-│   ├── sprints/        # Implementation sprint specifications (00-15 Graduated)
-│   │   └── _active/    # Active sprint tracks (Sprints 16-19 Completed & Verified)
+│   ├── sprints/        # Implementation sprint specifications (00-19 Graduated)
+│   │   └── _active/    # Active sprint plans (Sprints 20-24 Algebraic Modularity, in planning)
 │   ├── examples/       # 12-diagram ZX-calculus reference corpus with SVGs
 │   └── changelog/      # Weekly changelog archive (YYYY-Www.md)
 ├── tests/              # Vitest unit and integration test suites

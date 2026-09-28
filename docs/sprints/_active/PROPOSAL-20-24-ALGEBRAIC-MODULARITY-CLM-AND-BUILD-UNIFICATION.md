@@ -56,7 +56,7 @@ Under the Kenotic Principle:
 3. **Standardized Success and Failure Modes (`clm-kernel`)**:
    - All transition and functional evaluation outcomes are standardized off of the native [`clm-kernel`](../../../node_modules/clm-kernel/README.md) core library:
      - **Success**: Sealed with a `VCardResult` containing a cryptographic witness (`sealWitness` / `sealExecutionRecord`).
-     - **Failure**: Explicitly categorized via `BailVerdict` (`BailVerdict.SyntaxError`, `BailVerdict.StaleConflict`, `BailVerdict.Cancelled`), sealed via `sealBailRecord`.
+     - **Failure**: Explicitly categorized via `BailVerdict.bail(reason, invariantCode)`, sealed via `sealBailRecord`. *API note:* `BailVerdict` is a factory over a discriminated union (`{verdict:'pass'|'bail', reason, invariantCode}`) — there are no `BailVerdict.SyntaxError`-style enum members; failure categories travel as `invariantCode` strings (e.g. `'SYNTAX_ERROR'`, `'STALE_CONFLICT'`, `'CANCELLED'`, `'PROTOCOL_MISMATCH'`, `'COORDINATE_DRIFT'`).
      - **Atomic Rollback**: State transitions use `SavepointGuard` to ensure no partial state is retained upon failure.
 
 ```mermaid
@@ -136,15 +136,15 @@ stateDiagram-v2
     Place_HeadCommitted --> Place_PersistedDB: t_flush (SqlJs Atomic Write)
     Place_PersistedDB --> [*]
     
-    Place_DirtyBuffer --> Place_ASTInvalid: t_parse_err (BailVerdict.SyntaxError)
+    Place_DirtyBuffer --> Place_ASTInvalid: t_parse_err (BailVerdict.bail / SYNTAX_ERROR)
     Place_ASTInvalid --> Place_DirtyBuffer: t_edit (Correction)
-    Place_PersistedDB --> Place_Stale: t_stale_detect (BailVerdict.StaleConflict)
+    Place_PersistedDB --> Place_Stale: t_stale_detect (BailVerdict.bail / STALE_CONFLICT)
 ```
 
 **Petri Net Invariants:**
-- **Token Conservation**: $\sum_{p \in P} M(p) = 1$. Exactly one lifecycle token per active document session; no document can simultaneously be committed and unstaged without a distinct token marking.
-- **Asynchronous Token Preservation**: Typing during an in-flight background flush ($p_{\text{Flushing}}$) immediately marks the document with an unconsumed edit token, ensuring no dirty edits are lost upon flush resolution.
-- **Kenotic Failure Modes**: Transitions that cannot proceed do not throw uncaught exceptions; they fire into designated failure/quarantine places or return structured `BailVerdict` records.
+- **Lifecycle Token Conservation**: $\sum_{p \in P_{\text{lifecycle}}} M(p) = 1$. Exactly one *lifecycle* token per active document session, where $P_{\text{lifecycle}} = \{\text{Draft}, \text{Dirty}, \text{Parsing}, \text{ASTValid}, \text{ASTInvalid}, \text{Gating}, \text{Committed}, \text{Flushing}, \text{Persisted}, \text{Stale}\}$.
+- **Dirty Marking is Orthogonal**: `dirty` is a **separate single-capacity place** $p_{\text{dirty}} \notin P_{\text{lifecycle}}$, not part of the conserved token sum. Typing during an in-flight flush ($M(p_{\text{Flushing}}) = 1$) sets $M(p_{\text{dirty}}) = 1$; flush completion clears the dirty place **only if** the committed content still matches the buffer snapshot it flushed. This models the H5 race without violating conservation — a single-token net cannot express "edit recorded while token is in Flushing" otherwise.
+- **Kenotic Failure Modes**: Transitions that cannot proceed do not throw uncaught exceptions; they fire into designated failure/quarantine places or return structured `BailVerdict.bail(...)` records.
 
 ### 3.2 Process Algebra (CSP / CCS) Architecture
 
@@ -189,15 +189,15 @@ A clean, top-level `Makefile` will be authored to provide a standardized interfa
 
 ```makefile
 # High-Level Makefile Target Topology
-.PHONY: all build build-web build-cpp test test-web test-cpp test-e2e verify-corpus clean lint
+.PHONY: all build build-web build-cpp build-qmake build-test-cpp \
+        test test-web test-cpp test-e2e verify-corpus clean lint check-independence
 
 all: build test
 
 build: build-web build-cpp
 
 build-web:
-	npm run prebuild
-	npm run build
+	npm run build            # npm runs `prebuild` automatically — do not invoke it twice
 
 build-cpp:
 	cmake -B build -S . -GNinja -DCMAKE_BUILD_TYPE=Release
@@ -208,14 +208,16 @@ test: test-web test-cpp
 test-web:
 	npm run test
 
-test-cpp:
-	./build/UnitTests.app/Contents/MacOS/UnitTests || ./build/UnitTests
+# Native tests build via qmake `CONFIG+=test` into build-test/ (D20);
+# there is no CMake test target. Auto-skips without Qt.
+test-cpp: build-test-cpp
+	./build-test/UnitTests.app/Contents/MacOS/UnitTests || ./build-test/UnitTests
 
 test-e2e:
 	npm run test:e2e
 
 verify-corpus:
-	python3 docs/examples/build_examples.py --verify-only
+	npm run verify:corpus
 ```
 
 ---
@@ -226,8 +228,8 @@ verify-corpus:
 | :---: | :--- | :---: | :--- | :--- | :--- |
 | **20** | **Dual-System Makefile & Shared Protocol** | Porting & Substituting | `orchestration` / `build` | Root `Makefile` | Authored root `Makefile` driving CMake and npm; browser independence gate; shared protocol spec. |
 | **21** | **Process Algebra & Petri Net Lifecycle** | Inverting & Splitting | `shell` / `sync` | `createWorkbenchRuntime.ts` (1,100 LOC) | Petri Net document state machine; CSP communication channels; decompose runtime to < 350 LOC. |
-| **22** | **God-Component Decomposition via Baldwin Splitting** | Splitting | `interactions` / `styles` | `VersionPopover.tsx` (739 LOC), `CorpusExplorerDrawer.tsx` (572 LOC), `WorkbenchCommandBar.tsx` (472 LOC), `PreviewPanel.tsx` (605 LOC) | Dissect UI God components into focused single-responsibility modules ($\le 300$ LOC each). |
-| **23** | **CLM Tri-Database & Service Decoupling** | Excluding & Substituting | `corpus` / `storage` | `corpusExplorerService.ts` (652 LOC), `corpusExportService.ts` (484 LOC) | Prune legacy `DocumentStore`; extract dedicated CLM actors for Indexing, Gated Commit, and Export. |
+| **22** | **God-Component Decomposition via Baldwin Splitting** | Splitting | `interactions` / `styles` | `VersionPopover.tsx` (739 LOC), `CorpusExplorerDrawer.tsx` (572 LOC), `WorkbenchCommandBar.tsx` (472 LOC), `PreviewPanel.tsx` (605 LOC) | Dissect UI God components into focused single-responsibility modules ($\le 250$ LOC each, Contract D); author the generated `data-testid` baseline audit. |
+| **23** | **CLM Tri-Database & Service Decoupling** | Excluding & Substituting | `corpus` / `storage` | `corpusExplorerService.ts` (652 LOC), `corpusExportService.ts` (484 LOC) | Retire legacy `DocumentStore` writes (read-only import retained per D5); extract dedicated CLM actors for Indexing, Gated Commit, and Export. |
 | **24** | **Core Parser Combinator & Dual-System Protocol Conformance** | Splitting & Porting | `parser` / `protocol-conformance` | `parser.ts` (494 LOC) | Modular combinator decomposition for TS parser; automated dual-system conformance verification against unmodified C++ reference engine. |
 
 ---
@@ -243,6 +245,8 @@ verify-corpus:
 - **D17 (Kenotic Functional Protocol Invariant):** All newly authored protocols, service boundaries, and subsystem interfaces must be modeled strictly as pure mathematical Functions ($f: A \to B$) or Petri Net transitions ($t: P_{\text{in}} \to P_{\text{out}}$). Modules must empty themselves of ambient stateful singletons and unmediated listeners.
 - **D18 (Standardized clm-kernel Success & Failure Modes):** All operational outcomes must resolve through standardized `clm-kernel` primitives (`VCardResult`, `BailVerdict`, `sealExecutionRecord`, `sealBailRecord`, and `SavepointGuard`), eliminating ad-hoc string throws, unhandled rejections, and loose boolean flags.
 - **D19 (C++ Implementation Immutability & Reference Status):** The native C++ Qt codebase remains strictly in its original state as an immutable reference implementation. Modularity operators, line count ceilings ($\le 450$ LOC), and refactoring efforts apply exclusively to the JavaScript/TypeScript/TSX web stack. The native C++ codebase is only modified if: (1) a proven logical error/bug is discovered during cross-engine testing, or (2) a minimal runtime bridge runner is strictly required to enable automated conformance verification.
+- **D20 (Native Test Harness Route & CI Scope):** Native `UnitTests` are built through the existing **qmake testcase configuration** (`CONFIG+=test`, `TARGET=UnitTests`) into `build-test/` — matching `npm run test:native` — **not** through CMake, which has no test target today. The root `Makefile` is a developer-facing interface: `make test-cpp`/`make build-cpp` must auto-detect Qt and emit a clear skip notice when unavailable rather than fail cryptically; a dedicated native CI job is optional follow-up. The existing git-tracked qmake-generated root `Makefile` is removed via `git rm` and superseded by the authored one; regeneration always happens inside `build-qmake/`.
+- **D21 (Selector Registry is Generated):** The Contract B selector registry is produced by `scripts/audit-testids.mjs` → committed `docs/testing/testid-baseline.json`, never hand-maintained. Decompositions diff the regenerated baseline against the committed one; removals are DoD blockers, additions are deliberate diffs.
 
 ---
 
@@ -270,27 +274,28 @@ graph LR
 | **22** | `tests/unit/components/history/VersionDiffEngine.test.ts`, `tests/unit/components/preview/PreviewCompiler.test.ts`, `tests/unit/components/history/*.test.tsx`, `tests/unit/components/preview/*.test.tsx`, `tests/unit/components/explorer/*.test.tsx`, `tests/unit/components/commandbar/*.test.tsx` | **28** | Headless AST diffing, headless SVG generation, timeline rows, side-by-side compare, debounced search, inline rename. |
 | **23** | `tests/unit/clm/explorer/DiagramIndexService.test.ts`, `tests/unit/clm/explorer/DiagramCommitCoordinator.test.ts`, `tests/unit/clm/explorer/DiagramLifecycleManager.test.ts`, `tests/unit/clm/export/LineageTraversalEngine.test.ts`, `tests/unit/clm/export/CollectionSnapshotWriter.test.ts`, `tests/unit/clm/storage/DocumentStoreExclusion.test.ts`, `tests/integration/clm/CorpusExportRoundTrip.test.ts` | **24** | Commit gating, VCard receipts, lineage graph cycles ($A \to B \to A$), orphan exclusion, SQLite binary export, legacy storage elimination. |
 | **24** | `tests/unit/parser/combinators/nodeCombinator.test.ts`, `tests/unit/parser/combinators/edgeCombinator.test.ts`, `tests/unit/parser/combinators/styleCombinator.test.ts`, `tests/unit/parser/combinators/propertyCombinator.test.ts`, `tests/unit/parser/parserTopLevel.test.ts`, `tests/unit/protocol/conformanceSuite.test.ts` | **22** | Recursive-descent grammar combinators, error recovery, dual-engine graph isomorphism across C++ and TypeScript. |
-| **Total** | **17 New Test Modules** | **114** | **End-to-end mathematical, headless, unit, and cross-system test coverage.** |
+| **Total** | **~27 New Test Modules** (plus `verify-browser-independence.mjs` and `verify-protocol-conformance.mjs` scripts) | **114** | **End-to-end mathematical, headless, unit, and cross-system test coverage.** |
 
 ### 7.2 Strict Legacy Test Preservation Contract
 
-All existing test suites must pass 100% green without modification to legacy test assertions or queries:
+All existing test suites must pass 100% green without modification to legacy test assertions or queries. **Baselines below were recorded 2026-09-29 via `npx vitest list` and `npx playwright test --list`; each sprint MUST re-record the current counts in its kickoff notes before its first code change.**
 
 1. **Vitest Unit & Integration Suite**:
-   - Baseline: **57 test files, 355 tests** passing.
-   - Requirement: Must remain 100% passing across all sprints (`npm test`).
+   - Baseline: **55 test files, 334 tests** passing.
+   - Requirement: Must remain 100% passing across all sprints (`npm test` → `vitest run`, which also covers `tests/perf/`).
 2. **Playwright Cross-Browser End-to-End Suite**:
-   - Baseline: **18 test suites, 392 test runs** across Chromium, Firefox, WebKit.
+   - Baseline: **26 spec files, 402 test runs** across Chromium, Firefox, WebKit.
    - Requirement: Must remain 100% passing across all browsers (`npm run test:e2e`).
+   - *CI note:* `.github/workflows/ci.yml` runs Playwright with **Chromium only**; the full 3-browser matrix is a local/pre-merge gate unless a CI matrix job is added (D20).
 3. **PQP Canonical ZX-Calculus Corpus**:
    - Baseline: **12/12 diagrams verified** without syntax or layout errors.
-   - Requirement: `python3 docs/examples/build_examples.py --verify-only` must pass 100%.
+   - Requirement: `npm run verify:corpus` (= `python3 docs/examples/build_examples.py --verify-only`) must pass 100%.
 4. **Native C++ Qt6 UnitTests Binary**:
-   - Baseline: **20/20 test assertions** passing.
-   - Requirement: Native build must continue compiling and passing all tests (`make test-cpp`).
+   - Baseline: `UnitTests` built via **qmake testcase config** (`qmake ../tikzit.pro "CONFIG+=test"` into `build-test/`); binary at `build-test/UnitTests.app/Contents/MacOS/UnitTests` (see `npm run test:native`). There is **no CMake test target** — `CMakeLists.txt` builds only the `tikzit` app.
+   - Requirement: Native build must continue compiling and passing all tests (`make test-cpp`, implemented per D20).
 5. **Contract A & B Invariants**:
    - Contract A: Dockview layout serialization and 0-panel guard remain functional.
-   - Contract B: All 59 Playwright `data-testid` selectors preserved byte-for-byte.
+   - Contract B: All selectors in the **generated** `data-testid` baseline (196 literals + 5 dynamic prefixes as of planning) preserved byte-for-byte (D21).
 
 ---
 
@@ -307,20 +312,20 @@ This master checklist aggregates all 51 Definition of Done checkpoints across Sp
 - [ ] **S20-G06 — Zero Native Dependencies in Web Bundle**: Automated scan verifies zero `.node` files, node-gyp builds, or C++ FFI in `dist/`.
 - [ ] **S20-G07 — Shared Protocol Specification Authored**: `docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md` authored.
 - [ ] **S20-G08 — Protocol Unit Suite Passing**: `tests/unit/protocol/sharedProtocol.test.ts` passes all 16 tests (T20-01 to T20-16).
-- [ ] **S20-G09 — Zero Regressions on Existing Suites**: 355 Vitest tests, 392 Playwright runs, 12 ZX diagrams, and 20 C++ tests pass.
+- [ ] **S20-G09 — Zero Regressions on Existing Suites**: kickoff-recorded baseline (334 Vitest tests / 55 files, 402 Playwright runs / 26 spec files at planning), 12 ZX diagrams, and all native `UnitTests` assertions pass.
 - [ ] **S20-G10 — Clean Verification Log**: Build logs verifying `make all`, `make check-independence`, and `make verify-corpus` committed.
 
 ### Sprint 21: Process Algebra & Petri Net State Machine
 - [ ] **S21-G01 — Runtime Orchestrator Under 350 LOC**: `createWorkbenchRuntime.ts` reduced from 1,100 lines to $\le 350$ lines.
-- [ ] **S21-G02 — Extracted Actors Under 300 LOC**: `DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts` all $\le 300$ lines.
+- [ ] **S21-G02 — Extracted Actors Under 250 LOC**: `DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts` all $\le 250$ lines (Contract D).
 - [ ] **S21-G03 — Petri Net State Determinism**: State machine dispatches formal actions; zero ad-hoc boolean mutations across components.
 - [ ] **S21-G04 — Token Conservation Guarantee**: Verified by T21-09: concurrent edits during async flush maintain dirty token without data loss.
 - [ ] **S21-G05 — CSP Channel Invariant**: `SyncChannel` eliminates cyclic echo feedback loops (verified by T21-13).
 - [ ] **S21-G06 — Storage Supervisor Isolation**: Persistence and retry backoff fully encapsulated in `StorageSupervisor.ts`.
 - [ ] **S21-G07 — Stale Writer Detection**: Writer generation conflicts halt writes and trigger stale banner (verified by T21-10).
 - [ ] **S21-G08 — 24 New Algebraic Tests Passing**: All 24 tests (T21-01 to T21-24) pass 100% green.
-- [ ] **S21-G09 — Zero Regressions on Existing Suites**: All 355 unit tests and 392 Playwright runs pass.
-- [ ] **S21-G10 — Contract A & B Preservation**: Dockview serialization and 59 `data-testid` selectors preserved.
+- [ ] **S21-G09 — Zero Regressions on Existing Suites**: All unit tests and Playwright runs in the kickoff-recorded baseline pass.
+- [ ] **S21-G10 — Contract A & B Preservation**: Dockview serialization and the generated `data-testid` baseline preserved.
 - [ ] **S21-G11 — Clean Concurrency Verification Log**: Stress test log verifying 10 rapid edit-save cycles with zero lost edits committed.
 
 ### Sprint 22: God-Component Decomposition via Baldwin Splitting
@@ -332,11 +337,11 @@ This master checklist aggregates all 51 Definition of Done checkpoints across Sp
 - [ ] **S22-G06 — Preview & Stage Unit Tests Passing**: T22-18 and T22-19 pass 100% green.
 - [ ] **S22-G07 — Explorer Drawer Unit Tests Passing**: T22-20 through T22-24 pass 100% green.
 - [ ] **S22-G08 — Command Bar Unit Tests Passing**: T22-25 through T22-28 pass 100% green.
-- [ ] **S22-G09 — Contract B Selector Integrity Verified**: Automated audit confirms all 59 baseline selectors remain active and correctly positioned.
-- [ ] **S22-G10 — Full Regression Suite Passing**: All 355 Vitest unit tests and 392 Playwright runs pass with zero query modifications.
+- [ ] **S22-G09 — Contract B Selector Integrity Verified**: `scripts/audit-testids.mjs` regenerates `docs/testing/testid-baseline.json` with zero removed selectors versus the committed baseline.
+- [ ] **S22-G10 — Full Regression Suite Passing**: All Vitest unit tests and Playwright runs in the kickoff-recorded baseline pass with zero query modifications.
 
 ### Sprint 23: CLM Tri-Database & Service Boundary Decoupling
-- [ ] **S23-G01 — Legacy DocumentStore Fully Deleted**: `DocumentStore.ts` deleted; zero references to `tikzit:doc-*` or `tikzit:rev-*` remain.
+- [ ] **S23-G01 — Legacy DocumentStore Fully Retired**: `DocumentStore.ts` deleted; the only remaining `tikzit:doc-*`/`tikzit:rev-*` references are read-only constants inside `legacyImportService.ts` (D5: existing user data is never deleted; zero new writes).
 - [ ] **S23-G02 — All Decomposed Services Under 250 LOC**: `DiagramIndexService`, `DiagramCommitCoordinator`, `DiagramLifecycleManager`, `LineageTraversalEngine`, `CollectionSnapshotWriter`, `ExportFileBridge` all $\le 250$ lines.
 - [ ] **S23-G03 — Service Facades Under 150 LOC**: `CorpusExplorerService.ts` and `CorpusExportService.ts` verified $\le 150$ lines.
 - [ ] **S23-G04 — Headless Lineage Traversal Verified**: Lineage closures and cycle resolution pass headless tests (T23-13 to T23-16).
@@ -344,7 +349,7 @@ This master checklist aggregates all 51 Definition of Done checkpoints across Sp
 - [ ] **S23-G06 — Cross-Repo Mcard-Studio Compatibility**: Exported databases validate against external `mcard-studio` schema format.
 - [ ] **S23-G07 — Commit Gating & VCard Receipts Verified**: Syntax error gating and execution receipts pass tests (T23-05 to T23-09).
 - [ ] **S23-G08 — Index & Parse Cache Verified**: Record caching and parse memoization pass tests (T23-01 to T23-04).
-- [ ] **S23-G09 — Zero Regressions on Existing Suites**: All 355 Vitest tests and Sprint 19 Playwright tests pass 100% green.
+- [ ] **S23-G09 — Zero Regressions on Existing Suites**: All Vitest tests and Sprint 19 Playwright tests in the kickoff-recorded baseline pass 100% green.
 - [ ] **S23-G10 — Clean Export Round-Trip Artifact**: Verified SQLite `.db` export artifact passes `sqlite3` integrity check.
 
 ### Sprint 24: Core Parser Combinator & Dual-System Protocol Conformance
@@ -357,7 +362,7 @@ This master checklist aggregates all 51 Definition of Done checkpoints across Sp
 - [ ] **S24-G07 — Automated Conformance Suite Deployed**: `scripts/verify-protocol-conformance.mjs` authored and integrated into `make test`.
 - [ ] **S24-G08 — 100% Canonical ZX Isomorphism**: All 12 canonical ZX diagrams produce topologically isomorphic graphs across C++ and TS engines.
 - [ ] **S24-G09 — Dual-System Conformance Bridge Deployed**: Headless bridge runner for unmodified native C++ parser executes and provides JSON graph dumps for automated isomorphism verification against TypeScript parser combinators.
-- [ ] **S24-G10 — Full Dual-System Suite Passing**: All 355 Vitest unit tests, 392 Playwright E2E tests, 20 native C++ tests, and 12 canonical ZX diagrams pass 100% green.
+- [ ] **S24-G10 — Full Dual-System Suite Passing**: All Vitest unit tests, Playwright E2E tests, native `UnitTests` assertions, and 12 canonical ZX diagrams in the kickoff-recorded baseline pass 100% green.
 
 ---
 

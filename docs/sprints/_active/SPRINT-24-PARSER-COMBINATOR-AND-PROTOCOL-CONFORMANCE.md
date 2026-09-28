@@ -36,22 +36,29 @@ Deconstruct `src/core/parser/parser.ts` into pure functional combinators:
 
 ```
 src/core/parser/
-├── parser.ts                     # Main parser entrypoint & tokenizer orchestration (<= 120 LOC)
+├── parser.ts                     # Main parser entrypoint & combinator orchestration (<= 120 LOC)
 ├── combinators/
 │   ├── nodeCombinator.ts         # \node statements, coordinates & labels (<= 150 LOC)
 │   ├── edgeCombinator.ts         # \draw & \path operations, curves & self-loops (<= 180 LOC)
 │   ├── styleCombinator.ts        # \tikzstyle declarations & properties (<= 120 LOC)
 │   └── propertyCombinator.ts     # Key-value options bracket parser [in=..., out=...] (<= 130 LOC)
-├── lexer.ts                      # Lexical tokenizer matching Flex rules (existing, <= 180 LOC)
-└── ast.ts                        # Canonical AST TypeScript interfaces (existing, <= 120 LOC)
+├── lexer.ts                      # Lexical tokenizer matching Flex rules (existing, 436 LOC —
+│                                 #   under the 450 ceiling; splitting it is optional scope)
+├── emitter.ts                    # TikZ AST -> source emitter (existing, 300 LOC; OUT OF SCOPE —
+│                                 #   round-trip conformance via `emit -> parse` tests still applies)
+└── index.ts                      # Barrel re-exports (existing, 3 LOC)
+
+src/core/domain/types.ts          # Canonical GraphAST / node / edge TypeScript interfaces
+                                  #   (existing, 224 LOC — NOT `src/core/parser/ast.ts`;
+                                  #    AST types live with the domain model and stay put)
 ```
 
 ### 3.1 Combinator Responsibilities (Pure Functions & clm-kernel Verdicts)
-- **`nodeCombinator.ts` (Pure Function)**: $f_{\text{node}}: \text{TokenStream} \to \text{Result}\langle\text{NodeAST}, \text{BailVerdict}\rangle$. Parses `\node [options] (name) at (x,y) {label};`. Extracts node geometry, style references, and mathematical coordinates. Emits `BailVerdict.SyntaxError` with line/column coordinates on malformed input.
-- **`edgeCombinator.ts` (Pure Function)**: $f_{\text{edge}}: \text{TokenStream} \to \text{Result}\langle\text{EdgeAST}, \text{BailVerdict}\rangle$. Parses `\draw [options] (u) to (v);` and `\path`. Accurately parses bend angles, in/out degrees, and signature teardrop loops (`\draw [in=135, out=45, loop] (u) to ();`).
+- **`nodeCombinator.ts` (Pure Function)**: $f_{\text{node}}: \text{TokenStream} \to \text{Result}\langle\text{NodeAST}, \text{BailVerdict}\rangle$. Parses `\node [options] (name) at (x,y) {label};`. Extracts node geometry, style references, and mathematical coordinates. Emits `BailVerdict.bail(reason, 'SYNTAX_ERROR')` with line/column coordinates on malformed input. (`BailVerdict` is a factory over a discriminated union, not an enum — failure categories are `invariantCode` strings.)
+- **`edgeCombinator.ts` (Pure Function)**: $f_{\text{edge}}: \text{TokenStream} \to \text{Result}\langle\text{EdgeAST}, \text{BailVerdict}\rangle$. Parses `\draw [options] (u) to (v);` and `\path`. Accurately parses bend angles, in/out degrees, and signature teardrop loops (`\draw [in=135, out=45, loop] (u) to ();`). *Parity note:* the C++ grammar recognizes a loop via the empty-target production `"(" ")"` after `to` (`tikzparser.y:223`), while the TS parser's self-loop surface is `\draw ... (u) to ()` — conformance tests must pin the accepted spellings on **both** engines rather than assuming identical surface syntax.
 - **`styleCombinator.ts` (Pure Function)**: $f_{\text{style}}: \text{TokenStream} \to \text{Result}\langle\text{StyleAST}, \text{BailVerdict}\rangle$. Parses `\tikzstyle{name}=[options]` declarations into structured `Style` objects.
 - **`propertyCombinator.ts` (Pure Function)**: $f_{\text{prop}}: \text{TokenStream} \to \text{Result}\langle\text{PropertyMap}, \text{BailVerdict}\rangle$. Parses bracketed option lists (`[key=value, ...]`), correctly tokenizing colors, dimensions, and quoted strings.
-- **`parser.ts` (Petri Net Parse Transition)**: Pure top-level coordinator. Iterates tokens and delegates to combinators based on command keywords. On complete success, seals a `VCardResult.Success`; on error, seals a `sealBailRecord`. Total lines strictly $\le 120$.
+- **`parser.ts` (Petri Net Parse Transition)**: Pure top-level coordinator. Iterates tokens and delegates to combinators based on command keywords. On complete success, seals a `VCardResult` witness; on error, seals a `sealBailRecord`. Total lines strictly $\le 120$.
 
 ---
 
@@ -60,7 +67,7 @@ src/core/parser/
 Rather than refactoring the stable, working native C++ Qt codebase, we treat it as an immutable reference implementation and establish a headless bridge runner:
 
 ### 4.1 Native Conformance Runner Bridge
-- Leverage the existing C++ test binary (`src/test/testparser.cpp` / `UnitTests`) or a minimal CLI harness flag (`tikzit --dump-ast-json <file.tikz>`).
+- **Preferred route (zero parser modification):** add a *new, separate* translation unit/test entry in `src/test/` (e.g. `astDump.cpp` wired into the existing qmake testcase build, or a tiny `tikzit-ast-dump` target) that calls the existing public parser API and serializes the resulting `Graph` to JSON. The Bison parser (`tikzparser.y`) and graph classes themselves remain untouched — per D19, exception (2) permits exactly this kind of minimal bridge.
 - Emits a standardized JSON AST and graph representation without altering C++ internal class hierarchies or Qt GUI architecture.
 - Any C++ modification is strictly limited to:
   1. Adding/exposing the JSON serialization bridge for headless test comparison, and
@@ -86,14 +93,14 @@ graph TD
     Cpp_Runner -->|JSON Graph Dump| Comparator{"Graph Isomorphism &<br/>Attribute Matcher"}
     TS_Runner -->|JSON Graph Dump| Comparator
     
-    Comparator -->|Functorial Match| Pass["✅ VCardResult.Success (sealWitness)"]
-    Comparator -->|Mismatch| Fail["❌ BailVerdict.ProtocolMismatch (sealBailRecord)"]
+    Comparator -->|Functorial Match| Pass["✅ VCardResult (sealWitness)"]
+    Comparator -->|Mismatch| Fail["❌ BailVerdict.bail(reason, 'PROTOCOL_MISMATCH') (sealBailRecord)"]
 ```
 
 The script:
 1. Passes canonical `.tikz` files through both C++ and TypeScript parsers.
 2. Asserts identical node count, edge count, node positions (accounting for $Y$-coordinate scaling), edge styles, and bend angles.
-3. Seals the result using `clm-kernel`: returns `VCardResult.Success` on full match and logs `BailVerdict.ProtocolMismatch` on divergence.
+3. Seals the result using `clm-kernel`: returns a `VCardResult` witness on full match and logs `BailVerdict.bail(reason, 'PROTOCOL_MISMATCH')` on divergence.
 
 ---
 
@@ -102,9 +109,9 @@ The script:
 - **AC-24-01 (Parser Line Count Limit)**: `src/core/parser/parser.ts` is reduced to **fewer than 120 lines of code**.
 - **AC-24-02 (Combinator Module Line Limit)**: Each newly created parser combinator (`nodeCombinator.ts`, `edgeCombinator.ts`, `styleCombinator.ts`, `propertyCombinator.ts`) does not exceed **180 lines of code**.
 - **AC-24-03 (Parser Round-Trip Invariant)**: All existing parser unit tests in `tests/unit/parser/` pass 100% green with zero regressions.
-- **AC-24-04 (Dual-System Conformance Bridge)**: A headless test bridge runner for the unmodified native C++ parser emits canonical JSON graph representations for automated comparison without modifying C++ internal GUI or command architecture.
-- **AC-24-05 (Automated Conformance Gate)**: `scripts/verify-protocol-conformance.mjs` executes in `make test`, asserting 100% AST isomorphism across all 12 canonical ZX diagrams and returning a verified `clm-kernel` `VCardResult`.
-- **AC-24-06 (Kenotic Combinator Purity)**: Combinators operate as pure functions with zero ambient state, returning structured `clm-kernel` `BailVerdict` failure records on syntax error.
+- **AC-24-04 (Dual-System Conformance Bridge)**: A headless bridge runner emits canonical JSON graph representations for automated comparison. It is implemented as a **new minimal source file/test entry** (per D19 exception 2) that calls the existing parser API — `tikzparser.y`, the `Graph`/`Node`/`Edge` classes, and Qt GUI architecture are byte-identical before and after.
+- **AC-24-05 (Automated Conformance Gate)**: `scripts/verify-protocol-conformance.mjs` executes in `make test`, asserting 100% AST isomorphism across all 12 canonical ZX diagrams and returning a verified `clm-kernel` `VCardResult` witness.
+- **AC-24-06 (Kenotic Combinator Purity)**: Combinators operate as pure functions with zero ambient state, returning structured `BailVerdict.bail(reason, 'SYNTAX_ERROR')` failure records on syntax error.
 
 ---
 
@@ -128,7 +135,7 @@ This sprint introduces 22 new unit and cross-engine protocol conformance tests v
 | **T24-05** | `test_parse_straight_edge_draw` | edgeCombinator | Parses `\draw (v0) to (v1);`; asserts straight edge between source `v0` and target `v1`. |
 | **T24-06** | `test_parse_bend_left_and_bend_right` | edgeCombinator | Parses `\draw [bend left=30] (v0) to (v1);`; asserts curved path with bend angle 30 degrees. |
 | **T24-07** | `test_parse_explicit_in_out_angles` | edgeCombinator | Parses `\draw [in=180, out=0] (v0) to (v1);`; asserts explicit angles `in: 180`, `out: 0`. |
-| **T24-08** | `test_parse_teardrop_self_loop` | edgeCombinator | Parses `\draw [in=135, out=45, loop] (v0) to ();`; asserts self-loop on node `v0` with canonical teardrop angles. |
+| **T24-08** | `test_parse_teardrop_self_loop` | edgeCombinator | Parses the self-loop spelling accepted by each engine (C++: `to ()` empty-target production; TS: equivalent accepted spelling — pin both); asserts self-loop on the source node with canonical teardrop angles (`in=135, out=45`). |
 | **T24-09** | `test_parse_edge_weights_and_looseness` | edgeCombinator | Parses `\draw [looseness=1.5, style=dashed] (v0) to (v1);`; asserts looseness factor 1.5 and style `dashed`. |
 | **T24-10** | `test_parse_multi_segment_path` | edgeCombinator | Parses `\draw (a) to (b) to (c);`; asserts compound path with two distinct edge segments. |
 
@@ -168,11 +175,11 @@ Modularizing the parser combinators must strictly protect the stability of the e
 1. **Parser Unit Test Invariants**:
    - All existing test suites in `tests/unit/parser/` must execute without alteration and pass 100% green.
 2. **Native C++ Desktop Suite Invariant**:
-   - The native C++ `UnitTests` binary must continue passing all 20/20 test assertions.
+   - The native C++ `UnitTests` binary (qmake `CONFIG+=test` build in `build-test/`, per D20) must continue passing all assertions.
 3. **Canonical ZX-Calculus Corpus Invariant**:
-   - All 12 canonical diagrams must parse without errors (`python3 docs/examples/build_examples.py --verify-only`).
+   - All 12 canonical diagrams must parse without errors (`npm run verify:corpus`).
 4. **Overall Regression Baseline**:
-   - 355 Vitest unit tests and 392 Playwright E2E tests pass 100% green.
+   - All Vitest unit tests and Playwright E2E runs in the kickoff-recorded baseline (334 / 402 at planning) pass 100% green.
 
 ---
 
@@ -196,7 +203,7 @@ This sprint is gated by 10 verifiable Definition of Done checkpoints:
 - [ ] **G09 — Dual-System Conformance Bridge Deployed**: Headless bridge runner for the unmodified native C++ parser executes and provides JSON graph dumps for automated isomorphism verification against the TypeScript parser combinators.
 
 ### Regression & Verification Artifact Gates
-- [ ] **G10 — Full Dual-System Suite Passing**: All 355 Vitest unit tests, 392 Playwright E2E tests, 20 native C++ tests, and 12 canonical ZX diagrams pass 100% green.
+- [ ] **G10 — Full Dual-System Suite Passing**: All Vitest unit tests, Playwright E2E tests, native `UnitTests` assertions, and 12 canonical ZX diagrams in the kickoff-recorded baseline pass 100% green.
 
 ---
 

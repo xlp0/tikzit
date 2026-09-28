@@ -82,6 +82,12 @@ docs/sprints/
 | **18** | preview | [`preview/18-individual-diagram-export`](./preview/18-individual-diagram-export/) | Individual Diagram Export (TikZ, TeX, SVG, PNG 1x/2x/4x, PDF) & Style Presets | ✅ **Completed** |
 | **19** | corpus | [`corpus/19-complete-mcard-collection-export`](./corpus/19-complete-mcard-collection-export/) | Verified MCard Collection `.db` Export, Complete Lineage Traversal & Pinned Round-Trip | ✅ **Completed** |
 | **16–19** | orchestration | [`orchestration/16-19-mcard-diagram-lifecycle-history-and-export`](./orchestration/16-19-mcard-diagram-lifecycle-history-and-export/) | Architecture Proposal: First-Class MCard Diagrams, History & Export | 🟢 **Graduated Blueprint** |
+| **20–24** | orchestration | [`_active/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION`](./_active/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md) | Architecture Proposal: Algebraic Modularity, CLM & Build Unification | 📋 **In Planning** |
+| **20** | orchestration | [`_active/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL`](./_active/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md) | Authored Root Makefile, Browser Independence & Shared TS/C++ Protocol | 📋 **In Planning** |
+| **21** | sync | [`_active/SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE`](./_active/SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md) | Process Algebra Runtime Decomposition & Petri Net Document Lifecycle | 📋 **In Planning** |
+| **22** | shell | [`_active/SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING`](./_active/SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md) | UI God-Component Decomposition, Baldwin Splitting & Generated Selector Audit | 📋 **In Planning** |
+| **23** | corpus | [`_active/SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING`](./_active/SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING.md) | CLM TriDatabase Service Decoupling, Headless Lineage & Legacy Store Boundary | 📋 **In Planning** |
+| **24** | parser | [`_active/SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE`](./_active/SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE.md) | Parser Combinator Decomposition & TS/C++ Cross-Engine Conformance | 📋 **In Planning** |
 
 ---
 

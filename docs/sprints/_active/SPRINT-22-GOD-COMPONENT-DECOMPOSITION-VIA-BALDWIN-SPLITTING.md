@@ -16,7 +16,9 @@ Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) an
 - [`src/components/workbench/CorpusExplorerDrawer.tsx`](../../../src/components/workbench/CorpusExplorerDrawer.tsx) (**572 lines**)
 - [`src/components/workbench/WorkbenchCommandBar.tsx`](../../../src/components/workbench/WorkbenchCommandBar.tsx) (**472 lines**)
 
-Refactor each into cohesive, single-responsibility sub-components strictly bounded to **$\le 250$ lines of code**. Empty each component of ambient mutable state, extract computation into pure mathematical **Functions**, govern user transitions with standardized `clm-kernel` verdicts (`VCardResult`, `BailVerdict`), and manage interactive lifecycles via Cordis `DisposableList` to eliminate information entanglement while guaranteeing 100% preservation of Contract B selectors.
+Refactor each into cohesive, single-responsibility sub-components strictly bounded to **$\le 250$ lines of code**. Empty each component of ambient mutable state, extract computation into pure mathematical **Functions**, govern user transitions with standardized `clm-kernel` verdicts (`VCardResult`, `BailVerdict.bail(reason, invariantCode)` — a factory + union, not an enum), and manage interactive lifecycles via `clm-kernel`'s `DisposableList` to eliminate information entanglement while guaranteeing 100% preservation of Contract B selectors.
+
+This sprint also authors the Contract B tooling: **`scripts/audit-testids.mjs`** scans `src/` (literals *and* dynamic-template prefixes) and writes `docs/testing/testid-baseline.json`; the committed baseline is diffed on every run so selector changes are deliberate, reviewable diffs rather than silent drift.
 
 ---
 
@@ -52,9 +54,10 @@ src/components/workbench/panels/history/
 ```
 
 - **`VersionDiffEngine.ts` (Pure Kenotic Function)**: A pure mathematical function $f_{\text{diff}}: (\text{AST}_A, \text{AST}_B) \to \text{DiffReport}$. Accepts two immutable AST snapshots and returns `{ nodeDelta, edgeDelta, changedProperties, diffLines }`. 100% headless, zero React or DOM dependencies.
-- **`VersionRestoreDialog.tsx` (Petri Net Transition)**: Models the restore decision as a formal Petri Net choice: confirming fires $t_{\text{restore}} \to \text{VCardResult.Success}$, while cancelling returns `BailVerdict.Cancelled`.
+- **`VersionRestoreDialog.tsx` (Petri Net Transition)**: Models the restore decision as a formal Petri Net choice: confirming fires $t_{\text{restore}}$ returning a `VCardResult` witness, while cancelling returns `BailVerdict.bail('User cancelled restore', 'CANCELLED')`.
 - **`VersionHistoryList.tsx`**: Pure functional rendering of timeline rows with positions, authors, formatted ISO dates, and commit labels.
 - **`VersionCompareModal.tsx`**: Presents non-destructive visual comparison with scoped `DisposableList` key listeners (Escape to dismiss).
+- **Dual-path preservation (verified)**: `VersionPopover` already branches `isMCard` — MCard lineage via `runtime.documentHistory(documentId)` and preview/compare via `runtime.mcardCollection`, versus legacy `DocumentStore` revisions (`savepoint`, `restoreRevision`) for non-MCard documents. Extraction must keep both paths behavior-identical; the legacy branch's fate is decided in Sprint 23, not here.
 
 ### 3.2 Decomposition of `PreviewPanel.tsx` (605 $\to$ 4 focused modules)
 
@@ -66,8 +69,8 @@ src/components/workbench/panels/preview/
 └── PreviewPanel.tsx              # Dockview panel container orchestrating state (<= 130 LOC)
 ```
 
-- **`PreviewCompiler.ts` (Pure Kenotic Function)**: Pure functional transformation $f_{\text{svg}}: (\text{Graph}, \text{StyleCatalog}) \to \text{Result}\langle\text{SVGNodes}, \text{BailVerdict}\rangle$. Decouples geometry and Bézier math from React component rendering. Malformed TikZ source yields `BailVerdict.SyntaxError` with diagnostic banner data.
-- **`PreviewStage.tsx`**: Pure interactive canvas handling SVG pan, pinch, and zoom transformations. Uses `DisposableList` to bind and cleanly unbind pointer and wheel listeners.
+- **`PreviewCompiler.ts` (Pure Kenotic Function)**: Pure functional transformation $f_{\text{svg}}: (\text{Graph}, \text{StyleCatalog}) \to \text{Result}\langle\text{SVGNodes}, \text{BailVerdict}\rangle$. Decouples geometry and Bézier math from React component rendering. Malformed TikZ source yields `BailVerdict.bail(reason, 'SYNTAX_ERROR')` with diagnostic banner data.
+- **`PreviewStage.tsx`**: Pure interactive canvas handling SVG pan, pinch, and zoom transformations. Uses `DisposableList` to bind and cleanly unbind pointer and wheel listeners. Preserves the real selectors `preview-viewport` and `preview-svg-container` (not `preview-svg-stage`, which does not exist in the current code).
 
 ### 3.3 Decomposition of `CorpusExplorerDrawer.tsx` (572 $\to$ 4 focused modules)
 
@@ -96,21 +99,26 @@ src/components/workbench/commandbar/
 
 ## 4. Cross-Sprint Selector Contract B Preservation Matrix
 
-Every selector in the Contract B registry MUST be preserved on the corresponding decomposed sub-component:
+The **normative registry is generated**, not this table: `scripts/audit-testids.mjs` produces `docs/testing/testid-baseline.json` (196 literals + 5 dynamic prefixes at planning). The matrix below is a routing aid showing where the selectors *of the four split components* land after decomposition. Dynamic-template selectors are listed by their literal prefix.
 
-| Selector | Original File | New Sub-Component Location |
+| Selector (literal or prefix) | Original File | New Sub-Component Location |
 | :--- | :--- | :--- |
 | `[data-testid="btn-version-history"]` | `WorkbenchCommandBar.tsx` | `DocumentActionButtons.tsx` |
-| `[data-testid="btn-save-draft"]`, `[data-testid="btn-save-diagram"]` | `WorkbenchCommandBar.tsx` | `DocumentActionButtons.tsx` |
-| `[data-testid="doc-tab-title"]`, `[data-testid="badge-draft"]` | `WorkbenchCommandBar.tsx` | `DocumentTitleBar.tsx` |
-| `[data-testid="version-popover"]` | `VersionPopover.tsx` | `VersionPopover.tsx` |
-| `[data-testid="history-head-hash"]`, `[data-testid="btn-copy-head-hash"]` | `VersionPopover.tsx` | `VersionHistoryList.tsx` |
-| `[data-testid^="version-row-"]`, `[data-testid="btn-restore-version"]` | `VersionPopover.tsx` | `VersionHistoryList.tsx` |
-| `[data-testid="history-compare-panel"]`, `[data-testid="compare-stat-deltas"]` | `VersionPopover.tsx` | `VersionCompareModal.tsx` |
-| `[data-testid="restore-confirm-dialog"]`, `[data-testid="restore-dirty-dialog"]` | `VersionPopover.tsx` | `VersionRestoreDialog.tsx` |
-| `[data-testid="corpus-search-input"]`, `[data-testid="toggle-show-archived"]` | `CorpusExplorerDrawer.tsx` | `ExplorerSearchBar.tsx` |
-| `[data-testid^="corpus-entry-"]`, `[data-testid^="entry-actions-"]` | `CorpusExplorerDrawer.tsx` | `ExplorerEntryRow.tsx` |
-| `[data-testid="panel-preview"]`, `[data-testid="preview-svg-stage"]` | `PreviewPanel.tsx` | `PreviewStage.tsx` |
+| `[data-testid="btn-save-draft"]`, `[data-testid="btn-save-diagram"]`, `[data-testid="btn-new-diagram"]` | `WorkbenchCommandBar.tsx` | `DocumentActionButtons.tsx` |
+| `[data-testid="doc-tab-title"]`, `[data-testid="doc-type-badge"]`, `[data-testid="doc-save-status"]`, `[data-testid="status-save-state"]` | `WorkbenchCommandBar.tsx` | `DocumentTitleBar.tsx` |
+| `[data-testid="version-popover"]`, `[data-testid="history-live-announcer"]`, `[data-testid="history-version-count"]` | `VersionPopover.tsx` | `VersionPopover.tsx` (container) |
+| `[data-testid="history-head-hash"]`, `[data-testid="btn-copy-head-hash"]`, `[data-testid="savepoint-input"]`, `[data-testid="btn-create-savepoint"]` | `VersionPopover.tsx` | `VersionHistoryList.tsx` |
+| `[data-testid^="version-row-"]`, `[data-testid="btn-restore-version"]`, `[data-testid="btn-preview-version"]`, `[data-testid="btn-compare-version"]`, `[data-testid="version-label"]`, `[data-testid="version-hash"]`, `[data-testid="version-timestamp"]`, `[data-testid="badge-current-version"]` | `VersionPopover.tsx` | `VersionHistoryList.tsx` |
+| `[data-testid="history-compare-panel"]`, `[data-testid="compare-stat-deltas"]`, `[data-testid="compare-diff-view"]`, `[data-testid="btn-close-compare"]` | `VersionPopover.tsx` | `VersionCompareModal.tsx` |
+| `[data-testid="history-preview-panel"]`, `[data-testid="preview-source-code"]`, `[data-testid="btn-close-preview"]` | `VersionPopover.tsx` | `VersionCompareModal.tsx` (or `VersionPreviewPanel` if split separately) |
+| `[data-testid="restore-confirm-dialog"]`, `[data-testid="restore-dirty-dialog"]`, `[data-testid="btn-confirm-restore"]`, `[data-testid="btn-cancel-restore"]`, `[data-testid="btn-restore-save-first"]`, `[data-testid="btn-restore-discard"]`, `[data-testid="btn-restore-cancel"]` | `VersionPopover.tsx` | `VersionRestoreDialog.tsx` |
+| `[data-testid="corpus-search-input"]`, `[data-testid="toggle-show-archived"]`, `[data-testid="btn-explorer-new-diagram"]`, `[data-testid="btn-export-collection"]` | `CorpusExplorerDrawer.tsx` | `ExplorerSearchBar.tsx` / drawer header |
+| `[data-testid^="corpus-entry-"]`, `[data-testid^="entry-actions-"]`, `[data-testid^="badge-"]` (dynamic `badge-${type}`), `[data-testid="badge-archived"]`, `[data-testid="badge-imported"]`, `[data-testid="entry-version"]`, `[data-testid="row-export-diagram"]`, `[data-testid="input-rename-diagram"]`, `[data-testid="action-rename"]`, `[data-testid="action-duplicate"]`, `[data-testid="action-archive"]`, `[data-testid="action-unarchive"]` | `CorpusExplorerDrawer.tsx` | `ExplorerEntryRow.tsx` |
+| `[data-testid="recovery-banner"]`, `[data-testid="btn-recovery-review"]`, `[data-testid="btn-recovery-discard"]`, `[data-testid="stale-reload-banner"]`, `[data-testid="btn-reload-window"]`, `[data-testid="empty-diagrams-card"]`, `[data-testid="btn-empty-state-new-diagram"]`, `[data-testid="corpus-persistence-state"]`, `[data-testid="live-announcer"]` | `CorpusExplorerDrawer.tsx` | `CorpusExplorerDrawer.tsx` (container) |
+| `[data-testid="panel-preview"]`, `[data-testid="preview-viewport"]`, `[data-testid="preview-svg-container"]`, `[data-testid="preview-toast"]`, `[data-testid="preview-logs-drawer"]`, `[data-testid="preamble-modal"]` | `PreviewPanel.tsx` | `PreviewStage.tsx` / `PreviewPanel.tsx` container |
+| `[data-testid="toggle-auto-compile"]`, `[data-testid="preview-status-badge"]`, `[data-testid^="btn-preview-"]`, `[data-testid="btn-copy-tikz"]`, `[data-testid="btn-export-dropdown"]`, `[data-testid="preview-export-menu"]`, `[data-testid^="btn-export-"]` | `PreviewPanel.tsx` | `PreviewToolbar.tsx` |
+
+*Any selector discovered in the baseline but absent from this matrix still counts as Contract B-protected — the baseline file is authoritative.*
 
 ---
 
@@ -118,10 +126,11 @@ Every selector in the Contract B registry MUST be preserved on the corresponding
 
 - **AC-22-01 (Strict 250 LOC Limit for Sub-Components)**: All newly extracted sub-components do not exceed **250 lines of code**.
 - **AC-22-02 (Strict 200 LOC Limit for Containers)**: Parent coordinating components (`VersionPopover.tsx`, `PreviewPanel.tsx`, `CorpusExplorerDrawer.tsx`, `WorkbenchCommandBar.tsx`) do not exceed **200 lines of code**.
-- **AC-22-03 (Selector Contract B Invariant)**: All Playwright E2E tests in `e2e/sprint-16/`, `e2e/sprint-16b/`, `e2e/sprint-17/`, `e2e/sprint-17b/`, and `e2e/sprint-18/` pass without modifying selector queries.
+- **AC-22-03 (Selector Contract B Invariant)**: All Playwright E2E tests in `e2e/sprint-16/`, `e2e/sprint-16b/`, `e2e/sprint-17/`, `e2e/sprint-17b/`, `e2e/sprint-18/`, and `e2e/sprint-19/` pass without modifying selector queries, and `scripts/audit-testids.mjs` reports zero removed selectors versus `docs/testing/testid-baseline.json`.
 - **AC-22-04 (Headless Diff Verification)**: `VersionDiffEngine.ts` is a pure function covered by dedicated unit tests asserting exact node and edge delta calculations without instantiating React components.
 - **AC-22-05 (Pure Compilation Decoupling)**: `PreviewCompiler.ts` produces identical SVG DOM nodes across standalone testing and in-panel rendering, returning standardized `clm-kernel` diagnostic records on syntax error.
-- **AC-22-06 (Spatiotemporal Cleanup via DisposableList)**: All interactive listeners (pan/zoom, keyboard shortcuts) are governed by Cordis `DisposableList` to guarantee 100% listener unregistration on unmount.
+- **AC-22-06 (Spatiotemporal Cleanup via DisposableList)**: All interactive listeners (pan/zoom, keyboard shortcuts) are governed by `clm-kernel`'s `DisposableList` to guarantee 100% listener unregistration on unmount.
+- **AC-22-07 (Generated Selector Registry)**: `scripts/audit-testids.mjs` is authored, generates the committed `docs/testing/testid-baseline.json`, fails on literal-selector removals, and records dynamic-prefix patterns (`badge-*`, `corpus-entry-*`, `entry-actions-*`, `tool-*`, `version-row-*`, `btn-preview-*`, `btn-export-*`) separately.
 
 ---
 
@@ -165,7 +174,7 @@ This sprint introduces 28 new unit and headless component tests verifying the de
 
 | Test ID | Test Name | Target Subsystem | Description & Expected Assertions |
 | :--- | :--- | :--- | :--- |
-| **T22-18** | `test_preview_stage_pan_zoom_transform` | PreviewStage | Simulates wheel scroll and drag on `preview-svg-stage`; asserts SVG `<g>` transform matrix scales and translates smoothly. |
+| **T22-18** | `test_preview_stage_pan_zoom_transform` | PreviewStage | Simulates wheel scroll and drag on `preview-viewport` (wrapping `preview-svg-container`); asserts SVG `<g>` transform matrix scales and translates smoothly. |
 | **T22-19** | `test_preview_toolbar_actions` | PreviewToolbar | Clicks Zoom In, Zoom Out, 100%, and Fit-to-Page buttons; asserts appropriate transform dispatches. |
 
 ### 6.5 Explorer Drawer Sub-Component Verification (`tests/unit/components/explorer/`)
@@ -194,15 +203,15 @@ This sprint introduces 28 new unit and headless component tests verifying the de
 Refactoring high-traffic UI components requires bulletproof protection against visual and behavioral regression:
 
 1. **Selector Contract B Invariant**:
-   - Every single one of the 59 Playwright `data-testid` selectors MUST be preserved on the newly decomposed sub-components, matching the exact locations in the Section 4 Matrix.
+   - Every selector in the generated `docs/testing/testid-baseline.json` (196 literals + dynamic prefixes at planning) MUST be preserved on the newly decomposed sub-components, matching the routing in the Section 4 Matrix.
    - Zero test query changes are permitted in `e2e/`.
 2. **Dockview Contract A Invariant**:
    - Decomposed panels (`PreviewPanel`, `VersionPopover`, `CorpusExplorerDrawer`) must continue mounting inside standard Dockview panel headers and layout slots.
    - Panel layout serialization and deserialization via `api.toJSON()` / `api.fromJSON()` must remain 100% backward compatible.
 3. **Playwright Regression Suite**:
-   - All 392 Playwright test runs across Sprints 16–19 (`npm run test:e2e`) must pass with zero failures.
+   - All Playwright test runs in the kickoff-recorded baseline (402 at planning) across Sprints 00–19 (`npm run test:e2e`) must pass with zero failures.
 4. **Vitest Unit Suite**:
-   - All 355 existing unit tests must pass 100% green.
+   - All unit tests in the kickoff-recorded baseline (334 at planning) must pass 100% green.
 
 ---
 
@@ -225,8 +234,8 @@ This sprint is gated by 10 verifiable Definition of Done checkpoints:
 - [ ] **G08 — Command Bar Unit Tests Passing**: All command bar sub-components pass unit tests (T22-25 to T22-28).
 
 ### Regression & Contract Invariant Gates
-- [ ] **G09 — Contract B Selector Integrity Verified**: Automated selector audit confirms all 59 baseline selectors remain active and correctly positioned.
-- [ ] **G10 — Full Regression Suite Passing**: All 355 Vitest unit tests and 392 Playwright E2E test runs pass 100% green with zero modifications to legacy test assertions.
+- [ ] **G09 — Contract B Selector Integrity Verified**: `scripts/audit-testids.mjs` runs clean — zero removed selectors versus the committed `docs/testing/testid-baseline.json`; any baseline diff is deliberate and committed.
+- [ ] **G10 — Full Regression Suite Passing**: All Vitest unit tests and Playwright E2E runs in the kickoff-recorded baseline pass 100% green with zero modifications to legacy test assertions.
 
 ---
 

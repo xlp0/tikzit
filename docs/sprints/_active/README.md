@@ -71,7 +71,7 @@ To guarantee modular independence and eliminate information entanglement:
 4. **Paper vs. chrome theme decoupling.** Canvas paper is always pure white (`#FFFFFF`); outer chrome may remain dark.
 
 ### Cross-Sprint Contract B: E2E Selector Stability Contract
-All 59 baseline selectors (`[data-testid="workbench-root"]`, `[data-testid="btn-save-draft"]`, `[data-testid="btn-save-diagram"]`, `[data-testid="version-popover"]`, `[data-testid^="corpus-entry-"]`, `[data-testid="btn-export-collection"]`, etc.) MUST be preserved byte-for-byte on the newly extracted sub-components.
+The selector registry is **generated, not hand-maintained**: `scripts/audit-testids.mjs` (authored in Sprint 22) scans `src/` and emits `docs/testing/testid-baseline.json`, which is committed and diffed in CI. As of sprint planning the baseline contains **196 distinct `data-testid` literals** plus five dynamic prefixes (`badge-${type}`, `corpus-entry-${handle}`, `entry-actions-${handle}`, `tool-${mode}`, `version-row-${position}`). Examples of load-bearing selectors: `[data-testid="workbench-root"]`, `[data-testid="btn-save-draft"]`, `[data-testid="btn-save-diagram"]`, `[data-testid="version-popover"]`, `[data-testid^="corpus-entry-"]`, `[data-testid="btn-export-collection"]`. Every baseline selector MUST be preserved byte-for-byte on the newly extracted sub-components; the baseline file is updated only by regenerating it and committing the diff deliberately.
 
 ### Cross-Sprint Contract C: Browser Runtime Independence
 The web application must run **100% natively in standard browser environments**:
@@ -81,22 +81,24 @@ The web application must run **100% natively in standard browser environments**:
 4. Verified by the automated `make check-independence` gate.
 
 ### Cross-Sprint Contract D: Strict 450-Line Source File Ceiling
-1. No source file in `src/` may exceed **450 lines of code**.
-2. Any newly extracted sub-component or actor must not exceed **250 lines of code** (and $\le 150$ lines for coordinating facades).
+1. No source file in `src/` may exceed **450 lines of code** (measured by `wc -l`, including comments/blanks — the same ruler used throughout these docs).
+2. Any newly extracted sub-component, actor, or service module must not exceed **250 lines of code** (and $\le 150$ lines for coordinating facades). This ceiling applies uniformly — per-sprint targets may be stricter but never looser.
+3. **Watchlist** (under 450 but approaching the ceiling — evaluate for splitting whenever touched): `src/services/clm/documentCommitService.ts` (440), `src/core/parser/lexer.ts` (436), `src/services/workspace/WorkspaceManager.ts` (433), `src/components/workbench/ExportDiagramDialog.tsx` (424).
 
 ### Cross-Sprint Contract E: Petri Net Token Conservation
 Document state transitions follow the formal marked Petri Net $\mathcal{N} = (P, T, F, W, M_0)$. User edits occurring during an active asynchronous flush are provably preserved and maintain the dirty token marking until the subsequent save completes.
 
 ### Cross-Sprint Contract F: Legacy Test & Protocol Conformance Invariants
-1. **Zero regressions permitted.** All 355 existing Vitest unit/integration tests and 392 Playwright E2E runs must pass 100% green at every step.
+1. **Zero regressions permitted.** All **334 existing Vitest unit/integration tests (55 files)** and **402 Playwright E2E runs (26 spec files)** must pass 100% green at every step. *Baselines are a snapshot of `npx vitest list` / `npx playwright test --list` at series planning; each sprint MUST re-record the current baseline in its kickoff notes before editing code, since counts grow as sprints land.*
 2. **Canonical ZX-calculus parity.** All 12 canonical diagrams must verify cleanly across both web and native parsers.
 3. **Cross-engine graph isomorphism.** Any diagram compiled via native C++ Qt or browser TypeScript must yield identical topological graphs and element properties.
+4. **CI reality (recorded constraint):** `.github/workflows/ci.yml` currently runs typecheck, Vitest, build, and Chromium-only Playwright; there is **no Qt toolchain in CI**. The unified `Makefile` is a developer-facing interface; native targets (`build-cpp`, `test-cpp`) must either auto-detect Qt and skip with a clear notice, or a dedicated native CI job must be added (Decision D20).
 
 ### Cross-Sprint Contract G: Kenotic Purity & clm-kernel Standardization
 1. **Zero ambient state.** Newly authored protocols must not introduce stateful singletons or imperative global listeners.
 2. **Function and transition formulation.** Every protocol interaction must be formulated as a pure Function or marked Petri Net transition.
-3. **Standardized verdicts.** All failure and exit modes must return typed `BailVerdict` or `VCardResult` records from `clm-kernel`.
-4. **Spatiotemporal cleanup.** Every subscription or timer must be registered in a Cordis `DisposableList` executing the VCard Sandwich.
+3. **Standardized verdicts.** All failure and exit modes must return typed records from `clm-kernel`: `BailVerdict.pass()` / `BailVerdict.bail(reason, invariantCode?)` and `VCardResult`. **API note:** `BailVerdict` is a factory + discriminated union (`{verdict: 'pass'|'bail', reason, invariantCode}`), **not** an enum — there are no `BailVerdict.SyntaxError`-style members. Failure categories travel in `invariantCode` strings (e.g. `'SYNTAX_ERROR'`, `'STALE_CONFLICT'`, `'PROTOCOL_MISMATCH'`).
+4. **Spatiotemporal cleanup.** Every subscription or timer must be registered in a `DisposableList` (exported by `clm-kernel`, `./disposable.js`) executing the VCard Sandwich. *Adoption note:* `DisposableList`/`SavepointGuard`/`ctx.inject` are not yet used anywhere in `src/` — this series introduces them as new discipline; existing Cordis usage is `ctx.command.register` and service injection only.
 
 ---
 
@@ -111,7 +113,7 @@ Every sprint in this active series must develop extensive test cases for its new
 | **22** | **28** | Headless AST diff engine (`VersionDiffEngine.ts`), headless SVG compiler (`PreviewCompiler.ts`), 12 decomposed UI sub-components. | `npx vitest run tests/unit/components/history/ tests/unit/components/preview/ tests/unit/components/explorer/ tests/unit/components/commandbar/` |
 | **23** | **24** | CLM TriDatabase index caching, gated commits & VCard receipts, headless lineage graph cycles ($A \to B \to A$), SQLite snapshot serialization. | `npx vitest run tests/unit/clm/explorer/ tests/unit/clm/export/ tests/unit/clm/storage/ tests/integration/clm/` |
 | **24** | **22** | Grammar combinators (`node`, `edge`, `style`, `property`), syntax error recovery, automated cross-engine isomorphism gate. | `npx vitest run tests/unit/parser/ && node scripts/verify-protocol-conformance.mjs` |
-| **Total** | **114** | **17 new test modules across unit, headless, integration, and cross-platform conformance.** | `make test && make test-e2e && make verify-corpus` |
+| **Total** | **114** | **~27 new test modules across unit, headless, integration, and cross-platform conformance** (plus 2 verification scripts). | `make test && make test-e2e && make verify-corpus` |
 
 ---
 
@@ -128,20 +130,20 @@ This master checklist tracks all 51 granular Definition of Done checkpoints acro
 - [ ] **S20-G06 — Zero Native Dependencies in Web Bundle**: Automated scan verifies zero `.node` files, node-gyp builds, or C++ FFI in `dist/`.
 - [ ] **S20-G07 — Shared Protocol Specification Authored**: `docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md` authored.
 - [ ] **S20-G08 — Protocol Unit Suite Passing**: `tests/unit/protocol/sharedProtocol.test.ts` passes all 16 tests (T20-01 to T20-16).
-- [ ] **S20-G09 — Zero Regressions on Existing Suites**: 355 Vitest tests, 392 Playwright runs, 12 ZX diagrams, and 20 C++ tests pass.
+- [ ] **S20-G09 — Zero Regressions on Existing Suites**: current baseline (334 Vitest tests / 55 files, 402 Playwright runs / 26 spec files — re-record at kickoff per Contract F), 12 ZX diagrams, and native `UnitTests` assertions pass.
 - [ ] **S20-G10 — Clean Verification Log**: Build logs verifying `make all`, `make check-independence`, and `make verify-corpus` committed.
 
 ### Sprint 21: Process Algebra & Petri Net State Machine
 - [ ] **S21-G01 — Runtime Orchestrator Under 350 LOC**: `createWorkbenchRuntime.ts` reduced from 1,100 lines to $\le 350$ lines.
-- [ ] **S21-G02 — Extracted Actors Under 300 LOC**: `DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts` all $\le 300$ lines.
+- [ ] **S21-G02 — Extracted Actors Under 250 LOC**: `DocumentProcess.ts`, `TabSessionController.ts`, `SyncChannel.ts`, `StorageSupervisor.ts` all $\le 250$ lines (Contract D ceiling).
 - [ ] **S21-G03 — Petri Net State Determinism**: State machine dispatches formal actions; zero ad-hoc boolean mutations across components.
 - [ ] **S21-G04 — Token Conservation Guarantee**: Verified by T21-09: concurrent edits during async flush maintain dirty token without data loss.
 - [ ] **S21-G05 — CSP Channel Invariant**: `SyncChannel` eliminates cyclic echo feedback loops (verified by T21-13).
 - [ ] **S21-G06 — Storage Supervisor Isolation**: Persistence and retry backoff fully encapsulated in `StorageSupervisor.ts`.
 - [ ] **S21-G07 — Stale Writer Detection**: Writer generation conflicts halt writes and trigger stale banner (verified by T21-10).
 - [ ] **S21-G08 — 24 New Algebraic Tests Passing**: All 24 tests (T21-01 to T21-24) pass 100% green.
-- [ ] **S21-G09 — Zero Regressions on Existing Suites**: All 355 unit tests and 392 Playwright runs pass.
-- [ ] **S21-G10 — Contract A & B Preservation**: Dockview serialization and 59 `data-testid` selectors preserved.
+- [ ] **S21-G09 — Zero Regressions on Existing Suites**: All unit tests and Playwright runs in the kickoff-recorded baseline pass.
+- [ ] **S21-G10 — Contract A & B Preservation**: Dockview serialization and the generated `data-testid` baseline registry preserved.
 - [ ] **S21-G11 — Clean Concurrency Verification Log**: Stress test log verifying 10 rapid edit-save cycles with zero lost edits committed.
 
 ### Sprint 22: God-Component Decomposition via Baldwin Splitting
@@ -153,11 +155,11 @@ This master checklist tracks all 51 granular Definition of Done checkpoints acro
 - [ ] **S22-G06 — Preview & Stage Unit Tests Passing**: T22-18 and T22-19 pass 100% green.
 - [ ] **S22-G07 — Explorer Drawer Unit Tests Passing**: T22-20 through T22-24 pass 100% green.
 - [ ] **S22-G08 — Command Bar Unit Tests Passing**: T22-25 through T22-28 pass 100% green.
-- [ ] **S22-G09 — Contract B Selector Integrity Verified**: Automated audit confirms all 59 baseline selectors remain active and correctly positioned.
-- [ ] **S22-G10 — Full Regression Suite Passing**: All 355 Vitest unit tests and 392 Playwright runs pass with zero query modifications.
+- [ ] **S22-G09 — Contract B Selector Integrity Verified**: `scripts/audit-testids.mjs` regenerates `docs/testing/testid-baseline.json` with zero removed selectors versus the committed baseline.
+- [ ] **S22-G10 — Full Regression Suite Passing**: All Vitest unit tests and Playwright runs in the kickoff-recorded baseline pass with zero query modifications.
 
 ### Sprint 23: CLM Tri-Database & Service Boundary Decoupling
-- [ ] **S23-G01 — Legacy DocumentStore Fully Deleted**: `DocumentStore.ts` deleted; zero references to `tikzit:doc-*` or `tikzit:rev-*` remain.
+- [ ] **S23-G01 — Legacy DocumentStore Fully Retired**: `DocumentStore.ts` deleted; the only remaining `tikzit:doc-*`/`tikzit:rev-*` references are the read-only prefix constants inside `legacyImportService.ts` (D5: user data is never deleted; no new writes occur).
 - [ ] **S23-G02 — All Decomposed Services Under 250 LOC**: `DiagramIndexService`, `DiagramCommitCoordinator`, `DiagramLifecycleManager`, `LineageTraversalEngine`, `CollectionSnapshotWriter`, `ExportFileBridge` all $\le 250$ lines.
 - [ ] **S23-G03 — Service Facades Under 150 LOC**: `CorpusExplorerService.ts` and `CorpusExportService.ts` verified $\le 150$ lines.
 - [ ] **S23-G04 — Headless Lineage Traversal Verified**: Lineage closures and cycle resolution pass headless tests (T23-13 to T23-16).
@@ -165,7 +167,7 @@ This master checklist tracks all 51 granular Definition of Done checkpoints acro
 - [ ] **S23-G06 — Cross-Repo Mcard-Studio Compatibility**: Exported databases validate against external `mcard-studio` schema format.
 - [ ] **S23-G07 — Commit Gating & VCard Receipts Verified**: Syntax error gating and execution receipts pass tests (T23-05 to T23-09).
 - [ ] **S23-G08 — Index & Parse Cache Verified**: Record caching and parse memoization pass tests (T23-01 to T23-04).
-- [ ] **S23-G09 — Zero Regressions on Existing Suites**: All 355 Vitest tests and Sprint 19 Playwright tests pass 100% green.
+- [ ] **S23-G09 — Zero Regressions on Existing Suites**: All Vitest tests and Sprint 19 Playwright tests in the kickoff-recorded baseline pass 100% green.
 - [ ] **S23-G10 — Clean Export Round-Trip Artifact**: Verified SQLite `.db` export artifact passes `sqlite3` integrity check.
 
 ### Sprint 24: Core Parser Combinator & Dual-System Protocol Conformance
@@ -178,7 +180,7 @@ This master checklist tracks all 51 granular Definition of Done checkpoints acro
 - [ ] **S24-G07 — Automated Conformance Suite Deployed**: `scripts/verify-protocol-conformance.mjs` authored and integrated into `make test`.
 - [ ] **S24-G08 — 100% Canonical ZX Isomorphism**: All 12 canonical ZX diagrams produce topologically isomorphic graphs across C++ and TS engines.
 - [ ] **S24-G09 — Dual-System Conformance Bridge Deployed**: Headless bridge runner for unmodified native C++ parser executes and provides JSON graph dumps for automated isomorphism verification against TypeScript parser combinators.
-- [ ] **S24-G10 — Full Dual-System Suite Passing**: All 355 Vitest unit tests, 392 Playwright E2E tests, 20 native C++ tests, and 12 canonical ZX diagrams pass 100% green.
+- [ ] **S24-G10 — Full Dual-System Suite Passing**: All Vitest unit tests, Playwright E2E tests, native `UnitTests` assertions, and 12 canonical ZX diagrams in the kickoff-recorded baseline pass 100% green.
 
 ---
 
