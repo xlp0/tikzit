@@ -119,15 +119,21 @@ An automated verification script ensuring:
 
 ### 3.3 Shared Dual-System Protocol Specification (`docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md`)
 
-Formally documents the shared protocol across four facets:
-1. **TikZ AST Grammar & Subset**: Formal EBNF definition of `tikzpicture`, `\node`, `\draw`, `\path`, and `\tikzstyle`.
-2. **Coordinate & Spatial Geometry**:
-   - TikZ Cartesian $Y$-axis (mathematical $Y$-up) $\leftrightarrow$ WebGL Three.js world space coordinates $\leftrightarrow$ Qt scene coordinates.
-   - Exact self-loop teardrop mathematics: $in = 135^\circ, out = 45^\circ, weight = 1.0$.
-   - Junction node conventions (`style=none`, dashed lavender ring `#B4B4DC`, center dot `#B4B4C8`).
-3. **MCard SQLite Interchange Schema**:
-   - The three database pillars: `knowledge`, `executionLog`, `mcard`.
-   - Table schema: `cards (hash, content, mime_type, created_at)`, `handles (name, current_hash, head_hash, sequence)`, `handle_history (handle, hash, position, changed_at, message, author)`.
+Formally documents the shared protocol under the **Kenotic Principle of CLM**: the protocol defines no stateful singletons or ambient runtime mechanisms, modeling all operations strictly as **Pure Mathematical Functions** ($f: A \to B$) and **Petri Net Transitions** ($t: P_{\text{in}} \to P_{\text{out}}$):
+
+1. **Pure AST Transformation Functions**:
+   - $f_{\text{parse}}: \text{TikZString} \to \text{Result}\langle\text{AST}, \text{BailVerdict}\rangle$: Pure functional grammar parser.
+   - $f_{\text{geom}}: (x, y)_{\text{TikZ}} \to (x, y)_{\text{Canvas}}$: Bijective coordinate transformation function.
+   - $f_{\text{teardrop}}: (u, \text{params}) \to \text{BézierControlPoints}$: Deterministic self-loop math ($in = 135^\circ, out = 45^\circ, \text{weight} = 1.0$).
+2. **Petri Net MCard Storage Transitions**:
+   - $t_{\text{mint}}: (\text{AST}, \text{Metadata}) \to \text{MCard}$: Minting content-addressed block $\text{BLAKE3}(c)$.
+   - $t_{\text{read}}: \text{Handle} \to \text{MCard}_{\text{head}}$: Pure query transition reading the active head.
+   - DDL schema: `cards (hash, content, mime_type, created_at)`, `handles (name, current_hash, head_hash, sequence)`, `handle_history (handle, hash, position, changed_at, message, author)`.
+3. **Standardized `clm-kernel` Success & Failure Modes**:
+   - All protocol validation and cross-engine testing outcomes use `clm-kernel` types:
+     - `VCardResult`: Returned upon successful graph isomorphism match and verified DDL conformance.
+     - `BailVerdict`: Categorizes mismatches (`BailVerdict.ProtocolMismatch`, `BailVerdict.SyntaxError`, `BailVerdict.CoordinateDrift`).
+     - Sealed via `sealWitness()` or `sealBailRecord()`.
 4. **Cross-Engine Conformance Tests**:
    - Automated script (`scripts/verify-protocol-conformance.mjs`) compiling identical canonical diagrams through both C++ `UnitTests` and TS `vitest` to assert AST and attribute equality.
 
@@ -139,8 +145,9 @@ Formally documents the shared protocol across four facets:
 - **AC-20-02 (Unified Test Command)**: `make test` executes both Vitest unit/integration tests and native Qt `UnitTests`, returning a nonzero exit code if either fails.
 - **AC-20-03 (Browser Independence Gate)**: `make check-independence` completes cleanly with 0 violations. Any accidental import of native bindings in `src/` triggers immediate build failure.
 - **AC-20-04 (QMake Shadow Directory Isolation)**: `tikzit.pro` is updated or wrapped such that running `qmake` outputs into `build-qmake/` and never clobbers the root `Makefile`.
-- **AC-20-05 (Protocol Specification Document)**: `docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md` is authored, capturing TikZ grammar, coordinate mapping, and MCard schema.
+- **AC-20-05 (Protocol Specification Document)**: `docs/architecture/SHARED-PROTOCOL-SPECIFICATION.md` is authored, capturing TikZ grammar, coordinate mapping, and MCard schema as pure functions and Petri Net transitions.
 - **AC-20-06 (Corpus Verification Integration)**: `make verify-corpus` executes the 12-diagram ZX-Calculus verification and passes 100% green.
+- **AC-20-07 (Standardized clm-kernel Result Modes)**: Cross-system conformance checks emit structured `VCardResult` witnesses and `BailVerdict` failure records from `clm-kernel`.
 
 ---
 

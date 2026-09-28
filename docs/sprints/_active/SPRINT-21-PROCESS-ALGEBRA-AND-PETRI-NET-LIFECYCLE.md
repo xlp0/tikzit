@@ -31,31 +31,31 @@ Deconstruct the 1,100-line monolithic God runtime orchestrator ([`src/services/c
 
 ## 3. Mathematical & Algebraic Foundation
 
-### 3.1 Document Lifecycle as a Marked Place/Transition (PT) Petri Net
+### 3.1 Document Lifecycle as a Marked Kenotic Place/Transition (PT) Petri Net
 
-We define the document lifecycle as a 5-tuple Petri Net $\mathcal{N} = (P, T, F, W, M_0)$:
+Following the **Kenotic Principle of CLM**, the document lifecycle is structured as a marked Place/Transition Petri Net $\mathcal{N} = (P, T, F, W, M_0)$, where **Places are static Generalized Numbers** (content-addressed states) and **Transitions are pure Functions**:
 
-- **Places ($P$)**:
+- **Places ($P$) (Generalized Numbers / Inert State Tokens)**:
   - $p_{\text{Draft}}$: Freshly minted uncommitted handle (`zx:diagrams:UUID`, `version: 0`).
   - $p_{\text{Clean}}$: Buffer content is identical to committed head MCard.
   - $p_{\text{Dirty}}$: Unsaved user edits present in text buffer or canvas graph.
   - $p_{\text{Parsing}}$: Background AST parsing in progress.
   - $p_{\text{ASTValid}}$: Buffer parses to a structurally sound TikZ AST.
   - $p_{\text{ASTInvalid}}$: Syntax error present; commit gate closed.
-  - $p_{\text{Gating}}$: Gated commit criteria evaluation.
+  - $p_{\text{Gating}}$: Gated commit criteria evaluation (VCard Sandwich).
   - $p_{\text{Committed}}$: MCard minted and registered in handle history ($M$-Card Moore output).
   - $p_{\text{Flushing}}$: IndexedDB write in flight.
   - $p_{\text{Persisted}}$: Snapshot verified in persistent IndexedDB storage.
   - $p_{\text{Stale}}$: Multi-tab writer detected; further writes blocked.
 
-- **Transitions ($T$)**:
-  - $t_{\text{edit}}$: User input on canvas or editor: $p_{\text{Clean}} \to p_{\text{Dirty}}$.
-  - $t_{\text{parse\_ok}}$: Parser succeeds: $p_{\text{Dirty}} \to p_{\text{ASTValid}}$.
-  - $t_{\text{parse\_err}}$: Parser fails: $p_{\text{Dirty}} \to p_{\text{ASTInvalid}}$.
-  - $t_{\text{save\_req}}$: User or Cmd+S triggers save: $p_{\text{ASTValid}} \to p_{\text{Gating}}$.
-  - $t_{\text{commit}}$: Gate passes, card hash computed: $p_{\text{Gating}} \to p_{\text{Committed}}$.
-  - $t_{\text{flush}}$: Atomic IDB write: $p_{\text{Committed}} \to p_{\text{Persisted}}$.
-  - $t_{\text{stale\_detect}}$: Writer generation conflict: $p_{\text{Flushing}} \to p_{\text{Stale}}$.
+- **Transitions ($T$) (Pure Functions with Standardized `clm-kernel` Verdicts)**:
+  - $t_{\text{edit}}: p_{\text{Clean}} \to p_{\text{Dirty}}$: User input on canvas or editor.
+  - $t_{\text{parse\_ok}}: p_{\text{Dirty}} \to p_{\text{ASTValid}}$: Combinator succeeds, yields verified AST.
+  - $t_{\text{parse\_err}}: p_{\text{Dirty}} \to p_{\text{ASTInvalid}}$: Combinator fails, yields `BailVerdict.SyntaxError`.
+  - $t_{\text{save\_req}}: p_{\text{ASTValid}} \to p_{\text{Gating}}$: Save action triggers VCard Sandwich check.
+  - $t_{\text{commit}}: p_{\text{Gating}} \to p_{\text{Committed}}$: Gate passes; mints MCard, yields `VCardResult.Success`.
+  - $t_{\text{flush}}: p_{\text{Committed}} \to p_{\text{Persisted}}$: Atomic IDB write via `SqlJsBackend`.
+  - $t_{\text{stale\_detect}}: p_{\text{Flushing}} \to p_{\text{Stale}}$: Writer generation conflict yields `BailVerdict.StaleConflict`.
 
 - **Petri Net Invariants**:
   $$\forall M \in \mathcal{R}(M_0), \quad \sum_{p \in P_{\text{lifecycle}}} M(p) = 1$$
@@ -67,6 +67,18 @@ $$\text{WorkbenchSession} \triangleq \text{EditorProcess} \parallel \text{Canvas
 
 - `SyncChannel`: A bounded, non-blocking asynchronous channel mediating AST changes between editor typing and canvas node/edge positioning.
 - `StorageSupervisor`: An isolated process supervising background flushes, retries, and writer generation checks, communicating purely via message passing with the document state actor.
+
+### 3.3 Cordis Spatiotemporal Compositionality & Entanglement Minimization
+
+To guarantee modular independence and eliminate spatial and temporal information entanglement:
+
+1. **Spatial Coeffect Scoping**:
+   - Each decomposed actor (`DocumentProcess`, `SyncChannel`, `StorageSupervisor`, `TabSessionController`) runs in an isolated Cordis Context, explicitly injecting its required dependencies (`ctx.inject(['storage', 'protocol'])`).
+   - Zero ambient state: Components never reach into global window state, foreign DOM nodes, or Three.js scene graphs.
+2. **Temporal Fiber Lifecycle & The VCard Sandwich**:
+   - Every active document tab is governed by a **Cordis Fiber** and a `DisposableList`.
+   - Transitions follow the **VCard Sandwich** ($\text{setup} \to \text{action} \to \text{teardown}$).
+   - When a tab is closed, unmounted, or swapped, `DisposableList.dispose()` unregisters all event listeners, cancels pending debounces, and rolls back transient state using `SavepointGuard`.
 
 ---
 
@@ -87,8 +99,9 @@ src/services/
 ```
 
 ### 4.1 `src/services/lifecycle/DocumentProcess.ts`
-- Encapsulates the Petri Net state transition table for each open document.
+- Encapsulates the Kenotic Petri Net state transition table for each open document.
 - Manages handle identity (`zx:examples:`, `zx:diagrams:`), head hash, version numbers, and metadata lineage.
+- Returns standardized `VCardResult` and `BailVerdict` objects from `clm-kernel` for all state transitions.
 - Guarantees token conservation: an active flush never clears the dirty marking if newer edits occurred while the flush was pending.
 
 ### 4.2 `src/services/sync/SyncChannel.ts`
@@ -100,6 +113,7 @@ src/services/
 - Encapsulates IndexedDB connection management, `SqlJsBackend` snapshots, and generation counters.
 - Exposes clean methods: `flushSnapshot()`, `retryPersistence()`, and `handleStaleConflict()`.
 - Dispatches typed notifications when persistence completes or enters the stale state.
+- Wraps persistence operations in `SavepointGuard` to ensure zero state corruption on disk full or transaction abortion.
 
 ### 4.4 `src/services/createWorkbenchRuntime.ts`
 - Retains only Cordis microkernel instantiation, plugin registration, and store binding (`bindStoresToKernel`).
@@ -114,6 +128,8 @@ src/services/
 - **AC-21-03 (Petri Net State Determinism)**: Document lifecycle states follow the formal Petri Net state machine. All ad-hoc boolean mutations are replaced by atomic action dispatches.
 - **AC-21-04 (Token Conservation Verification)**: Edits performed during an active asynchronous persistence flush are provably preserved and maintain the dirty marking until the subsequent save completes.
 - **AC-21-05 (Zero Regressions)**: All existing Vitest unit tests (355 tests) and Playwright E2E suites (392 tests) pass 100% green without modification to external test contracts.
+- **AC-21-06 (Standardized clm-kernel Result & Bail Modes)**: Transitions emit `VCardResult` upon success and `BailVerdict` on failure, eliminating ad-hoc string exceptions.
+- **AC-21-07 (Spatiotemporal Fiber Lifecycle)**: Document tabs use Cordis Fibers with `DisposableList` to guarantee 100% subscription cleanup on tab closure.
 
 ---
 

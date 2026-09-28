@@ -10,7 +10,7 @@
 
 ## 1. Objective
 
-Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) to decompose the 494-line monolithic TypeScript parser ([`src/core/parser/parser.ts`](../../../src/core/parser/parser.ts)) into modular grammar combinators ($\le 180$ LOC each). Author a comprehensive architectural blueprint to refactor the monolithic native C++ Qt source files (`tikzscene.cpp` at **1,418 lines**, `styleeditor.cpp` at **881 lines**, and `undocommands.cpp` at **729 lines**), and establish an automated **Dual-System Protocol Conformance Test Suite** proving bit-for-bit semantic equivalence between the native C++ Flex/Bison engine and the browser TypeScript parser.
+Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) and the **Kenotic Principle of CLM** to decompose the 494-line monolithic TypeScript parser ([`src/core/parser/parser.ts`](../../../src/core/parser/parser.ts)) into pure, stateless grammar combinator **Functions** ($\le 180$ LOC each). Author a comprehensive architectural blueprint to refactor the monolithic native C++ Qt source files (`tikzscene.cpp` at **1,418 lines**, `styleeditor.cpp` at **881 lines**, and `undocommands.cpp` at **729 lines**) into reversible Petri Net command transitions. Establish an automated **Dual-System Protocol Conformance Test Suite** proving categorical functorial isomorphism ($F_{\text{TS}} \cong F_{\text{CPP}}$) between the native C++ Flex/Bison engine and the browser TypeScript parser, certified by `clm-kernel` `VCardResult` witnesses.
 
 ---
 
@@ -30,9 +30,9 @@ Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) to
 
 ---
 
-## 3. TypeScript Parser Modularization Plan
+## 3. TypeScript Parser Kenotic Modularization Plan
 
-Deconstruct `src/core/parser/parser.ts` into a combinator directory:
+Deconstruct `src/core/parser/parser.ts` into pure functional combinators:
 
 ```
 src/core/parser/
@@ -46,21 +46,21 @@ src/core/parser/
 └── ast.ts                        # Canonical AST TypeScript interfaces (existing, <= 120 LOC)
 ```
 
-### 3.1 Combinator Responsibilities
-- **`nodeCombinator.ts`**: Parses `\node [options] (name) at (x,y) {label};`. Extracts node geometry, style references, and mathematical coordinates.
-- **`edgeCombinator.ts`**: Parses `\draw [options] (u) to (v);` and `\path`. Accurately parses bend angles, in/out degrees, and signature teardrop loops (`\draw [in=135, out=45, loop] (u) to ();`).
-- **`styleCombinator.ts`**: Parses `\tikzstyle{name}=[options]` declarations into structured `Style` objects.
-- **`propertyCombinator.ts`**: Parses bracketed option lists (`[key=value, ...]`), correctly tokenizing colors, dimensions, and quoted strings.
-- **`parser.ts`**: Pure top-level coordinator. Iterates tokens and delegates to combinators based on command keywords. Total lines strictly $\le 120$.
+### 3.1 Combinator Responsibilities (Pure Functions & clm-kernel Verdicts)
+- **`nodeCombinator.ts` (Pure Function)**: $f_{\text{node}}: \text{TokenStream} \to \text{Result}\langle\text{NodeAST}, \text{BailVerdict}\rangle$. Parses `\node [options] (name) at (x,y) {label};`. Extracts node geometry, style references, and mathematical coordinates. Emits `BailVerdict.SyntaxError` with line/column coordinates on malformed input.
+- **`edgeCombinator.ts` (Pure Function)**: $f_{\text{edge}}: \text{TokenStream} \to \text{Result}\langle\text{EdgeAST}, \text{BailVerdict}\rangle$. Parses `\draw [options] (u) to (v);` and `\path`. Accurately parses bend angles, in/out degrees, and signature teardrop loops (`\draw [in=135, out=45, loop] (u) to ();`).
+- **`styleCombinator.ts` (Pure Function)**: $f_{\text{style}}: \text{TokenStream} \to \text{Result}\langle\text{StyleAST}, \text{BailVerdict}\rangle$. Parses `\tikzstyle{name}=[options]` declarations into structured `Style` objects.
+- **`propertyCombinator.ts` (Pure Function)**: $f_{\text{prop}}: \text{TokenStream} \to \text{Result}\langle\text{PropertyMap}, \text{BailVerdict}\rangle$. Parses bracketed option lists (`[key=value, ...]`), correctly tokenizing colors, dimensions, and quoted strings.
+- **`parser.ts` (Petri Net Parse Transition)**: Pure top-level coordinator. Iterates tokens and delegates to combinators based on command keywords. On complete success, seals a `VCardResult.Success`; on error, seals a `sealBailRecord`. Total lines strictly $\le 120$.
 
 ---
 
-## 4. Native C++ Qt Refactoring Blueprint
+## 4. Native C++ Qt Refactoring Blueprint (Reversible Transitions)
 
-To bring the C++ desktop codebase into architectural parity with the web modularity standards, author an actionable refactoring plan for the C++ subsystem:
+To bring the C++ desktop codebase into architectural parity with the web modularity standards, author an actionable refactoring plan for the C++ subsystem modeling commands as reversible Petri Net transitions:
 
 ### 4.1 Decomposing `src/gui/undocommands.cpp` (729 LOC)
-Split into atomic command classes under `src/gui/commands/`:
+Split into atomic command classes under `src/gui/commands/` executing reversible VCard Sandwich actions ($\text{redo} \to \text{witness}$, $\text{undo} \to \text{rollback}$):
 - `AddNodeCommand.cpp` / `.h`
 - `RemoveElementsCommand.cpp` / `.h`
 - `MoveElementsCommand.cpp` / `.h`
@@ -74,7 +74,7 @@ Adopt the Tool State Machine pattern implemented in the web application (`src/ca
 
 ---
 
-## 5. Dual-System Automated Conformance Suite
+## 5. Dual-System Automated Conformance Suite (Functorial Equivalence)
 
 Create `scripts/verify-protocol-conformance.mjs` integrated into `make test`:
 
@@ -88,14 +88,14 @@ graph TD
     Cpp_Runner -->|JSON Graph Dump| Comparator{"Graph Isomorphism &<br/>Attribute Matcher"}
     TS_Runner -->|JSON Graph Dump| Comparator
     
-    Comparator -->|Exact Match| Pass["✅ Protocol Conformance 100%"]
-    Comparator -->|Mismatch| Fail["❌ Conformance Regression Detected"]
+    Comparator -->|Functorial Match| Pass["✅ VCardResult.Success (sealWitness)"]
+    Comparator -->|Mismatch| Fail["❌ BailVerdict.ProtocolMismatch (sealBailRecord)"]
 ```
 
 The script:
 1. Passes canonical `.tikz` files through both C++ and TypeScript parsers.
 2. Asserts identical node count, edge count, node positions (accounting for $Y$-coordinate scaling), edge styles, and bend angles.
-3. Fails if either parser fails to support a construct supported by the other.
+3. Seals the result using `clm-kernel`: returns `VCardResult.Success` on full match and logs `BailVerdict.ProtocolMismatch` on divergence.
 
 ---
 
@@ -105,7 +105,8 @@ The script:
 - **AC-24-02 (Combinator Module Line Limit)**: Each newly created parser combinator (`nodeCombinator.ts`, `edgeCombinator.ts`, `styleCombinator.ts`, `propertyCombinator.ts`) does not exceed **180 lines of code**.
 - **AC-24-03 (Parser Round-Trip Invariant)**: All existing parser unit tests in `tests/unit/parser/` pass 100% green with zero regressions.
 - **AC-24-04 (C++ Refactoring Blueprint)**: `docs/architecture/CPP-MODULARIZATION-BLUEPRINT.md` is authored, providing exact class hierarchies and splitting maps for `tikzscene.cpp`, `styleeditor.cpp`, and `undocommands.cpp`.
-- **AC-24-05 (Automated Conformance Gate)**: `scripts/verify-protocol-conformance.mjs` executes in `make test`, asserting 100% AST isomorphism across all 12 canonical ZX diagrams.
+- **AC-24-05 (Automated Conformance Gate)**: `scripts/verify-protocol-conformance.mjs` executes in `make test`, asserting 100% AST isomorphism across all 12 canonical ZX diagrams and returning a verified `clm-kernel` `VCardResult`.
+- **AC-24-06 (Kenotic Combinator Purity)**: Combinators operate as pure functions with zero ambient state, returning structured `clm-kernel` `BailVerdict` failure records on syntax error.
 
 ---
 

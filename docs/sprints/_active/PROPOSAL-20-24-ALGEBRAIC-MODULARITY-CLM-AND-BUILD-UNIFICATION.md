@@ -36,33 +36,78 @@ However, rapid functional expansion has resulted in architectural tension docume
 
 ---
 
-## 2. Theoretical Framework: CLM & Baldwin Modularity Operators
+## 2. Theoretical Framework: Kenotic CLM & Baldwin Modularity Operators
 
-### 2.1 The Cubical Logic Model (CLM) Mapping
+### 2.1 The Kenotic Principle of the Cubical Logic Model (CLM)
 
-Under the Curry-Howard-Lambek (CHL) isomorphism, CLM structures the TikZiT system across three orthogonal dimensions:
+The foundation of the refactoring is the **Kenotic Principle** (from the Greek *kenosis*, "self-emptying"). In computational architecture, a system's universal expressive power is inversely proportional to its domain-specific assumptions:
+
+$$\text{Universality} \propto \frac{1}{\text{Assumptions}}$$
+
+Rather than operating as a "Heavy Runtime" laden with ambient mutable state, domain vocabulary, and unmediated side effects, the CLM kernel operates as a **Kenotic Harness**—an empty topological coordinate system that coordinates external, native runtimes solely through content-addressed hash references and strictly typed boundaries.
+
+Under the Kenotic Principle:
+1. **Statics as Generalized Numbers (The Nouns / Places $P$)**:
+   - Static resources (e.g. TikZ ASTs, SQLite records, database snapshots) are inert, content-addressed "Generalized Numbers" ($c = \text{H}(\text{blob})$).
+   - In the Petri Net schema, these are the **Places** ($p \in P$) where tokens of information rest without executing code.
+2. **Dynamics as Pure Functions (The Verbs / Transitions $T$)**:
+   - Dynamic operations are strictly **Functions** ($f: A \to B$) or **Petri Net Transitions** ($t: P_{\text{in}} \to P_{\text{out}}$).
+   - Newly authored protocols must NEVER introduce ambient stateful singletons or imperative listener registrations. They must be variants of pure functional morphisms or Place/Transition firings.
+3. **Standardized Success and Failure Modes (`clm-kernel`)**:
+   - All transition and functional evaluation outcomes are standardized off of the native [`clm-kernel`](../../../node_modules/clm-kernel/README.md) core library:
+     - **Success**: Sealed with a `VCardResult` containing a cryptographic witness (`sealWitness` / `sealExecutionRecord`).
+     - **Failure**: Explicitly categorized via `BailVerdict` (`BailVerdict.SyntaxError`, `BailVerdict.StaleConflict`, `BailVerdict.Cancelled`), sealed via `sealBailRecord`.
+     - **Atomic Rollback**: State transitions use `SavepointGuard` to ensure no partial state is retained upon failure.
 
 ```mermaid
 graph TD
-    subgraph CLM_Three_Dimensions["Cubical Logic Model (CHL Isomorphism)"]
+    subgraph Kenotic_CLM_Triad["Kenotic CLM Architecture (Zero Ambient State)"]
         direction LR
-        Q["Dimension 1: Abstract Spec (Logic / Query Q)<br/>• TikZ Formal Grammar & AST Types<br/>• Petri Net Places & State Signatures<br/>• Session Type Protocols"]
-        K["Dimension 2: Concrete Implementation (Type Theory / Key K)<br/>• TypeScript Browser Runtime<br/>• Native C++ Qt Engine<br/>• Three.js Canvas & Sql.js SQLite"]
-        V["Dimension 3: Balanced Expectations (Category Theory / Value V)<br/>• 12 Canonical ZX-Corpus Verification<br/>• Playwright Golden Visual Tests<br/>• Cryptographic Hash Receipts"]
+        Q["Dimension 1: Abstract Spec (Logic / Query Q)<br/>• Pure Petri Net Places & Transitions<br/>• TikZ EBNF Grammar & Function Signatures<br/>• clm-kernel Coeffect Contracts"]
+        K["Dimension 2: Concrete Implementation (Type Theory / Key K)<br/>• Browser TypeScript (Pure WASM sql.js)<br/>• Native C++ Qt6 Engine (Isolated CMake)<br/>• Cordis Spatiotemporal Fiber Runtime"]
+        V["Dimension 3: Balanced Expectations (Category Theory / Value V)<br/>• Standardized clm-kernel VCardResult<br/>• BailVerdict Structural Failure Records<br/>• Cryptographic Hash Receipts & 12 ZX Witnesses"]
         
-        Q -->|Attention / Query| K
-        K -->|Verification / Context| V
+        Q -->|Attention / Function Invocation| K
+        K -->|Verification / Kan Filling| V
     end
 ```
 
-The system operates strictly on three **MVP Card Primitives**:
-1. **MCard ($\Sigma$-Type / Moore Machine)**: Static, persistent, content-addressed state. Represents "what is" ($O = \lambda(s)$). In TikZiT, every committed diagram and metadata card is an immutable MCard identified by $\text{BLAKE3}/\text{SHA-256}(c)$.
-2. **PCard (Mealy Machine)**: Dynamic computational operator. Represents computational transformation ($O = \delta(s, i)$). In TikZiT, the Parser, SvgGenerator, AST Transformer, and Exporters are pure PCards.
-3. **VCard (Kan Filler / Identity Type)**: Verification witness certifying invariants. In TikZiT, VCards are execution receipts, round-trip test proofs, and cryptographic manifest digests.
+The system operates strictly on three **Kenotic MVP Card Primitives**:
+1. **MCard ($\Sigma$-Type / Generalized Number)**: Static, persistent, immutable content-addressed state ($O = \lambda(s)$). Identified by $\text{BLAKE3}/\text{SHA-256}(c)$.
+2. **PCard (Mealy Machine / Pure Function)**: Dynamic computational operator ($O = \delta(s, i)$). Evaluates purely from inputs and declared coeffects, returning a `VCardResult`.
+3. **VCard (Kan Filler / Identity Type)**: Verification witness certifying invariants. Seals execution or bail records.
 
-### 2.2 The Six Baldwin Modularity Operators
+### 2.2 Cordis Spatiotemporal Compositionality
 
-From Carliss Baldwin and Kim Clark's *Design Rules*, modularity in TikZiT is executed through six algebraic operators:
+To ensure strict modular independence and **minimize information entanglement**, the system leverages the formal principles of **Spatiotemporal Compositionality** established in Cordis:
+
+```mermaid
+graph TD
+    subgraph Spatiotemporal_Compositionality["Cordis Spatiotemporal Compositionality"]
+        direction TB
+        subgraph Spatial_Independence["1. Spatial Independence (Context Isolation)"]
+            C1["Declared Coeffects: ctx.inject(['storage', 'protocol'])"]
+            C2["Zero Cross-Module Reach-In (No DOM/WebGL Globals)"]
+            C3["Bounded CSP Channels (EditorProcess || CanvasProcess)"]
+        end
+        subgraph Temporal_Independence["2. Temporal Independence (Fiber Lifecycle)"]
+            T1["Cordis Fibers with DisposableList"]
+            T2["The VCard Sandwich: Acquire -> Execute -> Teardown"]
+            T3["Zero Zombie Listeners / Clean HMR & Tab Teardown"]
+        end
+    end
+```
+
+1. **Spatial Independence (Contexts & Scoped Coeffects)**:
+   - Components and services declare exact required coeffects via Cordis service injection (`ctx.inject(['storage', 'protocol'])`).
+   - Direct cross-module property mutations and ambient global window variables are strictly forbidden, completely eliminating spatial entanglement.
+2. **Temporal Independence (Fibers & Reversible Side Effects)**:
+   - Every active process (e.g., active document tab, Three.js render loop, preview compiler stream) is governed by a **Cordis Fiber** paired with a `DisposableList`.
+   - Side effects execute inside a **VCard Sandwich** ($\text{setup} \to \text{action} \to \text{teardown}$). When a tab is closed, a diagram switched, or a test concluded, all subscriptions, timers, and WebGL allocations are cleanly reversed, preventing temporal entanglement and memory leaks.
+
+### 2.3 The Six Baldwin Modularity Operators
+
+From Carliss Baldwin and Kim Clark's *Design Rules*, modularity in TikZiT is executed through six algebraic operators operating on kenotic primitives:
 
 | Operator | Symbol | Algebraic Role | Application to TikZiT Refactoring |
 | :--- | :---: | :--- | :--- |
@@ -75,44 +120,45 @@ From Carliss Baldwin and Kim Clark's *Design Rules*, modularity in TikZiT is exe
 
 ---
 
-## 3. Algebraic Concurrency: Process Algebra & Petri Nets
+## 3. Algebraic Concurrency: Kenotic Petri Nets & CSP
 
-### 3.1 Document Lifecycle as a Place/Transition (PT) Petri Net
+### 3.1 Document Lifecycle as a Marked Place/Transition (PT) Petri Net
 
-Rather than mutable boolean flags scattered across components, document state is formalized as a marked Petri Net:
+Document state is formalized as a marked Place/Transition net $\mathcal{N} = (P, T, F, W, M_0)$, where places are Generalized Numbers and transitions are pure functions:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Place_Draft: Create (zx:diagrams:UUID)
-    Place_Draft --> Place_DirtyBuffer: Buffer Edit (User Input)
-    Place_DirtyBuffer --> Place_ASTParsed: Parse AST (Debounced)
-    Place_ASTParsed --> Place_Gated: Gate Check (Valid TikZ)
-    Place_Gated --> Place_HeadCommitted: Commit Card (MCard Minted)
-    Place_HeadCommitted --> Place_PersistedDB: Flush Snapshot (IndexedDB)
+    [*] --> Place_Draft: Create (zx:diagrams:UUID, v0)
+    Place_Draft --> Place_DirtyBuffer: t_edit (User Input)
+    Place_DirtyBuffer --> Place_ASTParsed: t_parse (Pure Combinator)
+    Place_ASTParsed --> Place_Gated: t_gate (VCard Sandwich Check)
+    Place_Gated --> Place_HeadCommitted: t_commit (MCard Minted + VCard Sealed)
+    Place_HeadCommitted --> Place_PersistedDB: t_flush (SqlJs Atomic Write)
     Place_PersistedDB --> [*]
     
-    Place_DirtyBuffer --> Place_ASTInvalid: Parse Error
-    Place_ASTInvalid --> Place_DirtyBuffer: Correct Error
+    Place_DirtyBuffer --> Place_ASTInvalid: t_parse_err (BailVerdict.SyntaxError)
+    Place_ASTInvalid --> Place_DirtyBuffer: t_edit (Correction)
+    Place_PersistedDB --> Place_Stale: t_stale_detect (BailVerdict.StaleConflict)
 ```
 
 **Petri Net Invariants:**
-- **Token Conservation**: Exactly one state token per active document session; no document can simultaneously be committed and unstaged without a distinct token marking.
-- **Liveness & Non-Blocking**: Transition to `Place_PersistedDB` occurs asynchronously without stalling UI thread interaction in `Place_Draft` or `Place_DirtyBuffer`.
-- **Stale Writer Exclusion**: If snapshot sequence does not match generation token, transition fires to `Place_StaleWriter`, halting further commits until reload.
+- **Token Conservation**: $\sum_{p \in P} M(p) = 1$. Exactly one lifecycle token per active document session; no document can simultaneously be committed and unstaged without a distinct token marking.
+- **Asynchronous Token Preservation**: Typing during an in-flight background flush ($p_{\text{Flushing}}$) immediately marks the document with an unconsumed edit token, ensuring no dirty edits are lost upon flush resolution.
+- **Kenotic Failure Modes**: Transitions that cannot proceed do not throw uncaught exceptions; they fire into designated failure/quarantine places or return structured `BailVerdict` records.
 
 ### 3.2 Process Algebra (CSP / CCS) Architecture
 
-We model the spatial workbench as communicating concurrent processes:
 $$\text{TikzitWorkbench} \triangleq \text{EditorProcess} \parallel \text{CanvasProcess} \parallel \text{SyncChannel} \parallel \text{StorageSupervisor} \parallel \text{PreviewActor}$$
 
-- **Communication via Typed Channels**: Processes communicate solely via typed async channels (`SyncChannel`, `CommitChannel`, `ExportChannel`), eliminating direct method calls and mutable object references.
-- **Hiding & Encapsulation**: Internal transition $\tau$ events (e.g. temporary Three.js mesh re-allocation, buffer debouncing) remain private to the process and cannot pollute global application state.
+- **Communication via Typed Channels**: Processes communicate solely via bounded async channels (`SyncChannel`, `CommitChannel`, `ExportChannel`), eliminating direct method calls and mutable object references.
+- **Hiding & Encapsulation**: Internal transition $\tau$ events (e.g. Three.js geometry updates, buffer debouncing) remain private to the process fiber and cannot pollute global application state.
 
 ---
 
 ## 4. Dual-Platform Architecture & Root Makefile Strategy
 
 ### 4.1 Strict Decoupling: Zero C++ Dependency in Web Runtime
+
 
 The JavaScript/TypeScript application must run **natively in standard browser environments** without requiring:
 - Native C++ binaries or shared libraries (`.dylib`, `.so`, `.dll`).
@@ -186,7 +232,7 @@ verify-corpus:
 
 ---
 
-## 6. Decision Record (D11 – D16)
+## 6. Decision Record (D11 – D18)
 
 - **D11 (Root Makefile Authority):** The root `Makefile` is an authored developer entrypoint, not a generated qmake file. Qt qmake builds must emit their build artifacts into a designated shadow directory (`build-qmake/`) to prevent overwriting the master Makefile.
 - **D12 (Zero Native C++ Dependency for Web):** Under no circumstances may any TypeScript package depend on native node addons or C++ bindings. All SQLite manipulation in the web client runs via WASM `sql.js`.
@@ -194,6 +240,8 @@ verify-corpus:
 - **D14 (Petri Net State Determinism):** All document save/persistence operations must adhere strictly to the Petri Net place-transition semantics, prohibiting direct boolean flag mutations across component boundaries.
 - **D15 (Single Source of Truth for Protocol):** The TikZ AST schema in `src/core/parser/ast.ts` and the MCard SQLite schema in `src/services/clm/corpusExportService.ts` constitute the canonical specification shared between C++ and TypeScript.
 - **D16 (Preservation of Contracts A & B):** All refactoring must strictly uphold Dockview layout preservation (Contract A) and E2E selector stability (Contract B).
+- **D17 (Kenotic Functional Protocol Invariant):** All newly authored protocols, service boundaries, and subsystem interfaces must be modeled strictly as pure mathematical Functions ($f: A \to B$) or Petri Net transitions ($t: P_{\text{in}} \to P_{\text{out}}$). Modules must empty themselves of ambient stateful singletons and unmediated listeners.
+- **D18 (Standardized clm-kernel Success & Failure Modes):** All operational outcomes must resolve through standardized `clm-kernel` primitives (`VCardResult`, `BailVerdict`, `sealExecutionRecord`, `sealBailRecord`, and `SavepointGuard`), eliminating ad-hoc string throws, unhandled rejections, and loose boolean flags.
 
 ---
 

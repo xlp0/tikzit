@@ -40,15 +40,20 @@ Our repository-wide architectural audit identified 13 files exceeding the 450-li
 
 ---
 
-## 3. Theoretical Framework: CLM & Baldwin Modularity Operators
+## 3. Theoretical Framework: Kenotic CLM & Spatiotemporal Compositionality
 
-### 3.1 Cubical Logic Model (CLM) Integration
-Under CLM, refactoring follows the **Curry-Howard-Lambek (CHL)** three-dimensional manifold:
-1. **Dimension 1: Abstract Specification (Logic / Query $Q$)**: Types, EBNF grammar, Petri net place/transition signatures, session type protocols.
-2. **Dimension 2: Concrete Implementation (Type Theory / Key $K$)**: Browser TypeScript runtime, Three.js WebGL canvas, Sql.js WASM SQLite engine, native Qt C++ engine.
-3. **Dimension 3: Balanced Expectations (Category Theory / Value $V$)**: 12 canonical ZX verification gates, Playwright pixelmatch baselines, cryptographic hash checksums.
+### 3.1 The Kenotic Principle of CLM
+Under the **Kenotic Principle** ($\text{Universality} \propto \frac{1}{\text{Assumptions}}$), the CLM kernel empties itself of ambient mutable state, domain vocabulary, and unmediated direct coupling. It acts purely as a minimal topological coordinate harness:
+1. **Statics as Generalized Numbers (The Nouns / Places $P$)**: All resources, ASTs, and databases are inert, content-addressed states ($\text{BLAKE3}(c)$ or $\text{SHA-256}(c)$) representing Petri Net Places.
+2. **Dynamics as Pure Functions (The Verbs / Transitions $T$)**: All operations are modeled strictly as pure mathematical Functions ($f: A \to B$) or Petri Net transitions ($t: P_{\text{in}} \to P_{\text{out}}$).
+3. **Standardized `clm-kernel` Result Modes**: All functional outcomes and transitions evaluate to `VCardResult` (with `sealWitness` / `sealExecutionRecord`) or `BailVerdict` failure records, with rollback managed by `SavepointGuard`.
 
-### 3.2 Baldwin Modularity Operators
+### 3.2 Cordis Spatiotemporal Compositionality
+To guarantee modular independence and eliminate information entanglement:
+1. **Spatial Isolation (Scoped Coeffects)**: Services and UI actors declare exact coeffects via `ctx.inject(['storage', 'protocol'])`. Zero cross-boundary direct mutations or ambient DOM globals.
+2. **Temporal Isolation (Cordis Fibers & DisposableList)**: Active tabs, viewports, and channels run in dedicated fibers. Side effects execute within a **VCard Sandwich** ($\text{setup} \to \text{action} \to \text{teardown}$). Unmounting cleanly tears down all listeners via `DisposableList`, eliminating zombie handlers and memory leaks.
+
+### 3.3 Baldwin Modularity Operators
 1. **Splitting ($\times$)**: Dissecting God files into autonomous modules bounded by explicit design rules.
 2. **Substituting ($\simeq \implies =$)**: Swapping storage backends or canvas implementations without affecting consumers.
 3. **Augmenting ($+$)**: Extending export formats (e.g. PNG 4x, TeX wrapper) without altering the AST core.
@@ -87,6 +92,12 @@ Document state transitions follow the formal marked Petri Net $\mathcal{N} = (P,
 1. **Zero regressions permitted.** All 355 existing Vitest unit/integration tests and 392 Playwright E2E runs must pass 100% green at every step.
 2. **Canonical ZX-calculus parity.** All 12 canonical diagrams must verify cleanly across both web and native parsers.
 3. **Cross-engine graph isomorphism.** Any diagram compiled via native C++ Qt or browser TypeScript must yield identical topological graphs and element properties.
+
+### Cross-Sprint Contract G: Kenotic Purity & clm-kernel Standardization
+1. **Zero ambient state.** Newly authored protocols must not introduce stateful singletons or imperative global listeners.
+2. **Function and transition formulation.** Every protocol interaction must be formulated as a pure Function or marked Petri Net transition.
+3. **Standardized verdicts.** All failure and exit modes must return typed `BailVerdict` or `VCardResult` records from `clm-kernel`.
+4. **Spatiotemporal cleanup.** Every subscription or timer must be registered in a Cordis `DisposableList` executing the VCard Sandwich.
 
 ---
 

@@ -52,13 +52,16 @@ Apply Baldwin's Exclusion operator ($-$) to eliminate legacy shadow storage:
 ```
 src/services/clm/explorer/
 ├── DiagramIndexService.ts         # Handle index management, parse cache & title cache (<= 180 LOC)
-├── DiagramCommitCoordinator.ts    # Gated commit check, receipt minting & metadata cards (<= 220 LOC)
+├── DiagramCommitCoordinator.ts    # VCard Sandwich commit check, receipt minting & metadata cards (<= 220 LOC)
 ├── DiagramLifecycleManager.ts     # Rename, duplicate, archive & restore mutations (<= 160 LOC)
 └── CorpusExplorerService.ts       # Cordis service facade aggregating actors (<= 120 LOC)
 ```
 
 - **`DiagramIndexService.ts`**: Pure MCard index manager. Maintains the in-memory array of `CorpusIndexRecord` and the immutable card parse cache (`Map<string, { nodeCount, edgeCount }>`).
-- **`DiagramCommitCoordinator.ts`**: Pure PCard computational transformation. Evaluates gate criteria (`INVALID_TIKZ_SYNTAX`, `NULL_AST`), generates execution receipts, mints companion metadata cards (`zx:meta:diagrams:UUID`), and commits MCard head updates.
+- **`DiagramCommitCoordinator.ts` (The VCard Sandwich)**: Formulates commits as an atomic three-stage VCard Sandwich:
+  1. *Pre-Condition (Gate Check)*: Evaluates AST syntax. Malformed TikZ source halts the gate, returning `BailVerdict.SyntaxError`.
+  2. *Action (MCard Minting)*: Computes content hash, mints MCard, and generates companion metadata card (`zx:meta:diagrams:UUID`).
+  3. *Post-Condition (Witness)*: Emits a sealed `VCardResult` execution receipt (`sealExecutionRecord`) certifying commit validity.
 - **`DiagramLifecycleManager.ts`**: Handles state transitions for rename, duplicate, and archive operations via immutable metadata lineage append.
 
 ### 3.3 Decomposition of `corpusExportService.ts` (484 $\to$ 4 focused modules)
@@ -71,20 +74,20 @@ src/services/clm/export/
 └── CorpusExportService.ts         # Clean export orchestrator & verification gate (<= 120 LOC)
 ```
 
-- **`LineageTraversalEngine.ts`**: Pure algorithm. Computes the complete lineage closure across all diagrams, companion metadata cards, and historical head transitions (A$\to$B$\to$A). Enforces Decision D3 by excluding orphan cards and execution receipts.
-- **`CollectionSnapshotWriter.ts`**: Generates a valid SQLite 3 database using `sql.js` WASM, validating every card's content against its recorded hash prior to emission.
-- **`ExportFileBridge.ts`**: Isolated browser file I/O layer. Handles `showSaveFilePicker`, streams writes, catches cancellation, and falls back to Blob anchor download.
+- **`LineageTraversalEngine.ts` (Pure Kenotic Function)**: Pure mathematical graph algorithm $f_{\text{lineage}}: (\text{DbBackend}, \text{Handles}) \to \text{Closure}$. Computes the complete lineage closure across all diagrams, companion metadata cards, and historical head transitions (A$\to$B$\to$A). Enforces Decision D3 by excluding orphan cards and temporary execution receipts. 100% headless, zero DOM dependencies.
+- **`CollectionSnapshotWriter.ts` (Pure Kenotic Function)**: Pure functional serializer $f_{\text{sqlite}}: \text{Closure} \to \text{Result}\langle\text{Uint8Array}, \text{BailVerdict}\rangle$. Generates a valid SQLite 3 database using `sql.js` WASM, validating every card's content against its recorded hash prior to emission.
+- **`ExportFileBridge.ts`**: Isolated browser file I/O layer. Handles `showSaveFilePicker`, streams writes, catches cancellation (`BailVerdict.Cancelled`), and falls back to Blob anchor download.
 
 ---
 
-## 4. CLM MVP Card Alignment Matrix
+## 4. Kenotic CLM MVP Card Alignment Matrix
 
-| Subsystem Component | CLM Role | Mathematical Model | Responsibilities |
+| Subsystem Component | CLM Role | Mathematical Model | Responsibilities & clm-kernel Integration |
 | :--- | :--- | :--- | :--- |
-| **`SqlJsBackend` / IDB** | **MCard** | Static State ($\Sigma$-Type) | Immutable content-addressed blocks and handle registers. |
-| **`DiagramCommitCoordinator`** | **PCard** | Dynamic Operator (Mealy) | Transformation of raw TikZ source into verified AST and minted MCard. |
-| **`LineageTraversalEngine`** | **PCard** | Graph Algorithm | Directed acyclic traversal of MCard lineage histories. |
-| **`VerificationReceipt`** | **VCard** | Witness (Kan Filler) | Execution receipts and cryptographic hash checksums verifying export integrity. |
+| **`SqlJsBackend` / IDB** | **MCard** | Static State ($\Sigma$-Type / Generalized Number) | Immutable content-addressed blocks and handle registers (`clm-kernel/layer0`). |
+| **`DiagramCommitCoordinator`** | **PCard** | Dynamic Operator (Mealy Machine / Function) | VCard Sandwich transforming raw TikZ source into verified AST and minted MCard. |
+| **`LineageTraversalEngine`** | **PCard** | Pure Graph Function | Directed acyclic traversal of MCard lineage histories with orphan pruning. |
+| **`VerificationReceipt`** | **VCard** | Witness (Kan Filler / Identity Type) | Execution receipts (`sealExecutionRecord`) and cryptographic checksums verifying export integrity. |
 
 ---
 
@@ -93,9 +96,10 @@ src/services/clm/export/
 - **AC-23-01 (Strict 250 LOC Limit for Services)**: All newly extracted service modules do not exceed **250 lines of code**.
 - **AC-23-02 (Strict 150 LOC Limit for Facades)**: Facades (`CorpusExplorerService.ts`, `CorpusExportService.ts`) do not exceed **150 lines of code**.
 - **AC-23-03 (Complete Exclusion of Legacy DocumentStore)**: `src/services/storage/DocumentStore.ts` is deleted; zero references to `tikzit:doc-*` or `tikzit:rev-*` remain in the codebase.
-- **AC-23-04 (Headless Export Engine Testability)**: `LineageTraversalEngine.ts` and `CollectionSnapshotWriter.ts` are tested headlessly in Vitest without requiring browser DOM or file picker mocks.
+- **AC-23-04 (Headless Export Engine Testability)**: `LineageTraversalEngine.ts` and `CollectionSnapshotWriter.ts` are pure functions tested headlessly in Vitest without requiring browser DOM or file picker mocks.
 - **AC-23-05 (Cross-Repo Round-Trip Preservation)**: The export output produced by `CollectionSnapshotWriter` passes the pinned `mcard-studio` round-trip test with 100% bit-exact verification.
 - **AC-23-06 (Regression Free)**: All unit tests in `tests/unit/clm/` pass 100% green.
+- **AC-23-07 (Standardized clm-kernel VCard & Bail Modes)**: Commit gating and export verification return standardized `VCardResult` witnesses and `BailVerdict` failure records.
 
 ---
 
