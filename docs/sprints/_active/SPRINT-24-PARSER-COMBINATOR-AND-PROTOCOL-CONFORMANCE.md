@@ -1,8 +1,8 @@
-# Sprint 24: Core Parser Combinator & Native C++ Modularization
+# Sprint 24: Core Parser Combinator & Dual-System Protocol Conformance
 
 **Status:** Proposed; not started  
 **Primary Baldwin Operator:** Splitting ($\times$) & Porting ($\text{Lan}$)  
-**Primary Subsystem:** `parser` / `desktop-parity`  
+**Primary Subsystem:** `parser` / `protocol-conformance`  
 **Depends on:** [Sprint 20](./SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md), [Sprint 21](./SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md)  
 **Parent Proposal:** [Sprints 20–24](./PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
 
@@ -10,7 +10,7 @@
 
 ## 1. Objective
 
-Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) and the **Kenotic Principle of CLM** to decompose the 494-line monolithic TypeScript parser ([`src/core/parser/parser.ts`](../../../src/core/parser/parser.ts)) into pure, stateless grammar combinator **Functions** ($\le 180$ LOC each). Author a comprehensive architectural blueprint to refactor the monolithic native C++ Qt source files (`tikzscene.cpp` at **1,418 lines**, `styleeditor.cpp` at **881 lines**, and `undocommands.cpp` at **729 lines**) into reversible Petri Net command transitions. Establish an automated **Dual-System Protocol Conformance Test Suite** proving categorical functorial isomorphism ($F_{\text{TS}} \cong F_{\text{CPP}}$) between the native C++ Flex/Bison engine and the browser TypeScript parser, certified by `clm-kernel` `VCardResult` witnesses.
+Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) and the **Kenotic Principle of CLM** to decompose the 494-line monolithic TypeScript parser ([`src/core/parser/parser.ts`](../../../src/core/parser/parser.ts)) into pure, stateless grammar combinator **Functions** ($\le 180$ LOC each). Leave the native C++ Qt implementation in its original state as an immutable reference baseline, modifying C++ only if a logical parsing error is uncovered or to establish a minimal test runner bridge. Establish an automated **Dual-System Protocol Conformance Test Suite** proving categorical functorial isomorphism ($F_{\text{TS}} \cong F_{\text{CPP}}$) between the unmodified native C++ Flex/Bison engine and the decomposed browser TypeScript parser, certified by `clm-kernel` `VCardResult` witnesses.
 
 ---
 
@@ -20,10 +20,10 @@ Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) an
    - A single monolithic class handles lexical stream tokenization, `\node` declarations, `\draw` and `\path` operations, `\tikzstyle` definitions, and coordinate transformations.
    - Adding support for new TikZ syntax (e.g. edge labels, decorations, matrix layouts) requires modifying this high-risk central file.
 
-2. **Native C++ Qt God Files (> 450 LOC)**:
-   - `src/gui/tikzscene.cpp` (**1,418 lines**): Monolithic `QGraphicsScene` mixing mouse event dispatch, interactive edge drawing, grid snapping, rubber-band marquee selection, and key events.
-   - `src/gui/styleeditor.cpp` (**881 lines**): Massive dialog handling Qt item models, color palettes, preview rendering, and category assignment.
-   - `src/gui/undocommands.cpp` (**729 lines**): Combines every single `QUndoCommand` in the entire desktop application into one massive translation unit.
+2. **C++ Reference Preservation & Modularity Scope**:
+   - The native C++ Qt codebase contains large legacy files (`tikzscene.cpp` at 1,418 lines, `styleeditor.cpp` at 881 lines, `undocommands.cpp` at 729 lines).
+   - Under our architectural guidelines (Decision Record D19), the native C++ implementation is preserved completely in its original state as an immutable ground-truth reference. Modularity operators, line count ceilings ($\le 450$ LOC), and refactoring efforts apply exclusively to the JavaScript/TypeScript/TSX web stack.
+   - C++ code is only touched if a reproducible logical error is uncovered during cross-engine verification or if a minimal bridge is required to interface with other language runtimes.
 
 3. **Absence of Automated Conformance Verification**:
    - Despite sharing the same TikZ language target, the C++ Bison parser (`tikzparser.y`) and TypeScript parser are tested in isolation. There is no automated test that parses a diagram with both engines and asserts graph isomorphism.
@@ -55,22 +55,20 @@ src/core/parser/
 
 ---
 
-## 4. Native C++ Qt Refactoring Blueprint (Reversible Transitions)
+## 4. Dual-System Conformance Bridge (C++ Reference Preservation)
 
-To bring the C++ desktop codebase into architectural parity with the web modularity standards, author an actionable refactoring plan for the C++ subsystem modeling commands as reversible Petri Net transitions:
+Rather than refactoring the stable, working native C++ Qt codebase, we treat it as an immutable reference implementation and establish a headless bridge runner:
 
-### 4.1 Decomposing `src/gui/undocommands.cpp` (729 LOC)
-Split into atomic command classes under `src/gui/commands/` executing reversible VCard Sandwich actions ($\text{redo} \to \text{witness}$, $\text{undo} \to \text{rollback}$):
-- `AddNodeCommand.cpp` / `.h`
-- `RemoveElementsCommand.cpp` / `.h`
-- `MoveElementsCommand.cpp` / `.h`
-- `AddEdgeCommand.cpp` / `.h`
-- `ChangePropertyCommand.cpp` / `.h`
+### 4.1 Native Conformance Runner Bridge
+- Leverage the existing C++ test binary (`src/test/testparser.cpp` / `UnitTests`) or a minimal CLI harness flag (`tikzit --dump-ast-json <file.tikz>`).
+- Emits a standardized JSON AST and graph representation without altering C++ internal class hierarchies or Qt GUI architecture.
+- Any C++ modification is strictly limited to:
+  1. Adding/exposing the JSON serialization bridge for headless test comparison, and
+  2. Fixing verified logical errors if AST divergences are proven.
 
-### 4.2 Decomposing `src/gui/tikzscene.cpp` (1,418 LOC)
-Adopt the Tool State Machine pattern implemented in the web application (`src/canvas/tools/`):
-- Extract scene tools: `SelectSceneTool`, `NodeSceneTool`, `EdgeSceneTool`, `CropSceneTool`.
-- Reduce `tikzscene.cpp` to pure canvas event routing and item container management.
+### 4.2 Automated Functorial Equivalence Verification
+- An automated node script (`scripts/verify-protocol-conformance.mjs`) feeds identical canonical diagrams to both the C++ reference bridge and the TypeScript combinators.
+- Validates that the TypeScript combinators faithfully match the parse results of the canonical Bison parser.
 
 ---
 
@@ -82,7 +80,7 @@ Create `scripts/verify-protocol-conformance.mjs` integrated into `make test`:
 graph TD
     Test_Corpus["Canonical TikZ Diagrams<br/>(12 ZX Diagrams + Edge Cases)"]
     
-    Test_Corpus -->|Compile| Cpp_Runner["C++ Bison Runner<br/>(src/test/testparser.cpp)"]
+    Test_Corpus -->|Compile| Cpp_Runner["C++ Bison Runner Bridge<br/>(src/test/testparser.cpp)"]
     Test_Corpus -->|Compile| TS_Runner["TypeScript Combinator<br/>(src/core/parser/parser.ts)"]
     
     Cpp_Runner -->|JSON Graph Dump| Comparator{"Graph Isomorphism &<br/>Attribute Matcher"}
@@ -104,7 +102,7 @@ The script:
 - **AC-24-01 (Parser Line Count Limit)**: `src/core/parser/parser.ts` is reduced to **fewer than 120 lines of code**.
 - **AC-24-02 (Combinator Module Line Limit)**: Each newly created parser combinator (`nodeCombinator.ts`, `edgeCombinator.ts`, `styleCombinator.ts`, `propertyCombinator.ts`) does not exceed **180 lines of code**.
 - **AC-24-03 (Parser Round-Trip Invariant)**: All existing parser unit tests in `tests/unit/parser/` pass 100% green with zero regressions.
-- **AC-24-04 (C++ Refactoring Blueprint)**: `docs/architecture/CPP-MODULARIZATION-BLUEPRINT.md` is authored, providing exact class hierarchies and splitting maps for `tikzscene.cpp`, `styleeditor.cpp`, and `undocommands.cpp`.
+- **AC-24-04 (Dual-System Conformance Bridge)**: A headless test bridge runner for the unmodified native C++ parser emits canonical JSON graph representations for automated comparison without modifying C++ internal GUI or command architecture.
 - **AC-24-05 (Automated Conformance Gate)**: `scripts/verify-protocol-conformance.mjs` executes in `make test`, asserting 100% AST isomorphism across all 12 canonical ZX diagrams and returning a verified `clm-kernel` `VCardResult`.
 - **AC-24-06 (Kenotic Combinator Purity)**: Combinators operate as pure functions with zero ambient state, returning structured `clm-kernel` `BailVerdict` failure records on syntax error.
 
@@ -112,7 +110,7 @@ The script:
 
 ## 7. Comprehensive Test Strategy & New Test Case Inventory
 
-This sprint introduces 22 new unit and cross-engine protocol conformance tests verifying the decomposed grammar combinators and asserting graph isomorphism between the native C++ and web TypeScript engines:
+This sprint introduces 22 new unit and cross-engine protocol conformance tests verifying the decomposed grammar combinators and asserting graph isomorphism between the native C++ reference engine and web TypeScript combinators:
 
 ### 7.1 Node Combinator Verification (`tests/unit/parser/combinators/nodeCombinator.test.ts`)
 
@@ -192,10 +190,10 @@ This sprint is gated by 10 verifiable Definition of Done checkpoints:
 - [ ] **G05 — Style & Property Combinators Verified**: Style declarations, nested options, and escaped brackets pass unit tests (T24-11 to T24-14).
 - [ ] **G06 — Top-Level Orchestrator Verified**: Full diagram parsing and syntax error recovery pass unit tests (T24-15 to T24-17).
 
-### Protocol Conformance & Native C++ Blueprint Gates
+### Protocol Conformance & Reference Bridge Gates
 - [ ] **G07 — Automated Conformance Suite Deployed**: `scripts/verify-protocol-conformance.mjs` is authored, passes tests (T24-18 to T24-22), and is integrated into `make test`.
 - [ ] **G08 — 100% Canonical ZX Isomorphism**: All 12 canonical ZX diagrams produce topologically isomorphic graphs across C++ and TS engines.
-- [ ] **G09 — C++ Modularization Blueprint Authored**: `docs/architecture/CPP-MODULARIZATION-BLUEPRINT.md` is authored, providing exact class hierarchies and splitting maps for `tikzscene.cpp`, `styleeditor.cpp`, and `undocommands.cpp`.
+- [ ] **G09 — Dual-System Conformance Bridge Deployed**: Headless bridge runner for the unmodified native C++ parser executes and provides JSON graph dumps for automated isomorphism verification against the TypeScript parser combinators.
 
 ### Regression & Verification Artifact Gates
 - [ ] **G10 — Full Dual-System Suite Passing**: All 355 Vitest unit tests, 392 Playwright E2E tests, 20 native C++ tests, and 12 canonical ZX diagrams pass 100% green.

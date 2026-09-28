@@ -12,7 +12,7 @@ This directory tracks the active engineering series in flight: **The Algebraic A
 | **21** | `shell` / `sync` | [`SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md`](./SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md) | Petri Net document state machine; CSP communication channels; decompose `createWorkbenchRuntime.ts` (1,100 $\to < 350$ LOC). | Winston & Amelia | 📋 **In Planning** |
 | **22** | `interactions` / `styles` | [`SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md`](./SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md) | Baldwin Splitting on UI God components (`VersionPopover` 739 LOC, `PreviewPanel` 605 LOC, `CorpusExplorerDrawer` 572 LOC, `WorkbenchCommandBar` 472 LOC) $\to \le 250$ LOC. | Winston & Amelia | 📋 **In Planning** |
 | **23** | `corpus` / `storage` | [`SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING.md`](./SPRINT-23-CLM-TRI-DATABASE-AND-SERVICE-DECOUPLING.md) | Prune legacy `DocumentStore` shadow state; decompose `corpusExplorerService.ts` (652 LOC) & `corpusExportService.ts` (484 LOC) into CLM MVP Card actors. | Winston & Amelia | 📋 **In Planning** |
-| **24** | `parser` / `desktop-parity` | [`SPRINT-24-PARSER-AND-NATIVE-CPP-MODULARIZATION.md`](./SPRINT-24-PARSER-AND-NATIVE-CPP-MODULARIZATION.md) | Modular combinator decomposition for `parser.ts` (494 $\to < 120$ LOC); native C++ Qt refactoring blueprint; automated dual-system conformance suite. | Winston & Amelia | 📋 **In Planning** |
+| **24** | `parser` / `protocol-conformance` | [`SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE.md`](./SPRINT-24-PARSER-COMBINATOR-AND-PROTOCOL-CONFORMANCE.md) | Modular combinator decomposition for `parser.ts` (494 $\to < 120$ LOC); automated dual-system conformance verification against unmodified C++ reference engine. | Winston & Amelia | 📋 **In Planning** |
 
 **Master Architecture Proposal:** [`PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md`](./PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
 
@@ -20,7 +20,7 @@ This directory tracks the active engineering series in flight: **The Algebraic A
 
 ## 2. Identified Monolithic God Modules (> 450 LOC) & Target Reductions
 
-Our repository-wide architectural audit identified 13 files exceeding the 450-line complexity ceiling:
+Our repository-wide architectural audit identified 8 JavaScript/TypeScript/TSX files exceeding the 450-line complexity ceiling for active modularization:
 
 | File Path | Current LOC | Primary Subsystem | Target Architecture / Decomposed Modules | Target LOC |
 | :--- | :---: | :--- | :--- | :---: |
@@ -32,11 +32,10 @@ Our repository-wide architectural audit identified 13 files exceeding the 450-li
 | `src/core/parser/parser.ts` | **494** | Parser Kernel | Split into `nodeCombinator`, `edgeCombinator`, `styleCombinator`, `propertyCombinator` | **$\le 120$** |
 | `src/services/clm/corpusExportService.ts` | **484** | Sovereign Export | Split into `LineageTraversalEngine`, `CollectionSnapshotWriter`, `ExportFileBridge` | **$\le 120$** |
 | `src/components/workbench/WorkbenchCommandBar.tsx` | **472** | Window Chrome | Split into `DocumentTitleBar`, `DocumentActionButtons`, `WorkbenchCommandBar` | **$\le 170$** |
-| *C++* `src/gui/tikzscene.cpp` | **1,418** | Native GUI Scene | Architectural blueprint: decompose into `SelectSceneTool`, `NodeSceneTool`, `EdgeSceneTool` | Blueprint |
-| *C++* `src/gui/styleeditor.cpp` | **881** | Native Styles | Architectural blueprint: extract palette model and swatch delegates | Blueprint |
-| *C++* `src/gui/undocommands.cpp` | **729** | Native Commands | Architectural blueprint: split into atomic `QUndoCommand` headers/sources | Blueprint |
-| *C++* `src/tikzit.cpp` | **580** | Native App Entry | Architectural blueprint: extract document and CLI option parsers | Blueprint |
-| *C++* `src/data/graph.cpp` | **482** | Native Graph Data | Architectural blueprint: separate geometry computations from graph topology | Blueprint |
+
+> [!IMPORTANT]
+> **Native C++ Code Immutability & Reference Preservation:**
+> Under our architectural guidelines (Decision Record D19), the native C++ Qt desktop codebase remains strictly in its original state as an immutable reference implementation. Modularity operators, line count ceilings ($\le 450$ LOC), and refactoring efforts apply exclusively to the JavaScript/TypeScript/TSX web stack. The native C++ codebase is only modified if a confirmed logical parsing error is uncovered or to expose a headless test bridge runner for cross-engine conformance.
 
 ---
 
@@ -169,7 +168,7 @@ This master checklist tracks all 51 granular Definition of Done checkpoints acro
 - [ ] **S23-G09 — Zero Regressions on Existing Suites**: All 355 Vitest tests and Sprint 19 Playwright tests pass 100% green.
 - [ ] **S23-G10 — Clean Export Round-Trip Artifact**: Verified SQLite `.db` export artifact passes `sqlite3` integrity check.
 
-### Sprint 24: Core Parser Combinator & Native C++ Modularization
+### Sprint 24: Core Parser Combinator & Dual-System Protocol Conformance
 - [ ] **S24-G01 — Parser Kernel Under 120 LOC**: `src/core/parser/parser.ts` refactored into combinator coordinator strictly $\le 120$ lines.
 - [ ] **S24-G02 — Combinator Modules Under 180 LOC**: `nodeCombinator`, `edgeCombinator`, `styleCombinator`, `propertyCombinator` all $\le 180$ lines.
 - [ ] **S24-G03 — Node Combinator Verified**: Node declarations, options, and error reporting pass tests (T24-01 to T24-04).
@@ -178,7 +177,7 @@ This master checklist tracks all 51 granular Definition of Done checkpoints acro
 - [ ] **S24-G06 — Top-Level Orchestrator Verified**: Full diagram parsing and syntax recovery pass tests (T24-15 to T24-17).
 - [ ] **S24-G07 — Automated Conformance Suite Deployed**: `scripts/verify-protocol-conformance.mjs` authored and integrated into `make test`.
 - [ ] **S24-G08 — 100% Canonical ZX Isomorphism**: All 12 canonical ZX diagrams produce topologically isomorphic graphs across C++ and TS engines.
-- [ ] **S24-G09 — C++ Modularization Blueprint Authored**: `docs/architecture/CPP-MODULARIZATION-BLUEPRINT.md` authored.
+- [ ] **S24-G09 — Dual-System Conformance Bridge Deployed**: Headless bridge runner for unmodified native C++ parser executes and provides JSON graph dumps for automated isomorphism verification against TypeScript parser combinators.
 - [ ] **S24-G10 — Full Dual-System Suite Passing**: All 355 Vitest unit tests, 392 Playwright E2E tests, 20 native C++ tests, and 12 canonical ZX diagrams pass 100% green.
 
 ---

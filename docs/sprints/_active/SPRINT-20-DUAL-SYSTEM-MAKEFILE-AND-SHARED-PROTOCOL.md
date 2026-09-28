@@ -12,6 +12,8 @@
 
 Create a unified developer `Makefile` at the repository root that builds, lints, and tests both the **Native C++ Qt6 Desktop Application** (via CMake / Ninja) and the **Web Spatial Workbench** (via Astro / Vite / npm) through a single developer interface. Formally establish the **Shared Dual-System Protocol** that enables both systems to interchange TikZ code, graph models, and MCard SQLite databases without coupling the browser JavaScript/TypeScript runtime to native C++ binaries.
 
+Under our architectural policy (Decision Record D19), the native C++ desktop implementation remains untouched in its original state as an immutable reference baseline. The Makefile simply invokes its existing build toolchain into an isolated build directory without modifying any C++ source code. Code refactoring, Baldwin splitting, and modularity efforts apply strictly to JavaScript, TypeScript, and TSX files.
+
 ---
 
 ## 2. Current Gaps & Architectural Tension

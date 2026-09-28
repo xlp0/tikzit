@@ -1,12 +1,12 @@
 # Proposal: Sprints 20–24 — Algebraic Modularity, CLM Architecture & Dual-System Unification
 
 **Status:** Proposed; Active Architecture Series  
-**Target:** TikZiT Web Spatial Workbench & Native Desktop C++ Subsystem  
+**Target:** TikZiT Web Spatial Workbench (JavaScript/TypeScript/TSX) with Native C++ Reference Preservation  
 **Foundations:**
 - **Cubical Logic Model (CLM)**: Three dimensions (Abstract Specification / Logic $Q$, Concrete Implementation / Type Theory $K$, Balanced Expectations / Category Theory $V$) and three MVP Card primitives (MCard Moore Machine, PCard Mealy Machine, VCard Kan Filler).
 - **Baldwin Modularity Operators**: Splitting ($\times$), Substituting ($\simeq \implies =$), Augmenting ($+$), Excluding ($-$), Inverting ($\dashv$), and Porting (Change-of-Base $\text{Lan}$).
 - **Process Algebra (CSP / CCS)** & **Petri Nets**: Algebraic concurrency, message channels, place-transition invariants, token conservation, and reachability.
-- **Dual-System Architecture**: Native browser execution for JavaScript/TypeScript (zero C++ dependencies) with a unified root `Makefile` and shared TikZ AST protocol with native C++ Qt6.
+- **Dual-System Architecture**: Native browser execution for JavaScript/TypeScript (zero C++ dependencies) with a unified root `Makefile` and shared TikZ AST protocol with native C++ Qt6 reference engine.
 
 ---
 
@@ -24,7 +24,7 @@ However, rapid functional expansion has resulted in architectural tension docume
    - `src/core/parser/parser.ts` (**494 lines**): Monolithic recursive-descent parser handling nodes, edges, properties, styles, and paths in a single continuous file.
    - `src/services/clm/corpusExportService.ts` (**484 lines**): Couples graph traversal, lineage closure resolution, SQLite file generation, hash verification, and browser File System Access API handling.
    - `src/components/workbench/WorkbenchCommandBar.tsx` (**472 lines**): Monolithic bar coordinating document title editing, dirty state observation, tab close warnings, save commands, layout resets, and theme selection.
-   - Native C++ Qt files: `src/gui/tikzscene.cpp` (**1,418 lines**), `src/gui/styleeditor.cpp` (**881 lines**), `src/gui/undocommands.cpp` (**729 lines**).
+   - *Native C++ Desktop Files (Reference Only)*: `src/gui/tikzscene.cpp` (**1,418 lines**), `src/gui/styleeditor.cpp` (**881 lines**), `src/gui/undocommands.cpp` (**729 lines**). Under Decision Record D19, the native C++ implementation is preserved completely untouched in its original state as an immutable ground-truth reference; refactoring and modularity efforts apply exclusively to JavaScript, TypeScript, and TSX files.
 
 2. **Dual-System Disconnect & Missing Unified Build**:
    - Web development relies on `npm run dev` / `astro build`, while desktop development relies on `qmake` / `cmake`.
@@ -228,11 +228,11 @@ verify-corpus:
 | **21** | **Process Algebra & Petri Net Lifecycle** | Inverting & Splitting | `shell` / `sync` | `createWorkbenchRuntime.ts` (1,100 LOC) | Petri Net document state machine; CSP communication channels; decompose runtime to < 350 LOC. |
 | **22** | **God-Component Decomposition via Baldwin Splitting** | Splitting | `interactions` / `styles` | `VersionPopover.tsx` (739 LOC), `CorpusExplorerDrawer.tsx` (572 LOC), `WorkbenchCommandBar.tsx` (472 LOC), `PreviewPanel.tsx` (605 LOC) | Dissect UI God components into focused single-responsibility modules ($\le 300$ LOC each). |
 | **23** | **CLM Tri-Database & Service Decoupling** | Excluding & Substituting | `corpus` / `storage` | `corpusExplorerService.ts` (652 LOC), `corpusExportService.ts` (484 LOC) | Prune legacy `DocumentStore`; extract dedicated CLM actors for Indexing, Gated Commit, and Export. |
-| **24** | **Parser Combinator & Native C++ Modularization** | Splitting & Porting | `parser` / `desktop-parity` | `parser.ts` (494 LOC), `tikzscene.cpp` (1,418 LOC) | Modular combinator decomposition for TS parser; architectural blueprint for native C++ cleanup. |
+| **24** | **Core Parser Combinator & Dual-System Protocol Conformance** | Splitting & Porting | `parser` / `protocol-conformance` | `parser.ts` (494 LOC) | Modular combinator decomposition for TS parser; automated dual-system conformance verification against unmodified C++ reference engine. |
 
 ---
 
-## 6. Decision Record (D11 – D18)
+## 6. Decision Record (D11 – D19)
 
 - **D11 (Root Makefile Authority):** The root `Makefile` is an authored developer entrypoint, not a generated qmake file. Qt qmake builds must emit their build artifacts into a designated shadow directory (`build-qmake/`) to prevent overwriting the master Makefile.
 - **D12 (Zero Native C++ Dependency for Web):** Under no circumstances may any TypeScript package depend on native node addons or C++ bindings. All SQLite manipulation in the web client runs via WASM `sql.js`.
@@ -242,6 +242,7 @@ verify-corpus:
 - **D16 (Preservation of Contracts A & B):** All refactoring must strictly uphold Dockview layout preservation (Contract A) and E2E selector stability (Contract B).
 - **D17 (Kenotic Functional Protocol Invariant):** All newly authored protocols, service boundaries, and subsystem interfaces must be modeled strictly as pure mathematical Functions ($f: A \to B$) or Petri Net transitions ($t: P_{\text{in}} \to P_{\text{out}}$). Modules must empty themselves of ambient stateful singletons and unmediated listeners.
 - **D18 (Standardized clm-kernel Success & Failure Modes):** All operational outcomes must resolve through standardized `clm-kernel` primitives (`VCardResult`, `BailVerdict`, `sealExecutionRecord`, `sealBailRecord`, and `SavepointGuard`), eliminating ad-hoc string throws, unhandled rejections, and loose boolean flags.
+- **D19 (C++ Implementation Immutability & Reference Status):** The native C++ Qt codebase remains strictly in its original state as an immutable reference implementation. Modularity operators, line count ceilings ($\le 450$ LOC), and refactoring efforts apply exclusively to the JavaScript/TypeScript/TSX web stack. The native C++ codebase is only modified if: (1) a proven logical error/bug is discovered during cross-engine testing, or (2) a minimal runtime bridge runner is strictly required to enable automated conformance verification.
 
 ---
 
@@ -346,7 +347,7 @@ This master checklist aggregates all 51 Definition of Done checkpoints across Sp
 - [ ] **S23-G09 — Zero Regressions on Existing Suites**: All 355 Vitest tests and Sprint 19 Playwright tests pass 100% green.
 - [ ] **S23-G10 — Clean Export Round-Trip Artifact**: Verified SQLite `.db` export artifact passes `sqlite3` integrity check.
 
-### Sprint 24: Core Parser Combinator & Native C++ Modularization
+### Sprint 24: Core Parser Combinator & Dual-System Protocol Conformance
 - [ ] **S24-G01 — Parser Kernel Under 120 LOC**: `src/core/parser/parser.ts` refactored into combinator coordinator strictly $\le 120$ lines.
 - [ ] **S24-G02 — Combinator Modules Under 180 LOC**: `nodeCombinator`, `edgeCombinator`, `styleCombinator`, `propertyCombinator` all $\le 180$ lines.
 - [ ] **S24-G03 — Node Combinator Verified**: Node declarations, options, and error reporting pass tests (T24-01 to T24-04).
@@ -355,7 +356,7 @@ This master checklist aggregates all 51 Definition of Done checkpoints across Sp
 - [ ] **S24-G06 — Top-Level Orchestrator Verified**: Full diagram parsing and syntax recovery pass tests (T24-15 to T24-17).
 - [ ] **S24-G07 — Automated Conformance Suite Deployed**: `scripts/verify-protocol-conformance.mjs` authored and integrated into `make test`.
 - [ ] **S24-G08 — 100% Canonical ZX Isomorphism**: All 12 canonical ZX diagrams produce topologically isomorphic graphs across C++ and TS engines.
-- [ ] **S24-G09 — C++ Modularization Blueprint Authored**: `docs/architecture/CPP-MODULARIZATION-BLUEPRINT.md` authored.
+- [ ] **S24-G09 — Dual-System Conformance Bridge Deployed**: Headless bridge runner for unmodified native C++ parser executes and provides JSON graph dumps for automated isomorphism verification against TypeScript parser combinators.
 - [ ] **S24-G10 — Full Dual-System Suite Passing**: All 355 Vitest unit tests, 392 Playwright E2E tests, 20 native C++ tests, and 12 canonical ZX diagrams pass 100% green.
 
 ---
