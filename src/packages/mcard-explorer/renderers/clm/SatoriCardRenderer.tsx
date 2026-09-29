@@ -1,3 +1,4 @@
+/** Concern 1: Satori XML/SVG AST decoding · Concern 2: Interactive canvas presentation */
 import React, { useMemo, useState } from 'react';
 import type { BaseCardRendererProps, RendererDescriptor } from '../registry/types';
 import type { RendererRegistry } from '../registry/RendererRegistry';

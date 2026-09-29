@@ -13,8 +13,7 @@ Graduated sprints are organized into **category bins** — one directory per sub
 docs/sprints/
 ├── README.md                                     # This Master Index
 ├── _active/                                      # Current active sprint working drafts
-│   ├── PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md
-│   └── SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md
+│   └── PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md
 ├── orchestration/                                # Master plans & architecture blueprints
 │   ├── 00-master-orchestration/                  # Master Plan & Architecture
 │   ├── 16-19-mcard-diagram-lifecycle-history-and-export/ # Sprints 16–19 Proposal & Architecture
@@ -70,7 +69,8 @@ docs/sprints/
 │   ├── 08-verification-and-deployment/           # Playwright E2E, Benchmarks & PWA Deploy
 │   ├── 12-visual-regression-and-final-parity/    # Visual Regression Testing & Master Sign-Off
 │   ├── 29-tikzit-host-integration-and-verification-matrix/ # Host Adaptation & Conformance
-│   └── 34-tikzit-dockview-integration-and-verification-matrix/ # Dockview Integration & Verification
+│   ├── 34-tikzit-dockview-integration-and-verification-matrix/ # Dockview Integration & Verification
+│   └── 40-polynomial-conformance/                # Polynomial Conformance Verification, Law Suites & Host Drawer Realignment
 └── desktop-parity/                               # Desktop C++ chrome & asset parity
     ├── 09-desktop-assets-and-chrome-harmonization/  # Desktop Assets, macOS Chrome & Tool Border
     └── 13-canvas-centric-toolbar-and-chrome-refinement/  # Canvas-Centric Toolbar & Chrome Refinement
@@ -131,7 +131,7 @@ docs/sprints/
 | **37** | interactions | [`interactions/37-mcard-first-card-algebra-and-composition-surface`](./interactions/37-mcard-first-card-algebra-and-composition-surface/) | MCard-First Card Algebra, Typed Ports & Tensor/Coproduct Composition Surface (`@clm/mcard-explorer/cards`) | ✅ **Completed (Graduated)** |
 | **38** | shell | [`shell/38-operadic-zoom-and-multi-level-navigation`](./shell/38-operadic-zoom-and-multi-level-navigation/) | Operadic Zoom, Fibration Projections & Deep Link Navigation Stack (`@clm/mcard-explorer/zoom`) | ✅ **Completed (Graduated)** |
 | **39** | shell | [`shell/39-cofree-timeline-revertible-effects-and-coeffect-panels`](./shell/39-cofree-timeline-revertible-effects-and-coeffect-panels/) | Cofree Interaction Tree, Revertible Effect Journal & Day-Convolution Panels (`@clm/mcard-explorer/time`) | ✅ **Completed (Graduated)** |
-| **40** | verification | [`_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md`](./_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md) | Polynomial Conformance Verification, Law Suites & Host Drawer Realignment | 🚀 **In Progress / Active** |
+| **40** | verification | [`verification/40-polynomial-conformance`](./verification/40-polynomial-conformance/) | Polynomial Conformance Verification, Law Suites & Host Drawer Realignment | ✅ **Completed (Graduated)** |
 
 ---
 

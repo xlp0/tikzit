@@ -18,7 +18,8 @@ The web workbench brings the complete TikZiT diagramming experience into modern 
 - **Dockview Spatial Workbench**: Fully customizable multi-dock workspace with draggable, collapsable panels for the canvas, source code editor, live TeX preview, style palette, and property inspector.
 - **Operadic MCard Virtual File System (`@clm/mcard-vcs`)**: Headless, zero-DOM storage subsystem grounded in `clm-kernel`'s `MCardFileSystem`. Formal bidirectional Conversational Lenses ($S \dashv G$), dispatch/callback event bus, pluggable storage backends (in-memory WASM SQLite, IndexedDB, Node.js filesystem), and nested ACID savepoints with automatic rollback.
 - **Content-Addressed Merkle DAG Version Control**: Mealy machine VCS engine ($O = \delta(s, i)$), BLAKE3 content-addressed DAG commits and trees, CAS branch references (`refs/heads/*`), Lowest Common Ancestor (LCA) traversal, multi-modal line/graph AST diffing, deterministic 3-way merge, and headless serializable Explorer query facade.
-- **Reusable MCard Explorer Subsystem (`@clm/mcard-explorer`)**: Headless state engine (`MCardExplorerEngine`), pluggable `ExplorerActionRegistry`, host-agnostic presentation viewlets (`MCardExplorer`, `PositionTree`, `ZoomBreadcrumb`, `TimelineScrubber`, `JournalIndicator`, `MCardViewer`, `MCardSearchBar`, `MCardEntryRow`), canonical `mcard-studio` PTR plugin manifest (`createMCardVcsPlugin`), and cross-system conformance suites.
+- **Reusable MCard Explorer Subsystem (`@clm/mcard-explorer`)**: Headless state engine (`ExplorerEngine`), pluggable `ExplorerActionRegistry`, host-agnostic presentation viewlets (`MCardExplorer`, `PositionTree`, `ZoomBreadcrumb`, `TimelineScrubber`, `JournalIndicator`, `MCardViewer`, `MCardSearchBar`, `MCardEntryRow`), canonical `mcard-studio` PTR plugin manifest (`createMCardVcsPlugin`), and cross-system conformance suites.
+- **Polynomial Conformance & Guardrail Absence Proofs (`@clm/mcard-explorer/poly`)**: Category-theoretic polynomial conformance laws (Lens GetPut/PutGet/PutPut, Monad $\eta/\mu$, Operad $\otimes/+/\triangleleft$, Cofree comonad, Revertible effect residue), 14 adversarial negative guardrail absence proofs, automated kernel layer gates (`check-layer-imports.mjs`), and 1,000-card synthetic corpus virtualization.
 - **Operadic Zoom & Multi-Level Navigation (`@clm/mcard-explorer/zoom`)**: Pure headless zoom stack, Spencer Breiner polynomial fibration ($E \xrightarrow{\pi} B$), 8 modular structure providers (SQLite, Satori, PCard, ZX, TikZ, Markdown, JSON, namespace), Semagrams boundary consistency validation, and URL hash deep-link navigation.
 - **Cofree Timeline, Revertible Effects & Coeffects (`@clm/mcard-explorer/time`)**: Append-only cofree interaction tree ($p, d \in P[p] \to \text{Node}$) preserving future branches during time travel, Noetherian zero-residue revertible effect journal composing kernel `DisposableList` and `SavepointGuard` ($H_T \to 0$ in $< 1$ms), pure replay engine, reactive coeffects, Day-convolution panel decoupling ($P \boxtimes Q$), and interactive timeline scrubber viewlet.
 - **Petri Net Document Lifecycle & CSP Sync**: Formal marked Petri Net state machine (`DocumentProcess.ts`) guaranteeing token conservation and dirty-buffer protection during async persistence, coordinated via bounded CSP asynchronous channels (`SyncChannel.ts`).
@@ -44,11 +45,8 @@ npm run dev
 The web workbench is backed by a comprehensive automated test matrix orchestrated via the root `Makefile`:
 
 ```bash
-# Run Vitest unit, parser, CLM, VCS, and integration test suite (128 test files, 731 tests)
+# Run Vitest unit, parser, CLM, VCS, explorer, and conformance test suite (151 test files, 837 tests)
 make test-web
-
-# Run isolated VCS, MCard Explorer, and cross-system conformance test suite (18 test files, 60 tests)
-make test-vcs
 
 # Verify zero DOM globals and zero host imports in @clm/mcard-vcs and @clm/mcard-explorer/core
 make check-vcs-isolation
@@ -94,12 +92,12 @@ tikzit/
 │   ├── gui/            # Native C++ Qt window, scene, and tool implementations (Reference)
 │   └── data/           # Native C++ graph and parser data structures (Reference)
 ├── docs/
-│   ├── sprints/        # Sprint specs (Sprints 00–38 Graduated; Sprints 39–40 Active in _active/)
-│   ├── integration/    # Third-party host embedding guides (EMBEDDING-MCARD-VCS.md)
+│   ├── sprints/        # Sprint specs (Sprints 00–40 Graduated across subsystem bins)
+│   ├── integration/    # Third-party host embedding guides (EMBEDDING-MCARD-VCS.md, STUDIO-PORTING-CHECKLIST.md)
 │   ├── examples/       # 12-diagram ZX-calculus reference corpus with SVGs
 │   ├── architecture/   # Architecture specifications (Shared Dual-System Protocol)
 │   └── changelog/      # Weekly changelog archive (YYYY-Www.md)
-├── tests/              # Vitest unit, integration, and conformance suites (756 tests)
+├── tests/              # Vitest unit, integration, and conformance suites (837 tests)
 ├── e2e/                # Playwright end-to-end and browser inspection scenarios
 ├── scripts/            # Build, testid audit, isolation, independence, and conformance scripts
 ├── images/             # Canonical application icon and tool SVGs

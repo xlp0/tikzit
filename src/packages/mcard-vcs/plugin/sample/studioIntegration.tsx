@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { ExplorerActionRegistry } from '../../../mcard-explorer/actions/ExplorerActionRegistry';
-import { MCardExplorerEngine } from '../../../mcard-explorer/core/MCardExplorerEngine';
+import { ExplorerEngine } from '../../../mcard-explorer/core/ExplorerEngine';
 import { MCardExplorer } from '../../../mcard-explorer/ui/MCardExplorer';
 
 export function createStudioActionRegistry(
@@ -38,7 +38,7 @@ export function createStudioActionRegistry(
 }
 
 export interface StudioExplorerPanelProps {
-  engine: MCardExplorerEngine;
+  engine: ExplorerEngine;
   actionRegistry?: ExplorerActionRegistry;
   onCardSelect?: (handle: string) => void;
 }

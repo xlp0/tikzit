@@ -1,6 +1,5 @@
 /** @layer L4 interface/membrane */
-import type { Position, Direction, DirectionResult } from '../poly/types';
-import type { PolyInterfaceRegistry } from '../poly/registry';
+import type { Position, Direction, DirectionResult, PolyInterfaceRegistry } from '../poly';
 import type { InteractionNode } from './types';
 
 interface InternalNode {

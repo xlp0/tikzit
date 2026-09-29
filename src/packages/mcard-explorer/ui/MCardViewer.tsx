@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import type { CardContentDto, CardContentProvider } from '../core/datasource/types';
+import type { CardContentDto, CardContentProvider } from '../core';
 import { RendererRegistry, RendererRegistry as DefaultRegistry } from '../renderers/registry/RendererRegistry';
 import { registerBaseViewlets } from '../renderers/base';
 import { registerClmViewlets } from '../renderers/clm';

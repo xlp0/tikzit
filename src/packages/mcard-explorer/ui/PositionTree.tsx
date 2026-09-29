@@ -11,6 +11,9 @@ export interface PositionTreeNode {
   readonly children?: readonly PositionTreeNode[];
 }
 
+const VIRTUALIZATION_THRESHOLD = 200;
+const DEFAULT_WINDOW_SIZE = 50;
+
 export interface PositionTreeProps {
   readonly nodes: readonly PositionTreeNode[];
   readonly expandedFolders?: readonly string[];
@@ -19,6 +22,8 @@ export interface PositionTreeProps {
   readonly onSelectCard?: (handle: string) => void;
   readonly onExecuteDirection?: (directionId: string, payload?: unknown) => Promise<void> | void;
   readonly depth?: number;
+  readonly startIndex?: number;
+  readonly windowSize?: number;
 }
 
 export const PositionTree: React.FC<PositionTreeProps> = ({
@@ -28,11 +33,23 @@ export const PositionTree: React.FC<PositionTreeProps> = ({
   onToggleFolder,
   onSelectCard,
   onExecuteDirection,
-  depth = 0
+  depth = 0,
+  startIndex = 0,
+  windowSize = DEFAULT_WINDOW_SIZE
 }) => {
+  const isVirtualized = nodes.length > VIRTUALIZATION_THRESHOLD;
+  const visibleNodes = isVirtualized
+    ? nodes.slice(startIndex, startIndex + windowSize)
+    : nodes;
+
   return (
-    <div className="position-tree select-none text-xs" data-testid="mcard-tree-view">
-      {nodes.map((node) => {
+    <div
+      className="position-tree select-none text-xs"
+      data-testid="mcard-tree-view"
+      data-virtualized={isVirtualized ? 'true' : undefined}
+      data-total-count={nodes.length}
+    >
+      {visibleNodes.map((node) => {
         const nodeKind = node.kind || (node.isFolder ? 'namespace' : 'card');
 
         if (node.isFolder) {

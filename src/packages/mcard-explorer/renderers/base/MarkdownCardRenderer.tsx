@@ -1,3 +1,4 @@
+/** Concern 1: Markdown AST parsing · Concern 2: Rendered prose display */
 import React, { useState, useMemo } from 'react';
 import type { BaseCardRendererProps, RendererDescriptor } from '../registry/types';
 import type { RendererRegistry } from '../registry/RendererRegistry';

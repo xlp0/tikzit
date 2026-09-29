@@ -18,7 +18,7 @@ import {
   registerBaseViewlets,
   registerClmViewlets,
   toCardViewletDefinition,
-  MCardExplorerEngine,
+  ExplorerEngine,
   ExplorerActionRegistry,
   MCardViewer,
   type ExplorerDataSource,
@@ -135,7 +135,7 @@ describe('Master Multimodal Card Conformance Matrix (Sprint 34)', () => {
       subscribe: () => () => {},
     };
 
-    const engine = new MCardExplorerEngine(stubSource, new ExplorerActionRegistry());
+    const engine = new ExplorerEngine(stubSource, new ExplorerActionRegistry());
     const handles = await engine.getDataSource().listHandles!();
     expect(handles).toEqual(['zx:test:sample']);
 

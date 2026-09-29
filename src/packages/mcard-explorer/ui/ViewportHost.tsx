@@ -1,6 +1,6 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import type { RendererDescriptor } from '../renderers/registry/types';
-import type { CardContentDto } from '../core/datasource/types';
+import type { CardContentDto } from '../core';
 
 export interface ViewportHostProps {
   readonly card: CardContentDto;

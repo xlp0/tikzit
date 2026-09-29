@@ -1,10 +1,8 @@
 /** @layer L4 interface/membrane */
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import type { ExplorerEngine, ExplorerState } from '../core/ExplorerEngine';
+import type { ExplorerEngine, ExplorerState, CardContentProvider, CardContentDto } from '../core';
 import { ExplorerActionRegistry } from '../actions/ExplorerActionRegistry';
-import { PolyInterfaceRegistry } from '../poly/registry';
-import type { Direction, Position } from '../poly/types';
-import type { CardContentProvider, CardContentDto } from '../core/datasource/types';
+import { PolyInterfaceRegistry, type Direction, type Position } from '../poly';
 import { ExplorerToolbar } from './ExplorerToolbar';
 import { FacetStrip } from './FacetStrip';
 import { ExplorerListPane } from './ExplorerListPane';

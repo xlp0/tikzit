@@ -1,20 +1,27 @@
 import React from 'react';
-import type { Position, Direction } from '../poly/types';
-import { projectBadges } from '../cards/projectBadges';
+import type { Position, Direction } from '../poly';
+import { projectBadges } from '../cards';
 import { CardRow } from './CardRow';
+
+const VIRTUALIZATION_THRESHOLD = 200;
+const DEFAULT_WINDOW_SIZE = 50;
 
 export interface PositionGroupListProps {
   readonly positions: readonly Position[];
   readonly resolveDirections: (pos: Position) => readonly Direction[];
   readonly onExecute?: (directionId: string, handle: string, payload?: unknown) => Promise<void>;
   readonly emptyText?: string;
+  readonly startIndex?: number;
+  readonly windowSize?: number;
 }
 
 export const PositionGroupList: React.FC<PositionGroupListProps> = ({
   positions,
   resolveDirections,
   onExecute,
-  emptyText = 'No cards available.'
+  emptyText = 'No cards available.',
+  startIndex = 0,
+  windowSize = DEFAULT_WINDOW_SIZE
 }) => {
   if (positions.length === 0) {
     return (
@@ -27,9 +34,19 @@ export const PositionGroupList: React.FC<PositionGroupListProps> = ({
     );
   }
 
+  const isVirtualized = positions.length > VIRTUALIZATION_THRESHOLD;
+  const visiblePositions = isVirtualized
+    ? positions.slice(startIndex, startIndex + windowSize)
+    : positions;
+
   return (
-    <div className="position-group-list space-y-1" data-testid="position-group-list">
-      {positions.map((pos) => {
+    <div
+      className="position-group-list space-y-1"
+      data-testid="position-group-list"
+      data-virtualized={isVirtualized ? 'true' : undefined}
+      data-total-count={positions.length}
+    >
+      {visiblePositions.map((pos) => {
         const directions = resolveDirections(pos);
         const badges = projectBadges(pos);
 

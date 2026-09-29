@@ -3,7 +3,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 
 import { MCardExplorer } from '../../../../src/packages/mcard-explorer/ui/MCardExplorer';
-import { MCardExplorerEngine } from '../../../../src/packages/mcard-explorer/core/MCardExplorerEngine';
+import { ExplorerEngine } from '../../../../src/packages/mcard-explorer/core';
 import type {
   ExplorerDataSource,
   ExplorerCardSummaryDto,
@@ -51,7 +51,7 @@ class MockExplorerDataSource implements ExplorerDataSource {
 
 describe('Sprint 33: MCardExplorer Master Integration & Dual-Pane Layout', () => {
   let dataSource: MockExplorerDataSource;
-  let engine: MCardExplorerEngine;
+  let engine: ExplorerEngine;
 
   beforeEach(async () => {
     dataSource = new MockExplorerDataSource();
@@ -74,7 +74,7 @@ describe('Sprint 33: MCardExplorer Master Integration & Dual-Pane Layout', () =>
       metadata: { universe: 'U0' },
     });
 
-    engine = new MCardExplorerEngine(dataSource);
+    engine = new ExplorerEngine(dataSource);
     await engine.init();
   });
 

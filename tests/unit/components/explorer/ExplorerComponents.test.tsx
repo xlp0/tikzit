@@ -7,7 +7,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { ExplorerSearchBar } from '../../../../src/components/workbench/explorer/ExplorerSearchBar';
 import { ExplorerEntryRow, type ExplorerItem } from '../../../../src/components/workbench/explorer/ExplorerEntryRow';
-import { ExplorerSectionList } from '../../../../src/components/workbench/explorer/ExplorerSectionList';
+import { DiagramListView } from '../../../../src/components/workbench/explorer/DiagramListView';
 
 describe('ExplorerComponents (T22-20 - T22-24)', () => {
   const sampleDiagramItem: ExplorerItem = {
@@ -140,21 +140,14 @@ describe('ExplorerComponents (T22-20 - T22-24)', () => {
     expect(html).toContain('data-testid="badge-archived"');
   });
 
-  it('T22-24: ExplorerSectionList partitions items into drafts and diagrams sections', () => {
+  it('T22-24: DiagramListView partitions items into drafts and diagrams sections', () => {
     const html = renderToString(
-      <ExplorerSectionList
+      <DiagramListView
         items={[sampleDraftItem, sampleDiagramItem]}
         query=""
         activeHandle=""
         onSelect={() => {}}
-        openMenuHandle={null}
-        onToggleMenu={() => {}}
-        editingHandle={null}
-        editTitle=""
-        onEditTitleChange={() => {}}
         onRenameCommit={() => {}}
-        onRenameCancel={() => {}}
-        onStartRename={() => {}}
         onDuplicate={() => {}}
         onToggleArchive={() => {}}
         onExport={() => {}}

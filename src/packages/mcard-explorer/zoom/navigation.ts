@@ -1,6 +1,6 @@
 /** @layer L4 interface/membrane */
-import type { Position, NavigationProvider } from '../poly/types';
-import { NavigationProviderRegistry } from '../poly/navigation';
+import type { Position, NavigationProvider } from '../poly';
+import { NavigationProviderRegistry } from '../poly';
 
 export const CoreNamespaceNavigationProvider: NavigationProvider = {
   id: 'core.namespace',

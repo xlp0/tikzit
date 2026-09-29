@@ -1,6 +1,6 @@
 /** @layer L4 interface/membrane */
 import type { ExplorerSearchFilter } from './datasource/types';
-import type { Position } from '../poly/types';
+import type { Position } from '../poly';
 
 export interface FacetDefinition {
   readonly id: string;

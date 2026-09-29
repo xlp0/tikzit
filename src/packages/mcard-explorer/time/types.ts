@@ -1,5 +1,5 @@
 /** @layer L4 interface/membrane */
-import type { Position, DirectionResult } from '../poly/types';
+import type { Position, DirectionResult } from '../poly';
 
 /**
  * A node in the cofree interaction tree: a position, plus the directions actually taken from it.

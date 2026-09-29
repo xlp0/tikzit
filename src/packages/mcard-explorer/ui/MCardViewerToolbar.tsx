@@ -3,7 +3,7 @@
  * Contract D: ≤ 100 LOC. Contract E: zero DOM globals.
  */
 import React, { useState } from 'react';
-import type { CardContentDto } from '../core/datasource/types';
+import type { CardContentDto } from '../core';
 import type { RendererDescriptor, ViewportMode } from '../renderers/registry/types';
 import { MCardExportDropdown } from './MCardExportDropdown';
 

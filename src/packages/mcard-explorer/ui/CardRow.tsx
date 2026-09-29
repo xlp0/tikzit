@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { Position, Direction } from '../poly/types';
-import type { PositionBadge } from '../cards/projectBadges';
+import type { Position, Direction } from '../poly';
+import type { PositionBadge } from '../cards';
 
 export interface CardRowProps {
   readonly position: Position;

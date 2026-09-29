@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ZoomCrumb } from '../zoom/types';
+import type { ZoomCrumb } from '../zoom';
 
 export interface ZoomBreadcrumbProps {
   readonly crumbs: readonly ZoomCrumb[];

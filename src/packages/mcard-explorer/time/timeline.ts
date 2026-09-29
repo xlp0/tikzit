@@ -1,5 +1,5 @@
 /** @layer L4 interface/membrane */
-import type { NavigationProvider, Position } from '../poly/types';
+import type { NavigationProvider, Position } from '../poly';
 import type { InteractionTree } from './InteractionTree';
 
 export interface TimelinePosition extends Position {

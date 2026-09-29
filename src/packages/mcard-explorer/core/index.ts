@@ -5,4 +5,3 @@ export * from './FacetResolver';
 export * from './TreeProjection';
 export * from './SelectionModel';
 export * from './ExplorerEngine';
-export * from './MCardExplorerEngine';

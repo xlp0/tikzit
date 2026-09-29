@@ -14,7 +14,7 @@ import {
   ExplorerQueryFacade
 } from '../../src/packages/mcard-vcs';
 import {
-  MCardExplorerEngine,
+  ExplorerEngine,
   ExplorerActionRegistry,
   type CardSummaryItem
 } from '../../src/packages/mcard-explorer';
@@ -65,7 +65,7 @@ describe('Cross-System MCard Explorer Conformance (Sprint 29)', () => {
       }
     });
 
-    const engine = new MCardExplorerEngine(facade, registry);
+    const engine = new ExplorerEngine(facade, registry);
     await engine.refresh();
 
     // Verify initial listing
@@ -124,7 +124,7 @@ describe('Cross-System MCard Explorer Conformance (Sprint 29)', () => {
       }
     });
 
-    const engine = new MCardExplorerEngine(facade, registry);
+    const engine = new ExplorerEngine(facade, registry);
     await engine.refresh();
     expect(engine.getState().items.length).toBe(2);
 

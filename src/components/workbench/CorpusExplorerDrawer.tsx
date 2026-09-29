@@ -1,9 +1,7 @@
 /**
- * src/components/workbench/CorpusExplorerDrawer.tsx - Sprint 29 + Sprint 35 Phase C
- * Refactored CorpusExplorerDrawer container mounting explorer components.
- * Sprint 35: adds a Diagrams | MCards view switcher — the generic MCard tree
- * view exposes every card in the sovereign VFS, not just diagram handles.
- * Satisfies Contract D (ceiling 250 LOC) & Contract B.
+ * src/components/workbench/CorpusExplorerDrawer.tsx - Sprint 40 Decomposition
+ * Pure composition root mounting decomposed drawer viewlets.
+ * Satisfies Contract D (≤ 120 LOC ceiling) & Contract B.
  */
 import React, { useEffect, useState, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
@@ -11,7 +9,10 @@ import type { WorkbenchRuntime } from '../../services/createWorkbenchRuntime';
 import { isDiagramHandle } from '../../services/clm/corpusPersistence';
 import { defaultWorkspaceManager } from '../../services/workspace/WorkspaceManager';
 import { ExplorerSearchBar } from './explorer/ExplorerSearchBar';
-import { ExplorerSectionList } from './explorer/ExplorerSectionList';
+import { DrawerViewSwitcher } from './explorer/DrawerViewSwitcher';
+import { DrawerBanners } from './explorer/DrawerBanners';
+import { DrawerPersistenceFooter } from './explorer/DrawerPersistenceFooter';
+import { DiagramListView } from './explorer/DiagramListView';
 import { MCardExplorerPane } from './MCardExplorerPane';
 import type { ExplorerItem } from './explorer/ExplorerEntryRow';
 
@@ -25,7 +26,7 @@ export interface CorpusExplorerDrawerProps {
 }
 
 export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
-  runtime, activeHandle, isCollapsed = false, width, isOpen, onClose
+  runtime, activeHandle, isCollapsed = false, width, isOpen
 }) => {
   if (isOpen !== undefined && !isOpen) return null;
   if (isCollapsed) return null;
@@ -36,9 +37,6 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
 
   const [openDocs, setOpenDocs] = useState(defaultWorkspaceManager.getOpenDocuments());
   const [debouncedQuery, setDebouncedQuery] = useState(corpusQuery);
-  const [openMenuHandle, setOpenMenuHandle] = useState<string | null>(null);
-  const [editingHandle, setEditingHandle] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState('');
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const [drawerView, setDrawerView] = useState<'diagrams' | 'mcards'>('diagrams');
 
@@ -47,11 +45,6 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
     const t = window.setTimeout(() => setDebouncedQuery(corpusQuery), 100);
     return () => window.clearTimeout(t);
   }, [corpusQuery]);
-  useEffect(() => {
-    const handleClose = () => setOpenMenuHandle(null);
-    window.addEventListener('click', handleClose);
-    return () => window.removeEventListener('click', handleClose);
-  }, []);
 
   const showArchived = sessionRecovery.showArchived;
   const listing = runtime.corpusExplorer.listCorpusEntries({ includeArchived: showArchived });
@@ -70,10 +63,7 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
   const committedItems: ExplorerItem[] = useMemo(() => listing.entries.map((entry) => {
     const isExample = entry.handle.startsWith('zx:examples:');
     let version = 1;
-    try {
-      const hist = runtime.mcardCollection.history(entry.handle);
-      if (hist.length > 0) version = hist.length;
-    } catch { version = 1; }
+    try { const h = runtime.mcardCollection.history(entry.handle); if (h.length > 0) version = h.length; } catch { version = 1; }
     return {
       handle: entry.handle, title: entry.title, type: isExample ? ('example' as const) : ('diagram' as const),
       badge: isExample ? ('Example' as const) : ('Diagram' as const), nodeCount: entry.nodeCount,
@@ -83,14 +73,6 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
   }), [listing, runtime]);
 
   const allItems = useMemo(() => [...drafts, ...committedItems], [drafts, committedItems]);
-  const userDiagramsCount = committedItems.filter((i) => i.type === 'diagram').length + drafts.length;
-
-  const handleRenameCommit = async (handle: string) => {
-    if (!editTitle.trim()) { setEditingHandle(null); return; }
-    await runtime.renameDiagram(handle, editTitle.trim());
-    setLiveAnnouncement(`Renamed diagram to ${editTitle.trim()}`);
-    setEditingHandle(null);
-  };
 
   return (
     <aside
@@ -99,103 +81,33 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
       data-testid="drawer-corpus-explorer"
     >
       <div data-testid="live-announcer" aria-live="polite" className="sr-only">{liveAnnouncement}</div>
-
-      {sessionRecovery.recoveredCount > 0 && (
-        <div data-testid="recovery-banner" className="bg-amber-950/80 border-b border-amber-700/60 p-2 text-xs text-amber-200 flex flex-col gap-1">
-          <span>Unsaved edits recovered from previous session.</span>
-          <div className="flex gap-2 mt-1">
-            <button data-testid="btn-recovery-review" onClick={() => setLiveAnnouncement('Reviewing recovered drafts')} className="text-[11px] underline">Review</button>
-            <button data-testid="btn-recovery-discard" onClick={() => runtime.discardAllRecovered()} className="text-[11px] underline text-rose-300">Discard all</button>
-          </div>
-        </div>
-      )}
-
-      {corpusView.persistence === 'stale' && (
-        <div data-testid="stale-reload-banner" className="bg-rose-950/80 border-b border-rose-700/60 p-2 text-xs text-rose-200 flex items-center justify-between">
-          <span>Storage updated in another window.</span>
-          <button data-testid="btn-reload-window" onClick={() => window.location.reload()} className="px-2 py-0.5 bg-rose-800 rounded text-[10px]">Reload</button>
-        </div>
-      )}
-
-      {/* Sprint 35 Phase C: two-view switcher — diagram index vs generic MCard tree */}
-      <div className="flex items-center gap-1 px-2 pt-2 pb-1" data-testid="drawer-view-switcher">
-        <button
-          type="button"
-          data-testid="drawer-view-diagrams"
-          onClick={() => setDrawerView('diagrams')}
-          className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
-            drawerView === 'diagrams'
-              ? 'bg-sky-700 text-white'
-              : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-          }`}
-        >
-          Diagrams
-        </button>
-        <button
-          type="button"
-          data-testid="drawer-view-mcards"
-          onClick={() => setDrawerView('mcards')}
-          className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
-            drawerView === 'mcards'
-              ? 'bg-sky-700 text-white'
-              : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-          }`}
-        >
-          MCards
-        </button>
-      </div>
-
+      <DrawerBanners
+        recoveredCount={sessionRecovery.recoveredCount} persistence={corpusView.persistence}
+        onReviewRecovery={() => setLiveAnnouncement('Reviewing recovered drafts')}
+        onDiscardRecovery={() => runtime.discardAllRecovered()}
+      />
+      <DrawerViewSwitcher view={drawerView} onViewChange={setDrawerView} />
       {drawerView === 'mcards' ? (
         <MCardExplorerPane runtime={runtime} onAnnouncement={setLiveAnnouncement} />
       ) : (
         <>
-      <ExplorerSearchBar
-        query={corpusQuery}
-        onQueryChange={(q) => runtime.stores.$corpusQuery.set(q)}
-        showArchived={showArchived}
-        onToggleShowArchived={() => runtime.stores.$sessionRecovery.set({ ...sessionRecovery, showArchived: !showArchived })}
-        onNewDiagram={() => runtime.createDiagram()}
-        onExportCollection={() => runtime.openExportCollectionDialog()}
-      />
-
-      {userDiagramsCount === 0 && !debouncedQuery && (
-        <div data-testid="empty-diagrams-card" className="p-4 m-2 bg-neutral-950/60 rounded border border-neutral-800 text-center text-xs text-neutral-400">
-          <p className="mb-2">No user diagrams created yet.</p>
-          <button data-testid="btn-empty-state-new-diagram" onClick={() => runtime.createDiagram()} className="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded font-medium text-xs">
-            Create First Diagram
-          </button>
-        </div>
-      )}
-
-      <ExplorerSectionList
-        items={allItems}
-        query={debouncedQuery}
-        activeHandle={activeHandle}
-        onSelect={(h) => runtime.openCorpusEntry(h)}
-        openMenuHandle={openMenuHandle}
-        onToggleMenu={(h, e) => { e.stopPropagation(); setOpenMenuHandle(openMenuHandle === h ? null : h); }}
-        editingHandle={editingHandle}
-        editTitle={editTitle}
-        onEditTitleChange={setEditTitle}
-        onRenameCommit={handleRenameCommit}
-        onRenameCancel={() => setEditingHandle(null)}
-        onStartRename={(item) => { setEditingHandle(item.handle); setEditTitle(item.title); setOpenMenuHandle(null); }}
-        onDuplicate={(h) => { runtime.duplicateDiagram(h); setOpenMenuHandle(null); }}
-        onToggleArchive={(h, arch) => { runtime.archiveDiagram(h, arch); setOpenMenuHandle(null); }}
-        onExport={(h) => { runtime.openExportDialog(h); setOpenMenuHandle(null); }}
-        onPreview={(h) => {
-          runtime.stores.$previewCardHandle.set(h);
-          setLiveAnnouncement(`Previewing card ${h}`);
-          setOpenMenuHandle(null);
-        }}
-      />
+          <ExplorerSearchBar
+            query={corpusQuery} onQueryChange={(q) => runtime.stores.$corpusQuery.set(q)}
+            showArchived={showArchived} onToggleShowArchived={() => runtime.stores.$sessionRecovery.set({ ...sessionRecovery, showArchived: !showArchived })}
+            onNewDiagram={() => runtime.createDiagram()} onExportCollection={() => runtime.openExportCollectionDialog()}
+          />
+          <DiagramListView
+            items={allItems} query={debouncedQuery} activeHandle={activeHandle}
+            onSelect={(h) => runtime.openCorpusEntry(h)}
+            onRenameCommit={async (h, t) => { await runtime.renameDiagram(h, t); setLiveAnnouncement(`Renamed diagram to ${t}`); }}
+            onDuplicate={(h) => runtime.duplicateDiagram(h)} onToggleArchive={(h, arch) => runtime.archiveDiagram(h, arch)}
+            onExport={(h) => runtime.openExportDialog(h)}
+            onPreview={(h) => { runtime.stores.$previewCardHandle.set(h); setLiveAnnouncement(`Previewing card ${h}`); }}
+            onCreateFirstDiagram={() => runtime.createDiagram()}
+          />
         </>
       )}
-
-      <div data-testid="corpus-persistence-state" className="p-2 border-t border-neutral-800 text-[10px] text-neutral-500 font-mono flex items-center justify-between">
-        <span>Storage: {corpusView.persistence}</span>
-        {corpusView.persistenceError && <span className="text-rose-400 truncate max-w-[120px]">{corpusView.persistenceError}</span>}
-      </div>
+      <DrawerPersistenceFooter persistence={corpusView.persistence} persistenceError={corpusView.persistenceError} />
     </aside>
   );
 };

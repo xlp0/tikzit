@@ -1,8 +1,7 @@
 /** @layer L4 interface/membrane */
 import React from 'react';
-import type { ExplorerCardSummaryDto, ExplorerTreeNode } from '../core/datasource/types';
-import type { Position, Direction } from '../poly/types';
-import type { PolyInterfaceRegistry } from '../poly/registry';
+import type { ExplorerCardSummaryDto, ExplorerTreeNode } from '../core';
+import type { Position, Direction, PolyInterfaceRegistry } from '../poly';
 import { PositionTree, type PositionTreeNode } from './PositionTree';
 
 export interface ExplorerListPaneProps {

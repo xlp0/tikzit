@@ -1,6 +1,6 @@
 /** @layer L4 interface/membrane */
 import React from 'react';
-import type { CardContentDto, CardContentProvider } from '../core/datasource/types';
+import type { CardContentDto, CardContentProvider } from '../core';
 import { MCardViewer } from './MCardViewer';
 
 export interface ExplorerPreviewPaneProps {

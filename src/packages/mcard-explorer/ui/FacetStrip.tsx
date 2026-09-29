@@ -1,6 +1,6 @@
 /** @layer L4 interface/membrane */
 import React from 'react';
-import type { FacetDefinition } from '../core/FacetResolver';
+import type { FacetDefinition } from '../core';
 
 export interface FacetStripProps {
   facets: readonly (string | FacetDefinition)[];

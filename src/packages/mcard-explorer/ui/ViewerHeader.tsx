@@ -1,5 +1,5 @@
 import React from 'react';
-import type { CardContentDto } from '../core/datasource/types';
+import type { CardContentDto } from '../core';
 
 export interface ViewerHeaderProps {
   readonly card: CardContentDto;

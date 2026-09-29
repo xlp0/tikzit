@@ -6,11 +6,11 @@
  */
 
 // Core Headless State Machine
-export { MCardExplorerEngine } from './core/MCardExplorerEngine';
+export { ExplorerEngine } from './core';
 export type {
   ExplorerState,
   ExplorerTreeNode
-} from './core/MCardExplorerEngine';
+} from './core';
 
 // Data Source & Content Provider Ports (ADR D42)
 export type {

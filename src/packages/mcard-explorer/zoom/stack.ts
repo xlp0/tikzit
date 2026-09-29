@@ -1,5 +1,5 @@
 /** @layer L4 interface/membrane */
-import type { Position, Direction } from '../poly/types';
+import type { Position, Direction } from '../poly';
 import type { CardInterface } from '../cards';
 import type { StructureRegistry } from './providers';
 import type { StructureNode, ZoomLevel, ZoomPath, ZoomCrumb } from './types';
@@ -37,19 +37,21 @@ export class ZoomStack {
     const provider = this.providers.resolveProvider(position.handle, position.mimeType);
     if (!provider) return [];
 
-    const directions: Direction[] = [
-      {
+    const directions: Direction[] = [];
+
+    if (this.levels.length < this.maxDepth) {
+      directions.push({
         id: 'zoom.enter',
         label: `Zoom into ${position.title || position.handle}`,
         group: 'navigate',
         default: true,
-        legality: (pos) => Boolean(this.providers.resolveProvider(pos.handle, pos.mimeType)),
+        legality: (pos) => Boolean(this.providers.resolveProvider(pos.handle, pos.mimeType)) && this.levels.length < this.maxDepth,
         execute: async (pos) => {
           await this.enter(pos);
           return { success: true, producedHandle: pos.handle };
         }
-      }
-    ];
+      });
+    }
 
     if (this.levels.length > 0) {
       directions.push({
@@ -57,10 +59,7 @@ export class ZoomStack {
         label: 'Zoom Out',
         group: 'navigate',
         legality: () => this.levels.length > 0,
-        execute: async () => {
-          this.exit();
-          return { success: true };
-        }
+        execute: async () => { this.exit(); return { success: true }; }
       });
     }
 

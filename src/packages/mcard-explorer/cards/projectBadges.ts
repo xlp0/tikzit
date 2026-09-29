@@ -1,5 +1,5 @@
 /** @layer L4 interface/membrane */
-import type { Position } from '../poly/types';
+import type { Position } from '../poly';
 
 export interface PositionBadge {
   readonly id: string;

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import type { CardInterface, CardPort } from '../cards/ports';
+import type { CardInterface, CardPort, Wire, CompositionPlan } from '../cards';
 import { usePortDrag } from './usePortDrag';
-import type { Wire, CompositionPlan } from '../cards/composition';
 
 export interface CardCompositionSurfaceProps {
   readonly cards: readonly CardInterface[];

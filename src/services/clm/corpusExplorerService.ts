@@ -9,7 +9,7 @@ import type {
 import type { CorpusIndexRecord } from './corpusPersistence';
 import type { GraphAST } from '../../core/domain/types';
 import { ExplorerActionRegistry } from '../../packages/mcard-explorer';
-import { MCardExplorerEngine } from '../../packages/mcard-explorer/core';
+import { ExplorerEngine } from '../../packages/mcard-explorer/core';
 import { getExplorerQueryFacade, getExplorerActionRegistry } from './vcsAdapterInstance';
 import {
   DiagramIndexService,
@@ -205,8 +205,8 @@ export class CorpusExplorerService extends Service {
     return [...this.issues];
   }
 
-  getExplorerEngine(): MCardExplorerEngine {
-    return new MCardExplorerEngine(getExplorerQueryFacade(), getExplorerActionRegistry());
+  getExplorerEngine(): ExplorerEngine {
+    return new ExplorerEngine(getExplorerQueryFacade(), getExplorerActionRegistry());
   }
 
   getActionRegistry(): ExplorerActionRegistry {
@@ -215,11 +215,11 @@ export class CorpusExplorerService extends Service {
 }
 
 export function useCorpusExplorerAdapter(runtime?: any): {
-  engine: MCardExplorerEngine;
+  engine: ExplorerEngine;
   actionRegistry: ExplorerActionRegistry;
 } {
   const facade = getExplorerQueryFacade();
   const actionRegistry = getExplorerActionRegistry();
-  const engine = new MCardExplorerEngine(facade, actionRegistry);
+  const engine = new ExplorerEngine(facade, actionRegistry);
   return { engine, actionRegistry };
 }

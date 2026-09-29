@@ -1,5 +1,5 @@
 /** @layer L4 interface/membrane */
-import type { Direction, Position } from '../poly/types';
+import type { Direction, Position } from '../poly';
 
 export type ForwardReason = 'consumes' | 'same-runtime' | 'transition';
 

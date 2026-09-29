@@ -1,3 +1,4 @@
+/** Concern 1: CSV tabular parsing · Concern 2: Paginated grid viewport */
 import React, { useState, useMemo } from 'react';
 import type { BaseCardRendererProps, RendererDescriptor } from '../registry/types';
 import type { RendererRegistry } from '../registry/RendererRegistry';

@@ -19,39 +19,19 @@ export interface ExplorerItem {
 }
 
 export interface ExplorerEntryRowProps {
-  item: ExplorerItem;
-  isActive: boolean;
-  onSelect: (handle: string) => void;
-  openMenuHandle: string | null;
-  onToggleMenu: (handle: string, e: React.MouseEvent) => void;
-  editingHandle: string | null;
-  editTitle: string;
-  onEditTitleChange: (val: string) => void;
-  onRenameCommit: (handle: string) => void;
-  onRenameCancel: () => void;
-  onStartRename: (item: ExplorerItem) => void;
-  onDuplicate: (handle: string) => void;
+  item: ExplorerItem; isActive: boolean; onSelect: (handle: string) => void;
+  openMenuHandle: string | null; onToggleMenu: (handle: string, e: React.MouseEvent) => void;
+  editingHandle: string | null; editTitle: string; onEditTitleChange: (val: string) => void;
+  onRenameCommit: (handle: string) => void; onRenameCancel: () => void;
+  onStartRename: (item: ExplorerItem) => void; onDuplicate: (handle: string) => void;
   onToggleArchive: (handle: string, archived: boolean) => void;
-  onExport: (handle: string) => void;
-  onPreview?: (handle: string) => void;
+  onExport: (handle: string) => void; onPreview?: (handle: string) => void;
 }
 
 export const ExplorerEntryRow: React.FC<ExplorerEntryRowProps> = ({
-  item,
-  isActive,
-  onSelect,
-  openMenuHandle,
-  onToggleMenu,
-  editingHandle,
-  editTitle,
-  onEditTitleChange,
-  onRenameCommit,
-  onRenameCancel,
-  onStartRename,
-  onDuplicate,
-  onToggleArchive,
-  onExport,
-  onPreview,
+  item, isActive, onSelect, openMenuHandle, onToggleMenu,
+  editingHandle, editTitle, onEditTitleChange, onRenameCommit,
+  onRenameCancel, onStartRename, onDuplicate, onToggleArchive, onExport, onPreview,
 }) => {
   const isMenuOpen = openMenuHandle === item.handle;
   const isEditing = editingHandle === item.handle;

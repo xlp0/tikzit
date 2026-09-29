@@ -1,7 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import type { CardPort, CardInterface } from '../cards/ports';
-import type { Wire } from '../cards/composition';
-import { portsCompatible } from '../cards/legality';
+import { type CardPort, type CardInterface, type Wire, portsCompatible } from '../cards';
 
 export interface UsePortDragResult {
   draggedPort: { cardHandle: string; port: CardPort } | null;

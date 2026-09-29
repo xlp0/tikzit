@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * scripts/audit-concerns.mjs - Sprint 36
+ * scripts/audit-concerns.mjs - Sprint 36-40
  * Concern Audit & LOC Ceiling Verification (ADR D53/D54)
  *
- * Verifies that all decomposed single-concern modules in poly/ and core/
- * strictly obey the <= 150 LOC threshold and UI viewlets satisfy their ceilings.
+ * Verifies that all decomposed single-concern modules in poly/, core/, cards/, zoom/, time/,
+ * and workbench explorer viewlets strictly obey their LOC ceilings and concern thresholds.
  */
 
 import fs from 'node:fs';
@@ -23,6 +23,9 @@ const THRESHOLDS = [
   { file: 'src/packages/mcard-explorer/poly/registry.ts', max: 130 },
   { file: 'src/packages/mcard-explorer/poly/census.ts', max: 80 },
   { file: 'src/packages/mcard-explorer/poly/navigation.ts', max: 110 },
+  { file: 'src/packages/mcard-explorer/poly/coeffects.ts', max: 150 },
+  { file: 'src/packages/mcard-explorer/poly/dayConvolution.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/poly/lenses.ts', max: 150 },
   { file: 'src/packages/mcard-explorer/poly/index.ts', max: 50 },
 
   // core modules (<= 150 LOC general ceiling; specific sprint targets)
@@ -31,7 +34,6 @@ const THRESHOLDS = [
   { file: 'src/packages/mcard-explorer/core/FacetResolver.ts', max: 110 },
   { file: 'src/packages/mcard-explorer/core/SelectionModel.ts', max: 110 },
   { file: 'src/packages/mcard-explorer/core/ExplorerEngine.ts', max: 120 },
-  { file: 'src/packages/mcard-explorer/core/MCardExplorerEngine.ts', max: 40 },
   { file: 'src/packages/mcard-explorer/core/index.ts', max: 50 },
 
   // UI viewlets
@@ -96,17 +98,20 @@ const THRESHOLDS = [
   { file: 'src/packages/mcard-explorer/time/hostEffectContext.ts', max: 80 },
   { file: 'src/packages/mcard-explorer/time/index.ts', max: 50 },
 
-  // Sprint 39: poly additions
-  { file: 'src/packages/mcard-explorer/poly/coeffects.ts', max: 150 },
-  { file: 'src/packages/mcard-explorer/poly/dayConvolution.ts', max: 90 },
-
   // Sprint 39: UI viewlets & decomposed viewer
   { file: 'src/packages/mcard-explorer/ui/TimelineScrubber.tsx', max: 140 },
   { file: 'src/packages/mcard-explorer/ui/JournalIndicator.tsx', max: 80 },
   { file: 'src/packages/mcard-explorer/ui/ViewerHeader.tsx', max: 90 },
   { file: 'src/packages/mcard-explorer/ui/ViewportHost.tsx', max: 120 },
   { file: 'src/packages/mcard-explorer/ui/ViewerShell.tsx', max: 100 },
-  { file: 'src/packages/mcard-explorer/ui/MCardViewer.tsx', max: 90 }
+  { file: 'src/packages/mcard-explorer/ui/MCardViewer.tsx', max: 90 },
+
+  // Sprint 40: decomposed host drawer viewlets (40-DOD-06)
+  { file: 'src/components/workbench/explorer/DrawerViewSwitcher.tsx', max: 80 },
+  { file: 'src/components/workbench/explorer/DiagramListView.tsx', max: 130 },
+  { file: 'src/components/workbench/explorer/DrawerBanners.tsx', max: 90 },
+  { file: 'src/components/workbench/explorer/DrawerPersistenceFooter.tsx', max: 60 },
+  { file: 'src/components/workbench/CorpusExplorerDrawer.tsx', max: 120 }
 ];
 
 let violations = 0;
@@ -128,6 +133,41 @@ for (const entry of THRESHOLDS) {
     violations++;
   } else {
     console.log(`✓ [PASS] ${entry.file}: ${lines} / ${entry.max} LOC`);
+  }
+}
+
+// Dynamic scan for mcard-explorer/** and explorer/** for any undeclared files > 150 LOC
+function scanDir(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const results = [];
+  for (const e of entries) {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) results.push(...scanDir(full));
+    else if (e.isFile() && (e.name.endsWith('.ts') || e.name.endsWith('.tsx'))) results.push(full);
+  }
+  return results;
+}
+
+const scannedFiles = [
+  ...scanDir(path.join(ROOT_DIR, 'src', 'packages', 'mcard-explorer')),
+  ...scanDir(path.join(ROOT_DIR, 'src', 'components', 'workbench', 'explorer'))
+];
+
+const thresholdFiles = new Set(THRESHOLDS.map(t => path.resolve(ROOT_DIR, t.file)));
+
+for (const file of scannedFiles) {
+  if (!thresholdFiles.has(file)) {
+    const rel = path.relative(ROOT_DIR, file);
+    const content = fs.readFileSync(file, 'utf8');
+    const lines = content.split('\n').length;
+    if (lines > 150) {
+      const hasConcernComment = content.includes('// Concern') || content.includes('@concern') || content.includes('Contract D') || /concern\s*\d*:/i.test(content);
+      if (!hasConcernComment) {
+        console.error(`✗ [FAIL] Undeclared module > 150 LOC lacking declared concern: ${rel} (${lines} LOC)`);
+        violations++;
+      }
+    }
   }
 }
 

@@ -6,7 +6,7 @@
  * Contract D ceiling: <= 140 LOC.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { MCardExplorer, MCardExplorerEngine } from '../../packages/mcard-explorer';
+import { MCardExplorer, ExplorerEngine } from '../../packages/mcard-explorer';
 import type { WorkbenchRuntime } from '../../services/createWorkbenchRuntime';
 import {
   ensureVcsInitialized,
@@ -27,7 +27,7 @@ export const MCardExplorerPane: React.FC<MCardExplorerPaneProps> = ({ runtime, o
   const { engine, actionRegistry } = useMemo(() => {
     const registry = getExplorerActionRegistry();
     return {
-      engine: new MCardExplorerEngine(getExplorerQueryFacade(), registry),
+      engine: new ExplorerEngine(getExplorerQueryFacade(), registry),
       actionRegistry: registry,
     };
   }, []);

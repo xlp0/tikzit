@@ -1,3 +1,4 @@
+/** Concern 1: Petri net transition inspection · Concern 2: Execution trace playback */
 import React, { useMemo, useState } from 'react';
 import type { BaseCardRendererProps, RendererDescriptor } from '../registry/types';
 import type { RendererRegistry } from '../registry/RendererRegistry';

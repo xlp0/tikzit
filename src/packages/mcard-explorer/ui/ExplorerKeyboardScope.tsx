@@ -1,8 +1,7 @@
 /** @layer L4 interface/membrane */
 import React from 'react';
-import type { ExplorerCardSummaryDto } from '../core/datasource/types';
-import type { Position, Direction } from '../poly/types';
-import type { PolyInterfaceRegistry } from '../poly/registry';
+import type { ExplorerCardSummaryDto } from '../core';
+import type { Position, Direction, PolyInterfaceRegistry } from '../poly';
 
 export interface ExplorerKeyboardScopeProps {
   items: readonly ExplorerCardSummaryDto[];

@@ -1,3 +1,4 @@
+/** Concern 1: Structured JSON/data tree parsing · Concern 2: Key-value inspector view */
 import React, { useState, useMemo } from 'react';
 import type { BaseCardRendererProps, RendererDescriptor } from '../registry/types';
 import type { RendererRegistry } from '../registry/RendererRegistry';

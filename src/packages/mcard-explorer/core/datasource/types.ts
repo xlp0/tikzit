@@ -96,7 +96,7 @@ export interface CardContentProvider {
 }
 
 /**
- * Abstract data source port - the ONLY interface MCardExplorerEngine depends on.
+ * Abstract data source port - the ONLY interface ExplorerEngine depends on.
  * Implementations: ExplorerQueryFacade (TikZiT), studioMCardFs adapter (mcard-studio).
  */
 export interface ExplorerDataSource extends CardContentProvider {
