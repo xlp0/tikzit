@@ -3,14 +3,14 @@
 **Status:** Proposed; not started  
 **Primary Baldwin Operator:** Inverting ($\dashv$) & Splitting ($\times$)  
 **Primary Subsystem:** `shell` / `sync`  
-**Depends on:** [Sprint 20](./SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md)  
-**Parent Proposal:** [Sprints 20–24](./PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
+**Depends on:** [Sprint 20](../../orchestration/20-dual-system-makefile-and-shared-protocol/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md)  
+**Parent Proposal:** [Sprints 20–24](../../orchestration/20-24-algebraic-modularity-clm-and-build-unification/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
 
 ---
 
 ## 1. Objective
 
-Deconstruct the 1,100-line monolithic God runtime orchestrator ([`src/services/createWorkbenchRuntime.ts`](../../../src/services/createWorkbenchRuntime.ts)) into decoupled, single-responsibility actors governed by **Process Algebra (CSP)** and a formal **Place/Transition (PT) Petri Net**. Reduce `createWorkbenchRuntime.ts` from 1,100 lines to under 350 lines of pure Cordis wiring, eliminating race conditions between user edits, background flushes, tab closures, and multi-document persistence.
+Deconstruct the 1,100-line monolithic God runtime orchestrator ([`src/services/createWorkbenchRuntime.ts`](../../../../src/services/createWorkbenchRuntime.ts)) into decoupled, single-responsibility actors governed by **Process Algebra (CSP)** and a formal **Place/Transition (PT) Petri Net**. Reduce `createWorkbenchRuntime.ts` from 1,100 lines to under 350 lines of pure Cordis wiring, eliminating race conditions between user edits, background flushes, tab closures, and multi-document persistence.
 
 ---
 

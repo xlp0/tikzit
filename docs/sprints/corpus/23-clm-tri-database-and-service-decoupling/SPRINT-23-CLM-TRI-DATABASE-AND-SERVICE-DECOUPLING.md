@@ -3,16 +3,16 @@
 **Status:** Proposed; not started  
 **Primary Baldwin Operator:** Excluding ($-$) & Substituting ($\simeq \implies =$)  
 **Primary Subsystem:** `corpus` / `storage` / `export`  
-**Depends on:** [Sprint 21](./SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md), [Sprint 22](./SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md)  
-**Parent Proposal:** [Sprints 20–24](./PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
+**Depends on:** [Sprint 21](../../sync/21-process-algebra-and-petri-net-lifecycle/SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md), [Sprint 22](../../shell/22-god-component-decomposition-via-baldwin-splitting/SPRINT-22-GOD-COMPONENT-DECOMPOSITION-VIA-BALDWIN-SPLITTING.md)  
+**Parent Proposal:** [Sprints 20–24](../../orchestration/20-24-algebraic-modularity-clm-and-build-unification/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
 
 ---
 
 ## 1. Objective
 
 Apply Carliss Baldwin's **Excluding Operator** ($\mathcal{B}_{\text{excl}}$) to prune obsolete legacy `DocumentStore` shadow storage, and the **Splitting Operator** ($\mathcal{B}_{\text{split}}$) to decompose two monolithic CLM services exceeding the 450-line complexity ceiling:
-- [`src/services/clm/corpusExplorerService.ts`](../../../src/services/clm/corpusExplorerService.ts) (**652 lines**)
-- [`src/services/clm/corpusExportService.ts`](../../../src/services/clm/corpusExportService.ts) (**484 lines**)
+- [`src/services/clm/corpusExplorerService.ts`](../../../../src/services/clm/corpusExplorerService.ts) (**652 lines**)
+- [`src/services/clm/corpusExportService.ts`](../../../../src/services/clm/corpusExportService.ts) (**484 lines**)
 
 Align the storage and export architecture cleanly with the three **Cubical Logic Model (CLM) MVP Card Primitives** (MCard, PCard, VCard), establishing zero-leakage service boundaries strictly bounded to **$\le 250$ lines of code**.
 

@@ -14,7 +14,7 @@
 
 Following the completion of Sprints 00–19, TikZiT has achieved rich functional maturity: a Web spatial workbench with Three.js canvas, live TeX preview, bidirectional sync, MCard-backed content-addressed storage, and individual/collection export.
 
-However, rapid functional expansion has resulted in architectural tension documented in [`docs/PROJECT-SUMMARY.md`](../../PROJECT-SUMMARY.md):
+However, rapid functional expansion has resulted in architectural tension documented in [`docs/PROJECT-SUMMARY.md`](../../../PROJECT-SUMMARY.md):
 1. **God Files & Monolithic Modules (> 450 LOC)**:
    - `src/services/createWorkbenchRuntime.ts` (**1,100 lines**): Monolithic runtime service orchestrator mixing Cordis service initialization, Nanostores state management, tab routing, document lifecycle, persistence coordination, and command dispatch.
    - `src/components/workbench/panels/VersionPopover.tsx` (**739 lines**): God UI component coupling timeline visualization, diff and stat delta computation, visual compare orchestration, and head re-registration.
@@ -54,7 +54,7 @@ Under the Kenotic Principle:
    - Dynamic operations are strictly **Functions** ($f: A \to B$) or **Petri Net Transitions** ($t: P_{\text{in}} \to P_{\text{out}}$).
    - Newly authored protocols must NEVER introduce ambient stateful singletons or imperative listener registrations. They must be variants of pure functional morphisms or Place/Transition firings.
 3. **Standardized Success and Failure Modes (`clm-kernel`)**:
-   - All transition and functional evaluation outcomes are standardized off of the native [`clm-kernel`](../../../node_modules/clm-kernel/README.md) core library:
+   - All transition and functional evaluation outcomes are standardized off of the native [`clm-kernel`](../../../../node_modules/clm-kernel/README.md) core library:
      - **Success**: Sealed with a `VCardResult` containing a cryptographic witness (`sealWitness` / `sealExecutionRecord`).
      - **Failure**: Explicitly categorized via `BailVerdict.bail(reason, invariantCode)`, sealed via `sealBailRecord`. *API note:* `BailVerdict` is a factory over a discriminated union (`{verdict:'pass'|'bail', reason, invariantCode}`) — there are no `BailVerdict.SyntaxError`-style enum members; failure categories travel as `invariantCode` strings (e.g. `'SYNTAX_ERROR'`, `'STALE_CONFLICT'`, `'CANCELLED'`, `'PROTOCOL_MISMATCH'`, `'COORDINATE_DRIFT'`).
      - **Atomic Rollback**: State transitions use `SavepointGuard` to ensure no partial state is retained upon failure.

@@ -14,5 +14,5 @@ Created an authored, human-readable root `Makefile` replacing the auto-generated
 
 ## Documents
 * **Master Specification:** [`SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md`](./SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md)
-* **Architecture Protocol Spec:** [`../../../architecture/SHARED-PROTOCOL-SPECIFICATION.md`](../../architecture/SHARED-PROTOCOL-SPECIFICATION.md)
+* **Architecture Protocol Spec:** [`../../../../architecture/SHARED-PROTOCOL-SPECIFICATION.md`](../../../architecture/SHARED-PROTOCOL-SPECIFICATION.md)
 * **Parent Proposal:** [`../20-24-algebraic-modularity-clm-and-build-unification/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md`](../20-24-algebraic-modularity-clm-and-build-unification/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)

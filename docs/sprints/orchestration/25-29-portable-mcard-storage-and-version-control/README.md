@@ -25,7 +25,7 @@ Establishes the architecture, mathematical foundations (Double Operadic Theory o
 ## Documents
 * **Master Proposal:** [`PROPOSAL-25-29-PORTABLE-MCARD-STORAGE-AND-VERSION-CONTROL.md`](./PROPOSAL-25-29-PORTABLE-MCARD-STORAGE-AND-VERSION-CONTROL.md)
 * **Upstream RFC:** [`RFC-CLM-002-OPERADIC-VFS.md`](./RFC-CLM-002-OPERADIC-VFS.md)
-* **Embedding Guide:** [`../../../integration/EMBEDDING-MCARD-VCS.md`](../../integration/EMBEDDING-MCARD-VCS.md)
+* **Embedding Guide:** [`../../../../integration/EMBEDDING-MCARD-VCS.md`](../../../integration/EMBEDDING-MCARD-VCS.md)
 * **Sprint 25:** [`../../corpus/25-isolated-mcard-storage-kernel-and-vfs/SPRINT-25-ISOLATED-MCARD-STORAGE-KERNEL-AND-VFS.md`](../../corpus/25-isolated-mcard-storage-kernel-and-vfs/SPRINT-25-ISOLATED-MCARD-STORAGE-KERNEL-AND-VFS.md)
 * **Sprint 26:** [`../../sync/26-content-addressed-version-control-and-merkle-lineage/SPRINT-26-CONTENT-ADDRESSED-VERSION-CONTROL-AND-MERKLE-LINEAGE.md`](../../sync/26-content-addressed-version-control-and-merkle-lineage/SPRINT-26-CONTENT-ADDRESSED-VERSION-CONTROL-AND-MERKLE-LINEAGE.md)
 * **Sprint 27:** [`../../orchestration/27-cordis-fiber-and-satori-protocol-adapters/SPRINT-27-CORDIS-FIBER-AND-SATORI-PROTOCOL-ADAPTERS.md`](../../orchestration/27-cordis-fiber-and-satori-protocol-adapters/SPRINT-27-CORDIS-FIBER-AND-SATORI-PROTOCOL-ADAPTERS.md)

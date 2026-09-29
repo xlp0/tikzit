@@ -3,14 +3,14 @@
 **Status:** Proposed; not started  
 **Primary Baldwin Operator:** Splitting ($\times$) & Porting ($\text{Lan}$)  
 **Primary Subsystem:** `parser` / `protocol-conformance`  
-**Depends on:** [Sprint 20](./SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md), [Sprint 21](./SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md)  
-**Parent Proposal:** [Sprints 20–24](./PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
+**Depends on:** [Sprint 20](../../orchestration/20-dual-system-makefile-and-shared-protocol/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md), [Sprint 21](../../sync/21-process-algebra-and-petri-net-lifecycle/SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md)  
+**Parent Proposal:** [Sprints 20–24](../../orchestration/20-24-algebraic-modularity-clm-and-build-unification/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
 
 ---
 
 ## 1. Objective
 
-Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) and the **Kenotic Principle of CLM** to decompose the 494-line monolithic TypeScript parser ([`src/core/parser/parser.ts`](../../../src/core/parser/parser.ts)) into pure, stateless grammar combinator **Functions** ($\le 180$ LOC each). Leave the native C++ Qt implementation in its original state as an immutable reference baseline, modifying C++ only if a logical parsing error is uncovered or to establish a minimal test runner bridge. Establish an automated **Dual-System Protocol Conformance Test Suite** proving categorical functorial isomorphism ($F_{\text{TS}} \cong F_{\text{CPP}}$) between the unmodified native C++ Flex/Bison engine and the decomposed browser TypeScript parser, certified by `clm-kernel` `VCardResult` witnesses.
+Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) and the **Kenotic Principle of CLM** to decompose the 494-line monolithic TypeScript parser ([`src/core/parser/parser.ts`](../../../../src/core/parser/parser.ts)) into pure, stateless grammar combinator **Functions** ($\le 180$ LOC each). Leave the native C++ Qt implementation in its original state as an immutable reference baseline, modifying C++ only if a logical parsing error is uncovered or to establish a minimal test runner bridge. Establish an automated **Dual-System Protocol Conformance Test Suite** proving categorical functorial isomorphism ($F_{\text{TS}} \cong F_{\text{CPP}}$) between the unmodified native C++ Flex/Bison engine and the decomposed browser TypeScript parser, certified by `clm-kernel` `VCardResult` witnesses.
 
 ---
 

@@ -3,18 +3,18 @@
 **Status:** Proposed; not started  
 **Primary Baldwin Operator:** Splitting ($\times$) & Augmenting ($+$)  
 **Primary Subsystem:** `interactions` / `styles` / `preview` / `shell`  
-**Depends on:** [Sprint 21](./SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md)  
-**Parent Proposal:** [Sprints 20–24](./PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
+**Depends on:** [Sprint 21](../../sync/21-process-algebra-and-petri-net-lifecycle/SPRINT-21-PROCESS-ALGEBRA-AND-PETRI-NET-LIFECYCLE.md)  
+**Parent Proposal:** [Sprints 20–24](../../orchestration/20-24-algebraic-modularity-clm-and-build-unification/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
 
 ---
 
 ## 1. Objective
 
 Apply Carliss Baldwin's **Splitting Operator** ($\mathcal{B}_{\text{split}}$) and the **Kenotic Principle of CLM** to decompose four monolithic user-interface "God components" that exceed the project's 450-line complexity ceiling:
-- [`src/components/workbench/panels/VersionPopover.tsx`](../../../src/components/workbench/panels/VersionPopover.tsx) (**739 lines**)
-- [`src/components/workbench/panels/PreviewPanel.tsx`](../../../src/components/workbench/panels/PreviewPanel.tsx) (**605 lines**)
-- [`src/components/workbench/CorpusExplorerDrawer.tsx`](../../../src/components/workbench/CorpusExplorerDrawer.tsx) (**572 lines**)
-- [`src/components/workbench/WorkbenchCommandBar.tsx`](../../../src/components/workbench/WorkbenchCommandBar.tsx) (**472 lines**)
+- [`src/components/workbench/panels/VersionPopover.tsx`](../../../../src/components/workbench/panels/VersionPopover.tsx) (**739 lines**)
+- [`src/components/workbench/panels/PreviewPanel.tsx`](../../../../src/components/workbench/panels/PreviewPanel.tsx) (**605 lines**)
+- [`src/components/workbench/CorpusExplorerDrawer.tsx`](../../../../src/components/workbench/CorpusExplorerDrawer.tsx) (**572 lines**)
+- [`src/components/workbench/WorkbenchCommandBar.tsx`](../../../../src/components/workbench/WorkbenchCommandBar.tsx) (**472 lines**)
 
 Refactor each into cohesive, single-responsibility sub-components strictly bounded to **$\le 250$ lines of code**. Empty each component of ambient mutable state, extract computation into pure mathematical **Functions**, govern user transitions with standardized `clm-kernel` verdicts (`VCardResult`, `BailVerdict.bail(reason, invariantCode)` — a factory + union, not an enum), and manage interactive lifecycles via `clm-kernel`'s `DisposableList` to eliminate information entanglement while guaranteeing 100% preservation of Contract B selectors.
 

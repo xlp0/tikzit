@@ -3,7 +3,7 @@
 **Status:** Canonical Reference Specification  
 **Version:** 1.0.0  
 **Scope:** Native C++ Qt6 Desktop & Web Spatial Workbench (Astro/TypeScript/Three.js)  
-**Parent Sprint:** [Sprint 20](../sprints/_active/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md)
+**Parent Sprint:** [Sprint 20](../sprints/orchestration/20-dual-system-makefile-and-shared-protocol/SPRINT-20-DUAL-SYSTEM-MAKEFILE-AND-SHARED-PROTOCOL.md)
 
 ---
 

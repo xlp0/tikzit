@@ -4,7 +4,7 @@
 **Primary Baldwin Operator:** Porting ($\text{Lan}$) & Substituting ($\simeq \implies =$)  
 **Primary Subsystem:** `orchestration` / `verification`  
 **Depends on:** Sprints 00–19  
-**Parent Proposal:** [Sprints 20–24](./PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
+**Parent Proposal:** [Sprints 20–24](../20-24-algebraic-modularity-clm-and-build-unification/PROPOSAL-20-24-ALGEBRAIC-MODULARITY-CLM-AND-BUILD-UNIFICATION.md)
 
 ---
 

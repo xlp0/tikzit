@@ -14,6 +14,6 @@ Created the universally embeddable `@clm/mcard-explorer` package providing a zer
 
 ## Documents
 * **Master Specification:** [`SPRINT-28-MCARD-STUDIO-PLUGIN-AND-CROSS-APPLICATION-BRIDGE.md`](./SPRINT-28-MCARD-STUDIO-PLUGIN-AND-CROSS-APPLICATION-BRIDGE.md)
-* **Embedding Guide:** [`../../../integration/EMBEDDING-MCARD-VCS.md`](../../integration/EMBEDDING-MCARD-VCS.md)
+* **Embedding Guide:** [`../../../../integration/EMBEDDING-MCARD-VCS.md`](../../../integration/EMBEDDING-MCARD-VCS.md)
 * **Upstream RFC:** [`../25-29-portable-mcard-storage-and-version-control/RFC-CLM-002-OPERADIC-VFS.md`](../25-29-portable-mcard-storage-and-version-control/RFC-CLM-002-OPERADIC-VFS.md)
 * **Parent Proposal:** [`../25-29-portable-mcard-storage-and-version-control/PROPOSAL-25-29-PORTABLE-MCARD-STORAGE-AND-VERSION-CONTROL.md`](../25-29-portable-mcard-storage-and-version-control/PROPOSAL-25-29-PORTABLE-MCARD-STORAGE-AND-VERSION-CONTROL.md)
