@@ -171,3 +171,69 @@ describe('studioMCardFs Port Conformance (ADR D54 / 37-DOD-17)', () => {
     expect(history[0].message).toBe('Studio commit');
   });
 });
+
+describe('toStudioTreeNode (ADR D54 / 38-DOD-17)', () => {
+  it('toStudioTreeNode maps StructureNode[] into studio TreeNode shape with exact field parity', async () => {
+    const { toStudioTreeNode } = await import('../../src/packages/mcard-explorer/zoom/adapters/studioTreeNode');
+    const nodes = [
+      {
+        id: 'table:users',
+        label: 'users',
+        kind: 'table' as const,
+        meta: { rowCount: 42 },
+        children: [
+          {
+            id: 'field:id',
+            label: 'id',
+            kind: 'field' as const
+          },
+          {
+            id: 'card:user-card',
+            label: 'user-card',
+            kind: 'card' as const,
+            handle: 'users:alice'
+          }
+        ]
+      }
+    ];
+
+    const treeNodes = toStudioTreeNode(nodes);
+    expect(treeNodes).toEqual([
+      {
+        name: 'users',
+        fullPath: 'table:users',
+        isDir: true,
+        file: {
+          handle: undefined,
+          kind: 'table',
+          meta: { rowCount: 42 }
+        },
+        children: [
+          {
+            name: 'id',
+            fullPath: 'table:users/field:id',
+            isDir: false,
+            file: {
+              handle: undefined,
+              kind: 'field',
+              meta: undefined
+            },
+            children: []
+          },
+          {
+            name: 'user-card',
+            fullPath: 'table:users/card:user-card',
+            isDir: false,
+            file: {
+              handle: 'users:alice',
+              kind: 'card',
+              meta: undefined
+            },
+            children: []
+          }
+        ]
+      }
+    ]);
+  });
+});
+

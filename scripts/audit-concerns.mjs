@@ -64,7 +64,28 @@ const THRESHOLDS = [
   { file: 'src/packages/mcard-explorer/ui/CardRow.tsx', max: 110 },
   { file: 'src/packages/mcard-explorer/ui/PositionGroupList.tsx', max: 90 },
   { file: 'src/packages/mcard-explorer/ui/usePortDrag.ts', max: 90 },
-  { file: 'src/packages/mcard-explorer/ui/CardCompositionSurface.tsx', max: 220 }
+  { file: 'src/packages/mcard-explorer/ui/CardCompositionSurface.tsx', max: 220 },
+
+  // Sprint 38: zoom subsystem
+  { file: 'src/packages/mcard-explorer/zoom/types.ts', max: 120 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/sqlite.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/satori.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/pcard.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/zx.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/tikz.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/markdown.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/json.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/namespace.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/providers/index.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/zoom/stack.ts', max: 160 },
+  { file: 'src/packages/mcard-explorer/zoom/boundary.ts', max: 130 },
+  { file: 'src/packages/mcard-explorer/zoom/navigation.ts', max: 110 },
+  { file: 'src/packages/mcard-explorer/zoom/adapters/studioTreeNode.ts', max: 60 },
+  { file: 'src/packages/mcard-explorer/zoom/index.ts', max: 50 },
+
+  // Sprint 38: UI viewlets
+  { file: 'src/packages/mcard-explorer/ui/PositionTree.tsx', max: 140 },
+  { file: 'src/packages/mcard-explorer/ui/ZoomBreadcrumb.tsx', max: 90 }
 ];
 
 let violations = 0;

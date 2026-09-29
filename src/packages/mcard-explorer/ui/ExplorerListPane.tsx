@@ -3,7 +3,7 @@ import React from 'react';
 import type { ExplorerCardSummaryDto, ExplorerTreeNode } from '../core/datasource/types';
 import type { Position, Direction } from '../poly/types';
 import type { PolyInterfaceRegistry } from '../poly/registry';
-import { MCardTree } from './MCardTree';
+import { PositionTree, type PositionTreeNode } from './PositionTree';
 
 export interface ExplorerListPaneProps {
   items: readonly ExplorerCardSummaryDto[];
@@ -40,8 +40,8 @@ export const ExplorerListPane: React.FC<ExplorerListPaneProps> = ({
 
   if (viewMode === 'tree') {
     return (
-      <MCardTree
-        nodes={tree as ExplorerTreeNode[]}
+      <PositionTree
+        nodes={tree as unknown as readonly PositionTreeNode[]}
         expandedFolders={expandedFolders as string[]}
         activeHandle={activeHandle}
         onToggleFolder={onToggleFolder}

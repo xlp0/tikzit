@@ -34,59 +34,26 @@ export function usePortDrag(): UsePortDragResult {
     setDragOverPort(null);
   }, []);
 
-  const resolveDropTargets = useCallback(
-    (targetCard: CardInterface): readonly CardPort[] => {
-      const current = draggedRef.current;
-      if (!current) return [];
-      if (current.cardHandle === targetCard.handle) return [];
+  const resolveDropTargets = useCallback((targetCard: CardInterface): readonly CardPort[] => {
+    const current = draggedRef.current;
+    if (!current || current.cardHandle === targetCard.handle) return [];
+    return targetCard.ports.filter((p) => {
+      if (current.port.direction === 'out' && p.direction === 'in') return portsCompatible(current.port, p).ok;
+      if (current.port.direction === 'in' && p.direction === 'out') return portsCompatible(p, current.port).ok;
+      return false;
+    });
+  }, []);
 
-      return targetCard.ports.filter((p) => {
-        if (current.port.direction === 'out' && p.direction === 'in') {
-          return portsCompatible(current.port, p).ok;
-        }
-        if (current.port.direction === 'in' && p.direction === 'out') {
-          return portsCompatible(p, current.port).ok;
-        }
-        return false;
-      });
-    },
-    []
-  );
+  const commitDrop = useCallback((targetHandle: string, targetPort: CardPort): Wire | null => {
+    const current = draggedRef.current;
+    if (!current || current.cardHandle === targetHandle) return null;
+    const isReverse = current.port.direction === 'in' && targetPort.direction === 'out';
+    const from = isReverse ? { handle: targetHandle, portId: targetPort.id } : { handle: current.cardHandle, portId: current.port.id };
+    const to = isReverse ? { handle: current.cardHandle, portId: current.port.id } : { handle: targetHandle, portId: targetPort.id };
+    endDrag();
+    return { from, to };
+  }, [endDrag]);
 
-  const commitDrop = useCallback(
-    (targetHandle: string, targetPort: CardPort): Wire | null => {
-      const current = draggedRef.current;
-      if (!current) return null;
-      if (current.cardHandle === targetHandle) return null;
-
-      let fromHandle = current.cardHandle;
-      let fromPortId = current.port.id;
-      let toHandle = targetHandle;
-      let toPortId = targetPort.id;
-
-      if (current.port.direction === 'in' && targetPort.direction === 'out') {
-        fromHandle = targetHandle;
-        fromPortId = targetPort.id;
-        toHandle = current.cardHandle;
-        toPortId = current.port.id;
-      }
-
-      endDrag();
-      return {
-        from: { handle: fromHandle, portId: fromPortId },
-        to: { handle: toHandle, portId: toPortId }
-      };
-    },
-    [endDrag]
-  );
-
-  return {
-    draggedPort,
-    dragOverPort,
-    startDrag,
-    setDragOver,
-    endDrag,
-    resolveDropTargets,
-    commitDrop
-  };
+  return { draggedPort, dragOverPort, startDrag, setDragOver, endDrag, resolveDropTargets, commitDrop };
 }
+

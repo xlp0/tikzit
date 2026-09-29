@@ -36,8 +36,10 @@ export type {
 // Universal UI Viewlets
 export { MCardExplorer } from './ui/MCardExplorer';
 export type { MCardExplorerProps } from './ui/MCardExplorer';
-export { MCardTree } from './ui/MCardTree';
-export type { MCardTreeProps } from './ui/MCardTree';
+export { PositionTree } from './ui/PositionTree';
+export type { PositionTreeProps, PositionTreeNode } from './ui/PositionTree';
+export { ZoomBreadcrumb } from './ui/ZoomBreadcrumb';
+export type { ZoomBreadcrumbProps } from './ui/ZoomBreadcrumb';
 export { MCardSearchBar } from './ui/MCardSearchBar';
 export type { MCardSearchBarProps } from './ui/MCardSearchBar';
 export { MCardEntryRow } from './ui/MCardEntryRow';
@@ -58,5 +60,8 @@ export * from './core';
 
 // MCard-First Card Algebra & Composition Surface (Sprint 37)
 export * from './cards';
+
+// Operadic Zoom & Multi-Level Navigation (Sprint 38)
+export * from './zoom';
 
 

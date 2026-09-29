@@ -18,8 +18,8 @@ The web workbench brings the complete TikZiT diagramming experience into modern 
 - **Dockview Spatial Workbench**: Fully customizable multi-dock workspace with draggable, collapsable panels for the canvas, source code editor, live TeX preview, style palette, and property inspector.
 - **Operadic MCard Virtual File System (`@clm/mcard-vcs`)**: Headless, zero-DOM storage subsystem grounded in `clm-kernel`'s `MCardFileSystem`. Formal bidirectional Conversational Lenses ($S \dashv G$), dispatch/callback event bus, pluggable storage backends (in-memory WASM SQLite, IndexedDB, Node.js filesystem), and nested ACID savepoints with automatic rollback.
 - **Content-Addressed Merkle DAG Version Control**: Mealy machine VCS engine ($O = \delta(s, i)$), BLAKE3 content-addressed DAG commits and trees, CAS branch references (`refs/heads/*`), Lowest Common Ancestor (LCA) traversal, multi-modal line/graph AST diffing, deterministic 3-way merge, and headless serializable Explorer query facade.
-- **Inverted Cordis Fibers & Satori Turn Pipeline**: Cordis Fibers (`mcard.storage`, `mcard.vcs`, `mcard.explorer`) with strict LIFO `DisposableList` teardown, Satori XML/JSON AST codecs (`<card>`, `<version-dag>`, `<diff-view>`, `<mcard-explorer>`), and a 5-phase conversational turn orchestrator.
-- **Reusable MCard Explorer Subsystem (`@clm/mcard-explorer`)**: Headless state engine (`MCardExplorerEngine`), pluggable `ExplorerActionRegistry`, host-agnostic presentation viewlets (`MCardExplorer`, `MCardTree`, `MCardSearchBar`, `MCardEntryRow`), canonical `mcard-studio` PTR plugin manifest (`createMCardVcsPlugin`), and cross-system conformance suites.
+- **Reusable MCard Explorer Subsystem (`@clm/mcard-explorer`)**: Headless state engine (`MCardExplorerEngine`), pluggable `ExplorerActionRegistry`, host-agnostic presentation viewlets (`MCardExplorer`, `PositionTree`, `ZoomBreadcrumb`, `MCardSearchBar`, `MCardEntryRow`), canonical `mcard-studio` PTR plugin manifest (`createMCardVcsPlugin`), and cross-system conformance suites.
+- **Operadic Zoom & Multi-Level Navigation (`@clm/mcard-explorer/zoom`)**: Pure headless zoom stack, Spencer Breiner polynomial fibration ($E \xrightarrow{\pi} B$), 8 modular structure providers (SQLite, Satori, PCard, ZX, TikZ, Markdown, JSON, namespace), Semagrams boundary consistency validation, and URL hash deep-link navigation.
 - **Petri Net Document Lifecycle & CSP Sync**: Formal marked Petri Net state machine (`DocumentProcess.ts`) guaranteeing token conservation and dirty-buffer protection during async persistence, coordinated via bounded CSP asynchronous channels (`SyncChannel.ts`).
 - **Unified Diagram Lifecycle & Version History**: User diagram creation (`zx:diagrams:UUID`), prominent Draft save affordance, session durability across reloads, and version history popover with non-destructive restore, preview, and comparison.
 - **Comprehensive Multi-Format Export**: Verbatim TikZ/TeX export, rendered vector SVG, raster PNG (1x, 2x, 4x), PDF generation via `pdf-lib`, and standalone sovereign SQLite `.db` collection export with complete lineage closure and `mcard-studio` round-trip verification.
@@ -93,12 +93,12 @@ tikzit/
 │   ├── gui/            # Native C++ Qt window, scene, and tool implementations (Reference)
 │   └── data/           # Native C++ graph and parser data structures (Reference)
 ├── docs/
-│   ├── sprints/        # Sprint specs (Sprints 00–37 Graduated; Sprints 38–40 Active in _active/)
+│   ├── sprints/        # Sprint specs (Sprints 00–38 Graduated; Sprints 39–40 Active in _active/)
 │   ├── integration/    # Third-party host embedding guides (EMBEDDING-MCARD-VCS.md)
 │   ├── examples/       # 12-diagram ZX-calculus reference corpus with SVGs
 │   ├── architecture/   # Architecture specifications (Shared Dual-System Protocol)
 │   └── changelog/      # Weekly changelog archive (YYYY-Www.md)
-├── tests/              # Vitest unit, integration, and conformance suites (670 tests)
+├── tests/              # Vitest unit, integration, and conformance suites (756 tests)
 ├── e2e/                # Playwright end-to-end and browser inspection scenarios
 ├── scripts/            # Build, testid audit, isolation, independence, and conformance scripts
 ├── images/             # Canonical application icon and tool SVGs

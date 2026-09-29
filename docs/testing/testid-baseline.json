@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-09-29T13:08:58.079Z",
-  "literalCount": 300,
-  "dynamicPrefixCount": 24,
+  "generatedAt": "2026-09-29T13:21:41.705Z",
+  "literalCount": 301,
+  "dynamicPrefixCount": 25,
   "literals": [
     "action-archive",
     "action-duplicate",
@@ -303,7 +303,8 @@
     "viewer-zoom-controls",
     "welcome-depressed-view",
     "workbench-root",
-    "yaml-metadata-badge"
+    "yaml-metadata-badge",
+    "zoom-breadcrumb"
   ],
   "dynamicPrefixes": [
     "action-",
@@ -329,6 +330,7 @@
     "tool-",
     "tree-item-",
     "version-row-",
-    "wire-"
+    "wire-",
+    "zoom-crumb-"
   ]
 }
