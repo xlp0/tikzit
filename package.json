@@ -15,6 +15,7 @@
     "build:corpus": "python3 docs/examples/build_examples.py",
     "verify:corpus": "python3 docs/examples/build_examples.py --verify-only",
     "bench": "vitest run tests/perf/benchmark.test.ts",
+    "seed:media": "node scripts/generate-media-fixtures.mjs",
     "predev": "node scripts/sync-desktop-icons.mjs",
     "prebuild": "node scripts/sync-desktop-icons.mjs"
   },
@@ -33,6 +34,7 @@
     "@types/three": "^0.186.0",
     "animejs": "^4.5.0",
     "astro": "^7.3.5",
+    "buffer": "^6.0.3",
     "clm-kernel": "^0.0.1",
     "cordis": "^4.0.0-rc.10",
     "dockview-react": "^8.3.1",

@@ -13,6 +13,7 @@ import { NodeFsStorageVFS } from './vfs/NodeFsStorageVFS';
 import { ContentHasher } from './hash/ContentHasher';
 import { VfsEventBus } from './events/VfsEventBus';
 import { SavepointGuard } from './kernel/SavepointGuard';
+import { CardTypeJudgeService } from '../type/CardTypeJudgeService';
 import type {
   ConversationalLens,
   CardView,
@@ -24,6 +25,7 @@ export class OperadicMCardVfs {
   private hasher = new ContentHasher();
   private eventBus = new VfsEventBus();
   private savepoints: SavepointGuard;
+  private judgeService = new CardTypeJudgeService();
 
   constructor(private vfs: StorageVFS) {
     this.savepoints = new SavepointGuard(vfs, this.eventBus);
@@ -58,9 +60,18 @@ export class OperadicMCardVfs {
     if (row.metadata) {
       try { parsedMetadata = JSON.parse(row.metadata); } catch { /* ignore */ }
     }
+    const userCompanion = parsedMetadata && '_userCompanion' in parsedMetadata
+      ? (parsedMetadata._userCompanion as Record<string, unknown>)
+      : parsedMetadata;
+    const tj = parsedMetadata?.typeJudgment as any;
     return {
       handle, hash, content: rawBytes, text: new TextDecoder().decode(rawBytes),
-      mimeType: row.mime_type, mcardType: row.mcard_type, companionMetadata: parsedMetadata, updatedAt
+      mimeType: row.mime_type, mcardType: row.mcard_type, companionMetadata: userCompanion, updatedAt,
+      typeJudgment: tj,
+      universe: (parsedMetadata?.universe as string) || tj?.universe || 'U0',
+      category: (parsedMetadata?.category as string) || tj?.category,
+      clmCategory: (parsedMetadata?.clmCategory as any) || tj?.clmCategory,
+      payloadKind: parsedMetadata?.payloadKind as any
     };
   }
 
@@ -77,6 +88,16 @@ export class OperadicMCardVfs {
     return this.mapCardRow(handle, hash, cardRows[0], updated_at);
   }
 
+  public async getContent(handle: string) {
+    const card = await this.get(handle);
+    if (!card) return null;
+    return {
+      handle: card.handle, hash: card.hash, content: card.content, text: card.text,
+      mimeType: card.mimeType, payloadKind: card.payloadKind as any,
+      typeJudgment: card.typeJudgment, metadata: card.companionMetadata
+    };
+  }
+
   public async getByHash(hash: string): Promise<CardView | null> {
     const rows = await this.vfs.query<any>(
       'mcard', 'SELECT content, mime_type, mcard_type, metadata, created_at FROM cards WHERE hash = ? LIMIT 1;', [hash]
@@ -87,18 +108,30 @@ export class OperadicMCardVfs {
 
   public async putCard(
     content: Uint8Array | string,
-    mimeType = 'application/json',
+    mimeType?: string,
     mcardType = 2,
     metadata?: Record<string, unknown>
   ): Promise<string> {
     const bytes = typeof content === 'string' ? new TextEncoder().encode(content) : content;
     const hash = this.hasher.hash(bytes);
     const now = new Date().toISOString();
-    const meta = metadata ? JSON.stringify(metadata) : null;
-    await this.vfs.execute(
-      'mcard',
+    const judgment = this.judgeService.judge({
+      data: bytes,
+      declaredMime: mimeType && mimeType !== 'application/json' ? mimeType : undefined
+    });
+    const finalMime = mimeType ?? judgment.mime;
+    const enrichedMeta = {
+      ...(metadata || {}),
+      universe: metadata?.universe ?? judgment.universe,
+      universeName: metadata?.universeName ?? judgment.universeName,
+      category: metadata?.category ?? judgment.category,
+      clmCategory: metadata?.clmCategory ?? judgment.clmCategory,
+      typeJudgment: metadata?.typeJudgment ?? judgment,
+      ...(metadata ? { _userCompanion: metadata } : {})
+    };
+    await this.vfs.execute('mcard',
       'INSERT OR IGNORE INTO cards (hash, content, mime_type, mcard_type, metadata, created_at) VALUES (?, ?, ?, ?, ?, ?);',
-      [hash, bytes, mimeType, mcardType, meta, now]
+      [hash, bytes, finalMime, mcardType, JSON.stringify(enrichedMeta), now]
     );
     return hash;
   }
@@ -111,29 +144,29 @@ export class OperadicMCardVfs {
     const bytes = typeof content === 'string' ? new TextEncoder().encode(content) : content;
     const hash = this.hasher.hash(bytes);
     const now = new Date().toISOString();
-    const mimeType = options.mimeType ?? 'text/plain';
+    const judgment = this.judgeService.judge({ data: bytes, handle, declaredMime: options.mimeType });
+    const mimeType = options.mimeType ?? judgment.mime;
     const mcardType = options.mcardType ?? 1;
-    const metadataStr = options.companionMetadata ? JSON.stringify(options.companionMetadata) : null;
+    const enrichedMeta = {
+      ...(options.companionMetadata || {}),
+      universe: options.universe ?? options.companionMetadata?.universe ?? judgment.universe,
+      universeName: options.companionMetadata?.universeName ?? judgment.universeName,
+      category: options.category ?? options.companionMetadata?.category ?? judgment.category,
+      clmCategory: options.clmCategory ?? options.companionMetadata?.clmCategory ?? judgment.clmCategory,
+      typeJudgment: options.typeJudgment ?? options.companionMetadata?.typeJudgment ?? judgment,
+      ...(options.companionMetadata ? { _userCompanion: options.companionMetadata } : {})
+    };
+    const metadataStr = JSON.stringify(enrichedMeta);
     const authorDid = options.authorDid ?? 'did:key:anonymous';
 
     await this.withSavepoint(`set_${handle}`, async () => {
-      await this.vfs.execute(
-        'mcard',
-        `INSERT OR IGNORE INTO cards (hash, content, mime_type, mcard_type, metadata, created_at)
-         VALUES (?, ?, ?, ?, ?, ?);`,
+      await this.vfs.execute('mcard',
+        'INSERT OR IGNORE INTO cards (hash, content, mime_type, mcard_type, metadata, created_at) VALUES (?, ?, ?, ?, ?, ?);',
         [hash, bytes, mimeType, mcardType, metadataStr, now]
       );
-
-      await this.vfs.execute(
-        'mcard',
-        `INSERT OR REPLACE INTO handles (handle, hash, updated_at) VALUES (?, ?, ?);`,
-        [handle, hash, now]
-      );
-
-      await this.vfs.execute(
-        'mcard',
-        `INSERT INTO handle_history (handle, hash, changed_at, author_did, message)
-         VALUES (?, ?, ?, ?, ?);`,
+      await this.vfs.execute('mcard', 'INSERT OR REPLACE INTO handles (handle, hash, updated_at) VALUES (?, ?, ?);', [handle, hash, now]);
+      await this.vfs.execute('mcard',
+        'INSERT INTO handle_history (handle, hash, changed_at, author_did, message) VALUES (?, ?, ?, ?, ?);',
         [handle, hash, now, authorDid, 'Card updated via Operadic lens']
       );
     });
@@ -163,8 +196,7 @@ export class OperadicMCardVfs {
   }
 
   public async has(handle: string): Promise<boolean> {
-    const rows = await this.vfs.query('mcard', 'SELECT 1 FROM handles WHERE handle = ? LIMIT 1;', [handle]);
-    return rows.length > 0;
+    return (await this.vfs.query('mcard', 'SELECT 1 FROM handles WHERE handle = ? LIMIT 1;', [handle])).length > 0;
   }
 
   public async delete(handle: string): Promise<boolean> {
@@ -176,25 +208,13 @@ export class OperadicMCardVfs {
 
   public async getHandleHistory(handle: string): Promise<Array<{ hash: string; changedAt: string; authorDid: string; message: string }>> {
     const rows = await this.vfs.query<{ hash: string; changed_at: string; author_did: string; message: string }>(
-      'mcard',
-      'SELECT hash, changed_at, author_did, message FROM handle_history WHERE handle = ? ORDER BY id DESC;',
-      [handle]
+      'mcard', 'SELECT hash, changed_at, author_did, message FROM handle_history WHERE handle = ? ORDER BY id DESC;', [handle]
     );
-    return rows.map(r => ({
-      hash: r.hash,
-      changedAt: r.changed_at,
-      authorDid: r.author_did,
-      message: r.message
-    }));
+    return rows.map(r => ({ hash: r.hash, changedAt: r.changed_at, authorDid: r.author_did, message: r.message }));
   }
 
-  public async exportSovereignDb(pillar: TriDatabasePillar = 'mcard'): Promise<Uint8Array> {
-    return await this.vfs.exportBinary(pillar);
-  }
-
-  public async exportBinary(pillar: TriDatabasePillar = 'mcard'): Promise<Uint8Array> {
-    return await this.vfs.exportBinary(pillar);
-  }
+  public exportSovereignDb = (pillar: TriDatabasePillar = 'mcard') => this.vfs.exportBinary(pillar);
+  public exportBinary = (pillar: TriDatabasePillar = 'mcard') => this.vfs.exportBinary(pillar);
 
   public async importBinary(pillar: TriDatabasePillar, data: Uint8Array): Promise<void> {
     await this.vfs.importBinary(pillar, data);
@@ -203,36 +223,22 @@ export class OperadicMCardVfs {
 
   public async verifyLensLaws(handle: string, val1: string, val2: string): Promise<LensLawVerificationResult> {
     const violations: string[] = [];
-
-    // Setup initial state
     await this.set(handle, val1);
     const initial = await this.get(handle);
-
-    // Law 1: Get-Put (Identity): S(s, G(s)) = s
     await this.set(handle, initial!.text);
     const afterGetPut = await this.get(handle);
     const getPutPassed = afterGetPut?.hash === initial?.hash;
     if (!getPutPassed) violations.push('Get-Put law violated');
-
-    // Law 2: Put-Get (Observation): G(S(s, b)) = b
     await this.set(handle, val2);
     const afterPutGet = await this.get(handle);
     const putGetPassed = afterPutGet?.text === val2;
     if (!putGetPassed) violations.push('Put-Get law violated');
-
-    // Law 3: Put-Put (Overwriting): S(S(s, b1), b2) = S(s, b2)
     await this.set(handle, val1);
     await this.set(handle, val2);
     const seq = await this.get(handle);
     const putPutPassed = seq?.text === val2;
     if (!putPutPassed) violations.push('Put-Put law violated');
-
-    return {
-      getPutPassed,
-      putGetPassed,
-      putPutPassed,
-      violations
-    };
+    return { getPutPassed, putGetPassed, putPutPassed, violations };
   }
 
   public async close(): Promise<void> {

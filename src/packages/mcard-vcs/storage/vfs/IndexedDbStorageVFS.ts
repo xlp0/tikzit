@@ -8,9 +8,12 @@
 
 import type { StorageVFS, TriDatabasePillar, QueryResultRow } from './types';
 import { MemoryStorageVFS } from './MemoryStorageVFS';
+import { getDdlForPillar } from '../schema/ddl';
 
 const IDB_DATABASE_NAME = 'clm_operadic_vfs';
 const IDB_STORE_NAME = 'sovereign_pillars';
+// v2: existing v1 databases may lack the object store — bump forces onupgradeneeded.
+const IDB_VERSION = 2;
 
 export class IndexedDbStorageVFS implements StorageVFS {
   private memVfs = new MemoryStorageVFS();
@@ -29,7 +32,7 @@ export class IndexedDbStorageVFS implements StorageVFS {
     if (!this.hasIndexedDb()) return Promise.resolve(null);
 
     return new Promise((resolve) => {
-      const request = globalThis.indexedDB.open(this.dbName, 1);
+      const request = globalThis.indexedDB.open(this.dbName, IDB_VERSION);
       request.onupgradeneeded = () => {
         const db = request.result;
         if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
@@ -56,6 +59,9 @@ export class IndexedDbStorageVFS implements StorageVFS {
           const bytes = await this.loadFromIdb(idb, pillar);
           if (bytes && bytes.length > 0) {
             await this.memVfs.importBinary(pillar, bytes);
+            // Persisted binaries may predate schema additions — re-run DDL
+            // (CREATE TABLE IF NOT EXISTS) so missing tables are healed.
+            await this.memVfs.execute(pillar, getDdlForPillar(pillar));
           }
         } catch { /* ignore */ }
       }
@@ -75,23 +81,34 @@ export class IndexedDbStorageVFS implements StorageVFS {
   }
 
   private async flushPillar(pillar: TriDatabasePillar): Promise<void> {
-    const idb = await this.openIdb();
-    if (!idb) return;
+    try {
+      const idb = await this.openIdb();
+      if (!idb) return;
 
-    const bytes = await this.memVfs.exportBinary(pillar);
-    return new Promise((resolve) => {
-      const tx = idb.transaction(IDB_STORE_NAME, 'readwrite');
-      const store = tx.objectStore(IDB_STORE_NAME);
-      store.put(bytes, pillar);
-      tx.oncomplete = () => {
-        idb.close();
-        resolve();
-      };
-      tx.onerror = () => {
-        idb.close();
-        resolve();
-      };
-    });
+      const bytes = await this.memVfs.exportBinary(pillar);
+      return await new Promise<void>((resolve) => {
+        try {
+          const tx = idb.transaction(IDB_STORE_NAME, 'readwrite');
+          const store = tx.objectStore(IDB_STORE_NAME);
+          store.put(bytes, pillar);
+          tx.oncomplete = () => {
+            idb.close();
+            resolve();
+          };
+          tx.onerror = () => {
+            idb.close();
+            resolve();
+          };
+        } catch {
+          // Store missing on a stale DB — degrade to memory-only instead of
+          // failing the caller's write (the in-memory commit already landed).
+          idb.close();
+          resolve();
+        }
+      });
+    } catch {
+      // Never let persistence flushing fail a successful in-memory write.
+    }
   }
 
   private savepointDepth = 0;

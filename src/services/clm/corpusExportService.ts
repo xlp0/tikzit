@@ -21,7 +21,7 @@ import {
   type CorpusSaveResult,
   type CorpusSaveStatus,
 } from './ExportFileBridge';
-import { getOperadicVfs } from './vcsAdapterInstance';
+import { getOperadicVfs, ensureVcsInitialized } from './vcsAdapterInstance';
 
 export type {
   CorpusSaveStatus,
@@ -84,7 +84,7 @@ export class CorpusExportService {
   }
 
   async exportSovereignVfsDb(pillar: 'mcard' | 'knowledge' | 'executionLog' = 'mcard'): Promise<Uint8Array> {
-    const vfs = getOperadicVfs();
+    const { vfs } = await ensureVcsInitialized();
     return vfs.exportBinary(pillar);
   }
 

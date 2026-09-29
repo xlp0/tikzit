@@ -10,7 +10,7 @@ import {
 } from 'clm-kernel';
 import { safeParse } from '../../core/parser/parser';
 import type { GraphAST, ParseDiagnostic } from '../../core/domain/types';
-import { getVcsEngine, getOperadicVfs } from './vcsAdapterInstance';
+import { getVcsEngine, getOperadicVfs, ensureVcsInitialized } from './vcsAdapterInstance';
 import type {
   CommitDocumentOptions, CommitDocumentResult, HistoryRow,
   DocumentHistoryResult, RestoreVersionOptions, RestoreVersionResult, SqlDatabaseQueryable
@@ -41,6 +41,14 @@ export class DocumentCommitService extends Service {
   private inMemoryTransitions = new Map<string, Array<{ hash: string; changedAt: string }>>();
   private vcs = getVcsEngine();
   private vfs = getOperadicVfs();
+
+  /** Sprint 35: dual-write into the sovereign VFS only after backend init —
+   *  previously these writes threw 'not initialized' and were swallowed. */
+  private vfsSet(handle: string, content: string): void {
+    void ensureVcsInitialized()
+      .then(() => this.vfs.set(handle, content, { mimeType: 'text/x-tikz', mcardType: 0x01 }))
+      .catch(() => undefined);
+  }
 
   constructor(
     ctx: Context, triDb: TriDatabaseManager, collection: MCardCollection,
@@ -100,7 +108,7 @@ export class DocumentCommitService extends Service {
     }
 
     this.collection.putWithHandle(candidateCard, options.handle);
-    void this.vfs.set(options.handle, options.sourceText, { mimeType: 'text/vnd.tikz', mcardType: 0x01 }).catch(() => undefined);
+    this.vfsSet(options.handle, options.sourceText);
 
     const list = this.inMemoryTransitions.get(options.handle) ?? [];
     list.push({ hash: candidateCard.hash.asHex(), changedAt: new Date().toISOString() });
@@ -203,7 +211,7 @@ export class DocumentCommitService extends Service {
     if (!parsed.success || !parsed.ast) return { status: 'invalid-card', reason: 'Historical card content failed syntax validation' };
 
     this.collection.putWithHandle(card, options.handle);
-    void this.vfs.set(options.handle, content, { mimeType: 'text/vnd.tikz', mcardType: 0x01 }).catch(() => undefined);
+    this.vfsSet(options.handle, content);
 
     const list = this.inMemoryTransitions.get(options.handle) ?? [];
     list.push({ hash: options.targetHash, changedAt: new Date().toISOString() });

@@ -1,0 +1,9 @@
+workbench:
+  name: TikZiT Multimodal Studio
+  version: 3.0.3
+  lattice:
+    levels: 6
+    stratified: true
+  features:
+    exportPng: true
+    exportPdf: true

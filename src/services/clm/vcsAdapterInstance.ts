@@ -79,9 +79,43 @@ export async function ensureVcsInitialized(): Promise<{
       }
       await vcs.init();
     })();
+    // A rejected init would otherwise poison every future call — clear so retry works.
+    initPromise.catch(() => { initPromise = null; });
   }
   await initPromise;
   return { vfs, vcs, facade, registry };
+}
+
+/**
+ * Sprint 35 Phase C: one-way backfill of corpus diagram cards into the
+ * sovereign VFS. Historical diagram commits were written only to the
+ * mcardCollection pillar (DocumentCommitService's VFS writes were swallowed
+ * pre-init), so the generic MCard view needs this sync to surface them.
+ * Idempotent: handles already present in the VFS are skipped.
+ */
+export async function syncCorpusIntoVfs(
+  entries: Array<{ handle: string }>,
+  readText: (handle: string) => string | null,
+  authorDid?: string
+): Promise<number> {
+  const { vfs } = await ensureVcsInitialized();
+  let synced = 0;
+  for (const entry of entries) {
+    try {
+      if (await vfs.has(entry.handle)) continue;
+      const text = readText(entry.handle);
+      if (text == null) continue;
+      await vfs.set(entry.handle, text, {
+        mimeType: 'text/x-tikz',
+        authorDid: authorDid ?? 'did:key:interactive-user',
+        universe: 'U0',
+        category: 'diagram',
+        companionMetadata: { syncedFrom: 'corpus' },
+      });
+      synced++;
+    } catch { /* skip unreadable entries */ }
+  }
+  return synced;
 }
 
 export function resetVcsAdapterForTesting(): void {

@@ -7,6 +7,7 @@ This guide outlines how to embed the Operadic Virtual File System (`@clm/mcard-v
 ## 1. Architecture & Invariants
 
 The subsystem is built on **Double Operadic Theory of Systems (DOTS)** and enforces:
+
 - **Dependency Inversion ($\dashv$)**: Context is passed IN, never imported.
 - **Hermetic Isolation (Contract E)**: Zero DOM globals (`window`, `document`, `HTMLElement`) in the core engines.
 - **Contract D**: Every module strictly satisfies $\le 250$ LOC.

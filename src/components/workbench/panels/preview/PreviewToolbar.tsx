@@ -17,6 +17,8 @@ export interface PreviewToolbarProps {
   showExportMenu: boolean;
   onToggleExportMenu: () => void;
   onExport: (format: 'svg' | 'png' | 'pdf' | 'tex') => void;
+  /** Sprint 35 Phase B: commit the selected format artifact to the sovereign VFS. */
+  onSaveToDatabase?: (format: 'tikz' | 'tex' | 'svg' | 'png' | 'pdf') => void;
   onToggleLogs: () => void;
   onTogglePreamble: () => void;
 }
@@ -34,6 +36,7 @@ export const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
   showExportMenu,
   onToggleExportMenu,
   onExport,
+  onSaveToDatabase,
   onToggleLogs,
   onTogglePreamble,
 }) => {
@@ -93,12 +96,24 @@ export const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
           </button>
 
           {showExportMenu && (
-            <div data-testid="preview-export-menu" className="absolute right-0 top-full mt-1 w-32 bg-neutral-900 border border-neutral-700 rounded shadow-xl py-1 z-30 flex flex-col">
+            <div data-testid="preview-export-menu" className="absolute right-0 top-full mt-1 w-44 bg-neutral-900 border border-neutral-700 rounded shadow-xl py-1 z-30 flex flex-col">
+              <div className="px-3 pt-1 pb-0.5 text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">Save to Disk</div>
               <button data-testid="btn-export-svg" onClick={() => onExport('svg')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Export SVG</button>
               <button data-testid="btn-export-png" onClick={() => onExport('png')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Export PNG</button>
               <button data-testid="btn-export-pdf" onClick={() => onExport('pdf')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Export PDF</button>
               <button data-testid="btn-export-tikz" onClick={() => onExport('tex')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Export TikZ</button>
               <button data-testid="btn-export-tex" onClick={() => onExport('tex')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Export TeX</button>
+              {onSaveToDatabase && (
+                <>
+                  <div className="border-t border-neutral-700 my-0.5" />
+                  <div data-testid="export-group-database-preview" className="px-3 pt-1 pb-0.5 text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">Save to Database</div>
+                  <button data-testid="btn-save-to-database" onClick={() => onSaveToDatabase('tikz')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Commit TikZ Source</button>
+                  <button data-testid="btn-db-tex" onClick={() => onSaveToDatabase('tex')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Commit TeX Document</button>
+                  <button data-testid="btn-db-svg" onClick={() => onSaveToDatabase('svg')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Commit Rendered SVG</button>
+                  <button data-testid="btn-db-png" onClick={() => onSaveToDatabase('png')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Commit PNG Image</button>
+                  <button data-testid="btn-db-pdf" onClick={() => onSaveToDatabase('pdf')} className="px-3 py-1 text-left text-xs hover:bg-neutral-800">Commit PDF Document</button>
+                </>
+              )}
             </div>
           )}
         </div>

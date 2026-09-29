@@ -132,3 +132,18 @@ export type {
   PtrTransitionDefinition
 } from './plugin/types';
 
+// Type Judgment & Stratified Type Lattice
+export {
+  CardTypeJudgeService,
+  registerTypeJudgeService
+} from './type/CardTypeJudgeService';
+export type {
+  CardCategory,
+  ExtendedTypeJudgment,
+  TypeJudgeOptions
+} from './type/types';
+export {
+  universeLevelOf,
+  universeNameOf
+} from './type/types';
+

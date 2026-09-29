@@ -1,0 +1,5 @@
+id,name,role,status,confidence
+1,Alice,Theorist,active,0.99
+2,Bob,Engineer,active,0.95
+3,Carol,Auditor,verified,1.00
+4,Dave,Verifier,pending,0.88

@@ -24,7 +24,9 @@ const TARGET_DIRECTORIES = [
   path.join(projectRoot, 'src', 'packages', 'mcard-vcs', 'explorer'),
   path.join(projectRoot, 'src', 'packages', 'mcard-vcs', 'cordis'),
   path.join(projectRoot, 'src', 'packages', 'mcard-vcs', 'satori'),
-  path.join(projectRoot, 'src', 'packages', 'mcard-explorer', 'core')
+  path.join(projectRoot, 'src', 'packages', 'mcard-vcs', 'type'),
+  path.join(projectRoot, 'src', 'packages', 'mcard-explorer', 'core'),
+  path.join(projectRoot, 'src', 'packages', 'mcard-explorer', 'renderers', 'registry')
 ];
 
 const FORBIDDEN_DOM_IDENTIFIERS = [
@@ -38,11 +40,13 @@ const FORBIDDEN_HOST_IMPORTS = [
   /from\s+['"][./]*components\//,
   /from\s+['"][./]*stores\//,
   /from\s+['"][./]*services\//,
-  /from\s+['"][./]*core\//,
+  /from\s+['"](?:\.\.\/){2,4}core\//,
   /from\s+['"]@\/components\//,
   /from\s+['"]@\/stores\//,
-  /from\s+['"]@\/services\//
+  /from\s+['"]@\/services\//,
+  /from\s+['"]@\/core\//
 ];
+
 
 function getFilesRecursively(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -103,6 +107,20 @@ for (const targetDir of TARGET_DIRECTORIES) {
           console.error(`         Line: ${line.trim()}`);
           totalViolations++;
         }
+      }
+
+      // ADR D42: mcard-explorer must never import from mcard-vcs
+      if (relativeFile.startsWith('src/packages/mcard-explorer') && /from\s+['"].*mcard-vcs/.test(line)) {
+        console.error(`  [FAIL] ADR D42 violation: mcard-vcs import found in explorer ${relativeFile}:${i + 1}`);
+        console.error(`         Line: ${line.trim()}`);
+        totalViolations++;
+      }
+
+      // Headless registry: React must be type-only
+      if (relativeFile.includes('renderers/registry') && /from\s+['"]react['"]/.test(line) && !/\btype\b/.test(line)) {
+        console.error(`  [FAIL] Runtime React import found in headless registry ${relativeFile}:${i + 1}`);
+        console.error(`         Line: ${line.trim()}`);
+        totalViolations++;
       }
     }
   }

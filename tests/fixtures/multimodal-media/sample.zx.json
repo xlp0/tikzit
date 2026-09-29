@@ -1,0 +1,30 @@
+{
+  "format": "zx-graph",
+  "spiders": [
+    {
+      "id": "s1",
+      "spider_type": "Z",
+      "phase": "0",
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "s2",
+      "spider_type": "X",
+      "phase": "pi",
+      "position": [
+        2,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "s1",
+      "target": "s2",
+      "hadamard": true
+    }
+  ]
+}

@@ -96,6 +96,7 @@ export interface WorkbenchStores {
   readonly $styleFileBuffer: WritableAtom<string>;
   readonly $diagramSaveState: MapStore<Record<string, DiagramSaveState>>;
   readonly $dismissedDraftCallouts: WritableAtom<string[]>;
+  readonly $previewCardHandle: WritableAtom<string>;
   readonly $exportDialogState: WritableAtom<ExportDialogState>;
   readonly $exportCollectionDialogState: WritableAtom<ExportCollectionDialogState>;
 }
@@ -147,6 +148,7 @@ export function createWorkbenchStores(): WorkbenchStores {
     $styleFileBuffer: atom<string>(''),
     $diagramSaveState: map<Record<string, DiagramSaveState>>({}),
     $dismissedDraftCallouts: atom<string[]>([]),
+    $previewCardHandle: atom<string>(''),
     $exportDialogState: atom<ExportDialogState>({ isOpen: false }),
     $exportCollectionDialogState: atom<ExportCollectionDialogState>({
       isOpen: false,

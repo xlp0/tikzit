@@ -1,0 +1,47 @@
+{
+  "places": [
+    {
+      "id": "p_init",
+      "label": "Ready",
+      "tokens": 1
+    },
+    {
+      "id": "p_exec",
+      "label": "Running",
+      "tokens": 0
+    },
+    {
+      "id": "p_done",
+      "label": "Finished",
+      "tokens": 0
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t_start",
+      "label": "Initiate"
+    },
+    {
+      "id": "t_finish",
+      "label": "Complete"
+    }
+  ],
+  "arcs": [
+    {
+      "source": "p_init",
+      "target": "t_start"
+    },
+    {
+      "source": "t_start",
+      "target": "p_exec"
+    },
+    {
+      "source": "p_exec",
+      "target": "t_finish"
+    },
+    {
+      "source": "t_finish",
+      "target": "p_done"
+    }
+  ]
+}

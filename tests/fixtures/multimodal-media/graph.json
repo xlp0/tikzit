@@ -1,0 +1,41 @@
+{
+  "title": "Entanglement Distribution",
+  "nodes": [
+    {
+      "id": "alice",
+      "label": "Station A",
+      "coords": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "relay",
+      "label": "Quantum Relay",
+      "coords": [
+        5,
+        2
+      ]
+    },
+    {
+      "id": "bob",
+      "label": "Station B",
+      "coords": [
+        10,
+        0
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "alice",
+      "to": "relay",
+      "bellState": "Phi+"
+    },
+    {
+      "from": "relay",
+      "to": "bob",
+      "bellState": "Psi+"
+    }
+  ]
+}

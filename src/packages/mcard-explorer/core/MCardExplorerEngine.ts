@@ -5,21 +5,15 @@
  * Zero DOM dependencies. Contract D ceiling: <= 250 LOC.
  */
 
-import {
-  ExplorerQueryFacade,
-  type ExplorerCardSummaryDto
-} from '../../mcard-vcs/explorer/ExplorerQueryFacade';
+import type {
+  ExplorerDataSource,
+  ExplorerCardSummaryDto,
+  ExplorerTreeNode,
+  ExplorerSearchFilter
+} from './datasource/types';
 import { ExplorerActionRegistry, type ActionResult } from '../actions/ExplorerActionRegistry';
 
-export interface ExplorerTreeNode {
-  name: string;
-  path: string;
-  isFolder: boolean;
-  handle?: string;
-  hash?: string;
-  mimeType?: string;
-  children?: ExplorerTreeNode[];
-}
+export type { ExplorerTreeNode };
 
 export interface ExplorerState {
   query: string;
@@ -38,7 +32,7 @@ export class MCardExplorerEngine {
   private listeners = new Set<(state: ExplorerState) => void>();
 
   constructor(
-    private queryFacade: ExplorerQueryFacade,
+    private queryFacade: ExplorerDataSource,
     private actionRegistry: ExplorerActionRegistry = new ExplorerActionRegistry()
   ) {
     this.state = {
@@ -60,6 +54,14 @@ export class MCardExplorerEngine {
 
   public async init(): Promise<void> {
     await this.refresh();
+  }
+
+  public getDataSource(): ExplorerDataSource {
+    return this.queryFacade;
+  }
+
+  public async getContent(handle: string) {
+    return this.queryFacade.getContent(handle);
   }
 
   public async setQuery(query: string): Promise<void> {
@@ -148,7 +150,13 @@ export class MCardExplorerEngine {
             name: part,
             path: accumulatedPath,
             isFolder: !isLeaf,
-            ...(isLeaf ? { handle: item.handle, hash: item.hash, mimeType: item.mimeType } : { children: [] })
+            ...(isLeaf ? {
+              handle: item.handle,
+              hash: item.hash,
+              mimeType: item.mimeType,
+              universe: item.universe,
+              category: item.clmCategory || item.category
+            } : { children: [] })
           };
           currentLevel.push(node);
         }

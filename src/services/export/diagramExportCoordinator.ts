@@ -18,7 +18,17 @@ export interface ExportDiagramOptions {
   sourceKind: 'current' | 'saved';
   pngScale?: 1 | 2 | 4;
   environment?: SaveArtifactEnvironment;
+  sourceText?: string;
 }
+
+/**
+ * Sprint 35 Phase B: generated artifact without delivery.
+ * Disk export = generateDiagramArtifact + saveArtifact.
+ * Database commit = generateDiagramArtifact + cardPersistenceService.
+ */
+export type GeneratedDiagramArtifact =
+  | { status: 'success'; filename: string; mimeType: string; payload: string | Blob }
+  | { status: 'failure'; error: string; code?: string };
 
 export class DiagramExportCoordinator {
   constructor(
@@ -67,40 +77,40 @@ export class DiagramExportCoordinator {
     this.stores.$exportDialogState.set({ ...current, isOpen: false });
   }
 
-  public async exportDiagramArtifact(options: ExportDiagramOptions): Promise<SaveArtifactResult> {
+  public async generateDiagramArtifact(options: ExportDiagramOptions): Promise<GeneratedDiagramArtifact> {
     const wsDoc = defaultWorkspaceManager.getOpenDocuments().find((d) => d.id === options.handle);
     const entry = this.corpusExplorer.listCorpusEntries({ includeArchived: true }).entries.find((e) => e.handle === options.handle);
     const title = wsDoc?.title || entry?.title || 'diagram';
 
-    let sourceText = '';
-    if (options.sourceKind === 'current' && wsDoc) {
-      sourceText = wsDoc.content;
-    } else {
-      try {
-        const headHash = this.mcardCollection.resolveHandle(options.handle);
-        if (headHash) {
-          const card = this.mcardCollection.get(headHash);
-          if (card && card.payload.kind === 'text') sourceText = card.payload.value;
+    let sourceText = options.sourceText ?? '';
+    if (!sourceText) {
+      if (options.sourceKind === 'current' && wsDoc) {
+        sourceText = wsDoc.content;
+      } else {
+        try {
+          const headHash = this.mcardCollection.resolveHandle(options.handle);
+          if (headHash) {
+            const card = this.mcardCollection.get(headHash);
+            if (card && card.payload.kind === 'text') sourceText = card.payload.value;
+          }
+        } catch {
+          // Ignore
         }
-      } catch {
-        // Ignore
+        if (!sourceText && wsDoc) sourceText = wsDoc.content;
       }
-      if (!sourceText && wsDoc) sourceText = wsDoc.content;
     }
 
     const styles = this.stores.$stylesCatalog.get();
 
     switch (options.format) {
       case 'tikz': {
-        const rawName = sanitizeFilename(title, 'tikz');
-        const filename = defaultFilenameCollisionTracker.getUniqueFilename(rawName);
-        return saveArtifact(sourceText, filename, { mimeType: 'text/plain' }, options.environment);
+        const filename = defaultFilenameCollisionTracker.getUniqueFilename(sanitizeFilename(title, 'tikz'));
+        return { status: 'success', filename, mimeType: 'text/x-tikz', payload: sourceText };
       }
       case 'tex': {
         const texDoc = ImageExporter.generateStandaloneTex(sourceText, styles);
-        const rawName = sanitizeFilename(title, 'tex');
-        const filename = defaultFilenameCollisionTracker.getUniqueFilename(rawName);
-        return saveArtifact(texDoc, filename, { mimeType: 'application/x-latex' }, options.environment);
+        const filename = defaultFilenameCollisionTracker.getUniqueFilename(sanitizeFilename(title, 'tex'));
+        return { status: 'success', filename, mimeType: 'application/x-latex', payload: texDoc };
       }
       case 'svg': {
         const parsed = safeParse(sourceText);
@@ -108,9 +118,8 @@ export class DiagramExportCoordinator {
           return { status: 'failure', error: 'Diagram source contains syntax errors', code: 'ParseError' };
         }
         const svgBlob = ImageExporter.generateSvgBlob(parsed.ast, styles, { scale: 60, padding: 40 });
-        const rawName = sanitizeFilename(title, 'svg');
-        const filename = defaultFilenameCollisionTracker.getUniqueFilename(rawName);
-        return saveArtifact(svgBlob, filename, { mimeType: 'image/svg+xml' }, options.environment);
+        const filename = defaultFilenameCollisionTracker.getUniqueFilename(sanitizeFilename(title, 'svg'));
+        return { status: 'success', filename, mimeType: 'image/svg+xml', payload: svgBlob };
       }
       case 'png': {
         const parsed = safeParse(sourceText);
@@ -119,9 +128,8 @@ export class DiagramExportCoordinator {
         }
         try {
           const pngBlob = await ImageExporter.generatePngBlob(parsed.ast, styles, { scaleFactor: options.pngScale ?? 2 });
-          const rawName = sanitizeFilename(title, 'png');
-          const filename = defaultFilenameCollisionTracker.getUniqueFilename(rawName);
-          return saveArtifact(pngBlob, filename, { mimeType: 'image/png' }, options.environment);
+          const filename = defaultFilenameCollisionTracker.getUniqueFilename(sanitizeFilename(title, 'png'));
+          return { status: 'success', filename, mimeType: 'image/png', payload: pngBlob };
         } catch (pngErr) {
           return { status: 'failure', error: pngErr instanceof Error ? pngErr.message : String(pngErr), code: 'PngGenerationError' };
         }
@@ -132,10 +140,15 @@ export class DiagramExportCoordinator {
           return { status: 'failure', error: 'Diagram source contains syntax errors', code: 'ParseError' };
         }
         const pdfBlob = PdfExporter.generatePdfBlob(parsed.ast, styles);
-        const rawName = sanitizeFilename(title, 'pdf');
-        const filename = defaultFilenameCollisionTracker.getUniqueFilename(rawName);
-        return saveArtifact(pdfBlob, filename, { mimeType: 'application/pdf' }, options.environment);
+        const filename = defaultFilenameCollisionTracker.getUniqueFilename(sanitizeFilename(title, 'pdf'));
+        return { status: 'success', filename, mimeType: 'application/pdf', payload: pdfBlob };
       }
     }
+  }
+
+  public async exportDiagramArtifact(options: ExportDiagramOptions): Promise<SaveArtifactResult> {
+    const generated = await this.generateDiagramArtifact(options);
+    if (generated.status === 'failure') return generated;
+    return saveArtifact(generated.payload, generated.filename, { mimeType: generated.mimeType }, options.environment);
   }
 }

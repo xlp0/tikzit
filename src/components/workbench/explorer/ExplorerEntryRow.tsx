@@ -33,6 +33,7 @@ export interface ExplorerEntryRowProps {
   onDuplicate: (handle: string) => void;
   onToggleArchive: (handle: string, archived: boolean) => void;
   onExport: (handle: string) => void;
+  onPreview?: (handle: string) => void;
 }
 
 export const ExplorerEntryRow: React.FC<ExplorerEntryRowProps> = ({
@@ -50,6 +51,7 @@ export const ExplorerEntryRow: React.FC<ExplorerEntryRowProps> = ({
   onDuplicate,
   onToggleArchive,
   onExport,
+  onPreview,
 }) => {
   const isMenuOpen = openMenuHandle === item.handle;
   const isEditing = editingHandle === item.handle;
@@ -129,6 +131,7 @@ export const ExplorerEntryRow: React.FC<ExplorerEntryRowProps> = ({
             <button data-testid="action-rename" onClick={() => onStartRename(item)} className="px-3 py-1 text-left hover:bg-neutral-800">Rename</button>
             <button data-testid="action-duplicate" onClick={() => onDuplicate(item.handle)} className="px-3 py-1 text-left hover:bg-neutral-800">Duplicate</button>
             <button data-testid="row-export-diagram" onClick={() => onExport(item.handle)} className="px-3 py-1 text-left hover:bg-neutral-800">Export...</button>
+            <button data-testid="btn-preview-card" onClick={() => onPreview?.(item.handle)} className="px-3 py-1 text-left hover:bg-neutral-800 text-sky-400">Preview</button>
             {item.archived ? (
               <button
                 data-testid="action-unarchive"

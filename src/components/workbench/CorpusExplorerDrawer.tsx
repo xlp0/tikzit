@@ -1,7 +1,9 @@
 /**
- * src/components/workbench/CorpusExplorerDrawer.tsx - Sprint 29
+ * src/components/workbench/CorpusExplorerDrawer.tsx - Sprint 29 + Sprint 35 Phase C
  * Refactored CorpusExplorerDrawer container mounting explorer components.
- * Target: <= 150 LOC. Satisfies Contract D (ceiling 180 LOC) & Contract B.
+ * Sprint 35: adds a Diagrams | MCards view switcher — the generic MCard tree
+ * view exposes every card in the sovereign VFS, not just diagram handles.
+ * Satisfies Contract D (ceiling 250 LOC) & Contract B.
  */
 import React, { useEffect, useState, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
@@ -10,6 +12,7 @@ import { isDiagramHandle } from '../../services/clm/corpusPersistence';
 import { defaultWorkspaceManager } from '../../services/workspace/WorkspaceManager';
 import { ExplorerSearchBar } from './explorer/ExplorerSearchBar';
 import { ExplorerSectionList } from './explorer/ExplorerSectionList';
+import { MCardExplorerPane } from './MCardExplorerPane';
 import type { ExplorerItem } from './explorer/ExplorerEntryRow';
 
 export interface CorpusExplorerDrawerProps {
@@ -37,6 +40,7 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
   const [editingHandle, setEditingHandle] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
+  const [drawerView, setDrawerView] = useState<'diagrams' | 'mcards'>('diagrams');
 
   useEffect(() => defaultWorkspaceManager.subscribe((s) => setOpenDocs([...s.openDocs])), []);
   useEffect(() => {
@@ -113,6 +117,38 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
         </div>
       )}
 
+      {/* Sprint 35 Phase C: two-view switcher — diagram index vs generic MCard tree */}
+      <div className="flex items-center gap-1 px-2 pt-2 pb-1" data-testid="drawer-view-switcher">
+        <button
+          type="button"
+          data-testid="drawer-view-diagrams"
+          onClick={() => setDrawerView('diagrams')}
+          className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
+            drawerView === 'diagrams'
+              ? 'bg-sky-700 text-white'
+              : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+          }`}
+        >
+          Diagrams
+        </button>
+        <button
+          type="button"
+          data-testid="drawer-view-mcards"
+          onClick={() => setDrawerView('mcards')}
+          className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
+            drawerView === 'mcards'
+              ? 'bg-sky-700 text-white'
+              : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+          }`}
+        >
+          MCards
+        </button>
+      </div>
+
+      {drawerView === 'mcards' ? (
+        <MCardExplorerPane runtime={runtime} onAnnouncement={setLiveAnnouncement} />
+      ) : (
+        <>
       <ExplorerSearchBar
         query={corpusQuery}
         onQueryChange={(q) => runtime.stores.$corpusQuery.set(q)}
@@ -147,7 +183,14 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
         onDuplicate={(h) => { runtime.duplicateDiagram(h); setOpenMenuHandle(null); }}
         onToggleArchive={(h, arch) => { runtime.archiveDiagram(h, arch); setOpenMenuHandle(null); }}
         onExport={(h) => { runtime.openExportDialog(h); setOpenMenuHandle(null); }}
+        onPreview={(h) => {
+          runtime.stores.$previewCardHandle.set(h);
+          setLiveAnnouncement(`Previewing card ${h}`);
+          setOpenMenuHandle(null);
+        }}
       />
+        </>
+      )}
 
       <div data-testid="corpus-persistence-state" className="p-2 border-t border-neutral-800 text-[10px] text-neutral-500 font-mono flex items-center justify-between">
         <span>Storage: {corpusView.persistence}</span>

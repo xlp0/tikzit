@@ -1,0 +1,13 @@
+{
+  "sandwich": {
+    "precondition": "x >= 0",
+    "program": "y = sqrt(x)",
+    "postcondition": "y * y == x"
+  },
+  "receipt": {
+    "witnessHash": "blake3:8f4c2e1b9a7d3f5e",
+    "authorDid": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+    "verified": true,
+    "timestamp": "2026-09-29T12:00:00Z"
+  }
+}

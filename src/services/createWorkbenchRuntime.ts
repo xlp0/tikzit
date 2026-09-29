@@ -26,8 +26,20 @@ import { SyncChannel } from './sync/SyncChannel';
 import { StorageSupervisor } from './storage/StorageSupervisor';
 import { DiagramExportCoordinator, type ExportDiagramOptions } from './export/diagramExportCoordinator';
 import { bootstrapWorkbenchRuntime } from './runtimeBootstrap';
+import { registerViewerActions } from './clm/viewerActionBridge';
+import { commitExportedArtifact, type CommitCardResult } from './clm/cardPersistenceService';
+import { getExplorerActionRegistry, getExplorerQueryFacade } from './clm/vcsAdapterInstance';
 
 export type { ExportDiagramOptions };
+
+/** Sprint 35 Phase B: commit a rendered diagram artifact into the sovereign VFS. */
+export interface CommitDiagramDbOptions {
+  handle: string;
+  format: 'tikz' | 'tex' | 'svg' | 'png' | 'pdf';
+  sourceKind?: 'current' | 'saved';
+  pngScale?: 1 | 2 | 4;
+  sourceText?: string;
+}
 
 export interface RuntimeBootstrap {
   storage: SqlJsTriDatabaseRuntime;
@@ -76,6 +88,8 @@ export interface WorkbenchRuntime {
   openExportDialog(handle?: string): void;
   closeExportDialog(): void;
   exportDiagramArtifact(options: ExportDiagramOptions): Promise<SaveArtifactResult>;
+  /** Sprint 35 Phase B: generate a rendered artifact and commit it to the sovereign VFS (no file picker). */
+  commitDiagramArtifactToDatabase(options: CommitDiagramDbOptions): Promise<CommitCardResult>;
   openExportCollectionDialog(): Promise<void>;
   closeExportCollectionDialog(): void;
   exportCollectionArtifact(environment?: CorpusSaveEnvironment): Promise<CorpusSaveResult>;
@@ -127,6 +141,10 @@ function buildWorkbenchRuntime(options: WorkbenchRuntimeOptions = {}, bootstrap?
     disposers.push(() => window.removeEventListener('pagehide', onPageHide));
   }
   disposers.push(bindCordisToNanostores(ctx, stores));
+  // Sprint 35: register MCard viewer/export actions so Export ▾ dispatch works in production.
+  disposers.push(registerViewerActions(getExplorerActionRegistry(), exportCoordinator, getExplorerQueryFacade(), {
+    openInCanvas: async (h) => { if (isDiagramHandle(h)) tabController.openCorpusEntry(h); },
+  }));
   disposers.push(defaultWorkspaceManager.subscribe(() => {
     const active = defaultWorkspaceManager.getActiveDocument();
     if (!active || isDiagramHandle(active.id)) return;
@@ -257,6 +275,13 @@ function buildWorkbenchRuntime(options: WorkbenchRuntimeOptions = {}, bootstrap?
     openExportDialog: (handle) => exportCoordinator.openExportDialog(handle),
     closeExportDialog: () => exportCoordinator.closeExportDialog(),
     exportDiagramArtifact: (opts) => exportCoordinator.exportDiagramArtifact(opts),
+    commitDiagramArtifactToDatabase: (opts) => commitExportedArtifact(exportCoordinator, {
+      sourceHandle: opts.handle,
+      format: opts.format,
+      sourceKind: opts.sourceKind,
+      pngScale: opts.pngScale,
+      sourceText: opts.sourceText,
+    }),
     openExportCollectionDialog: async () => {
       const summary = await corpusExport.getCollectionExportSummary();
       stores.$exportCollectionDialogState.set({ isOpen: true, summary, progress: 'idle', outcome: 'idle', filename: summary.defaultFilename });

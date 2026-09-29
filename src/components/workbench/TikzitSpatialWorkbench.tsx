@@ -1,3 +1,4 @@
+import '../../polyfills/nodeGlobals';
 import { FileDropZone } from '../workspace/FileDropZone';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
@@ -163,6 +164,28 @@ const TikzitSpatialWorkbenchReady: React.FC<{ runtime: WorkbenchRuntime; ownsRun
       }
     });
   };
+
+  // Sprint 35 Phase C: selecting any MCard (explorer pane or diagram "Preview")
+  // opens/activates the docked Card Rendering panel.
+  useEffect(() => {
+    return runtime.stores.$previewCardHandle.listen((handle) => {
+      if (!handle) return;
+      const api = dockviewApiRef.current;
+      if (!api) return;
+      const existing = api.getPanel('card-viewer');
+      if (existing) {
+        existing.api.setActive();
+        return;
+      }
+      const previewPanel = api.getPanel('preview');
+      api.addPanel({
+        id: 'card-viewer',
+        component: 'card-viewer',
+        title: 'Card Rendering',
+        ...(previewPanel ? { position: { referencePanel: 'preview', direction: 'within' as const } } : {}),
+      });
+    });
+  }, [runtime]);
 
   // Dispose local runtime on unmount
   useEffect(() => {

@@ -1,37 +1,33 @@
 /**
  * ExplorerQueryFacade: Headless MCard Explorer Query Facade
  *
+ * Implements ExplorerDataSource and CardContentProvider ports (ADR D42).
  * Exposes plain serializable DTOs for React panels, CLI, and multi-agent systems.
  * Zero DOM dependencies. Contract D ceiling: <= 250 LOC.
  */
 
+import type {
+  ExplorerDataSource,
+  CardContentDto,
+  CardContentProvider,
+  ExplorerCardSummaryDto,
+  ExplorerSearchFilter,
+  ExplorerHistoryEntryDto
+} from '@clm/mcard-explorer';
 import { OperadicMCardVfs } from '../storage/OperadicMCardVfs';
 import { MCardVcsEngine } from '../vcs/MCardVcsEngine';
 import type { SemanticDiffResult } from '../vcs/types/commit';
 
-export interface ExplorerSearchFilter {
-  pattern?: string;
-  mimeType?: string;
-  limit?: number;
-}
+export type {
+  ExplorerDataSource,
+  CardContentDto,
+  CardContentProvider,
+  ExplorerCardSummaryDto,
+  ExplorerSearchFilter,
+  ExplorerHistoryEntryDto
+};
 
-export interface ExplorerCardSummaryDto {
-  handle: string;
-  hash: string;
-  mimeType: string;
-  updatedAt: string;
-}
-
-export interface ExplorerHistoryEntryDto {
-  hash: string;
-  changedAt: string;
-  authorDid: string;
-  message: string;
-  position?: number;
-  isHead?: boolean;
-}
-
-export class ExplorerQueryFacade {
+export class ExplorerQueryFacade implements ExplorerDataSource, CardContentProvider {
   constructor(
     private storage: OperadicMCardVfs,
     private vcs?: MCardVcsEngine
@@ -45,7 +41,7 @@ export class ExplorerQueryFacade {
   public async search(filter: ExplorerSearchFilter = {}): Promise<ExplorerCardSummaryDto[]> {
     const vfs = this.storage.getVfs();
     let sql = `
-      SELECT h.handle, h.hash, h.updated_at, c.mime_type
+      SELECT h.handle, h.hash, h.updated_at, c.mime_type, c.metadata
       FROM handles h
       JOIN cards c ON h.hash = c.hash
     `;
@@ -59,6 +55,18 @@ export class ExplorerQueryFacade {
     if (filter.mimeType) {
       whereClauses.push('c.mime_type = ?');
       params.push(filter.mimeType);
+    }
+    if (filter.universe) {
+      whereClauses.push('(json_valid(c.metadata) = 1 AND json_extract(c.metadata, "$.universe") = ?)');
+      params.push(filter.universe);
+    }
+    if (filter.category) {
+      whereClauses.push('(json_valid(c.metadata) = 1 AND (json_extract(c.metadata, "$.category") = ? OR json_extract(c.metadata, "$.clmCategory") = ?))');
+      params.push(filter.category, filter.category);
+    }
+    if (filter.payloadKind) {
+      whereClauses.push('(json_valid(c.metadata) = 1 AND json_extract(c.metadata, "$.payloadKind") = ?)');
+      params.push(filter.payloadKind);
     }
 
     if (whereClauses.length > 0) {
@@ -76,14 +84,34 @@ export class ExplorerQueryFacade {
       hash: string;
       updated_at: string;
       mime_type: string;
+      metadata: string | null;
     }>('mcard', sql, params);
 
-    return rows.map(r => ({
-      handle: r.handle,
-      hash: r.hash,
-      mimeType: r.mime_type,
-      updatedAt: r.updated_at
-    }));
+    return rows.map(r => {
+      let meta: Record<string, any> | undefined;
+      if (r.metadata) {
+        try { meta = JSON.parse(r.metadata); } catch { /* ignore */ }
+      }
+      const tj = meta?.typeJudgment;
+      return {
+        handle: r.handle,
+        hash: r.hash,
+        mimeType: r.mime_type,
+        updatedAt: r.updated_at,
+        universe: meta?.universe || tj?.universe,
+        universeName: meta?.universeName || tj?.universeName,
+        category: meta?.category || tj?.category,
+        clmCategory: meta?.clmCategory || tj?.clmCategory,
+        payloadKind: meta?.payloadKind,
+        isBinary: tj?.isBinary,
+        confidence: tj?.confidence,
+        fndClassification: tj?.fndClassification
+      };
+    });
+  }
+
+  public async getContent(handle: string): Promise<CardContentDto | null> {
+    return await this.storage.getContent(handle);
   }
 
   public async getHistory(handle: string): Promise<ExplorerHistoryEntryDto[]> {
@@ -116,7 +144,6 @@ export class ExplorerQueryFacade {
   ): Promise<SemanticDiffResult> {
     if (!this.vcs) throw new Error('VCS engine required for diff');
     const diffResult = await this.vcs.diff(handle, baseRef, targetRef);
-    // Ensure clean JSON serializability without circular references or prototypes
     return JSON.parse(JSON.stringify(diffResult));
   }
 

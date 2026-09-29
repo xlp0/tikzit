@@ -1,0 +1,5 @@
+<turn speaker="assistant" timestamp="2026-09-29T12:00:00Z">
+  <message>Here is the verified teleportation circuit.</message>
+  <card handle="zx:diagrams:teleportation" type="diagram" />
+  <execute command="verify-receipt" />
+</turn>

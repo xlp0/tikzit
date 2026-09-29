@@ -9,6 +9,8 @@
  * Zero DOM dependencies. Contract D ceiling: <= 250 LOC.
  */
 
+import type { ExtendedTypeJudgment, CardCategory } from '../../type/types';
+
 export interface ConversationalLens<S, A, B = A> {
   /**
    * Getter G: S -> A (Observation / Projection)
@@ -30,6 +32,11 @@ export interface CardView {
   mcardType: number;
   companionMetadata?: Record<string, unknown>;
   updatedAt: string;
+  typeJudgment?: ExtendedTypeJudgment;
+  universe?: string;
+  category?: string;
+  clmCategory?: CardCategory;
+  payloadKind?: string;
 }
 
 export interface SetCardOptions {
@@ -37,6 +44,11 @@ export interface SetCardOptions {
   mcardType?: number;
   companionMetadata?: Record<string, unknown>;
   authorDid?: string;
+  typeJudgment?: ExtendedTypeJudgment;
+  universe?: string;
+  category?: string;
+  clmCategory?: CardCategory;
+  payloadKind?: string;
 }
 
 export interface CardStateRecord {
@@ -47,6 +59,11 @@ export interface CardStateRecord {
   mcardType: number;
   companionMetadata?: Record<string, unknown>;
   updatedAt: string;
+  typeJudgment?: ExtendedTypeJudgment;
+  universe?: string;
+  category?: string;
+  clmCategory?: CardCategory;
+  payloadKind?: string;
 }
 
 export interface LensLawVerificationResult {

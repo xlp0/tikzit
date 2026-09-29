@@ -15,6 +15,7 @@ import { PreviewStage } from './preview/PreviewStage';
 import { PreviewToolbar } from './preview/PreviewToolbar';
 import { emitTikz } from '../../../core/parser/emitter';
 
+
 export const PreviewPanel: React.FC<IDockviewPanelProps> = () => {
   let runtime: ReturnType<typeof useWorkbenchRuntime> | null = null;
   try { runtime = useWorkbenchRuntime(); } catch {}
@@ -62,10 +63,10 @@ export const PreviewPanel: React.FC<IDockviewPanelProps> = () => {
     return () => clearTimeout(timer);
   }, [graph, stylesCatalog, autoCompile]);
 
-  const showToast = (msg: string) => {
+  const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
-  };
+  }, []);
 
   const handleCopyTikz = () => {
     if (!graph) return;
@@ -75,10 +76,66 @@ export const PreviewPanel: React.FC<IDockviewPanelProps> = () => {
     }
   };
 
-  const handleExport = (format: 'svg' | 'png' | 'pdf' | 'tex') => {
+  const handleExport = useCallback(async (format: 'svg' | 'png' | 'pdf' | 'tex') => {
     setShowExportMenu(false);
+    if (!runtime || !graph) {
+      showToast('No diagram available to export.');
+      return;
+    }
+    const activeDiagram = runtime.stores.$activeDiagram.get();
+    const handle = activeDiagram?.handle || '';
+    if (!handle) {
+      showToast('No active diagram to export.');
+      return;
+    }
     showToast(`Exporting diagram as ${format.toUpperCase()}...`);
-  };
+    try {
+      const sourceText = emitTikz(graph);
+      const result = await runtime.exportDiagramArtifact({
+        handle,
+        format: format === 'tex' ? 'tex' : format as any,
+        sourceKind: 'current',
+        sourceText,
+        pngScale: 2,
+      });
+      if (result.status === 'success') {
+        showToast(`Exported ${(result as any).filename ?? format.toUpperCase()} successfully!`);
+      } else if (result.status === 'cancelled') {
+        showToast('Export cancelled.');
+      } else {
+        showToast(`Export failed: ${(result as any).error ?? 'Unknown error'}`);
+      }
+    } catch (err) {
+      showToast(`Export error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }, [runtime, graph, showToast]);
+
+  const handleSaveToDatabase = useCallback(async (format: 'tikz' | 'tex' | 'svg' | 'png' | 'pdf') => {
+    setShowExportMenu(false);
+    if (!runtime || !graph) {
+      showToast('No diagram available to save.');
+      return;
+    }
+    const activeDiagram = runtime.stores.$activeDiagram.get();
+    const handle = activeDiagram?.handle || '';
+    if (!handle) {
+      showToast('No active diagram to save.');
+      return;
+    }
+    showToast(`Committing ${format.toUpperCase()} to database...`);
+    try {
+      const sourceText = emitTikz(graph);
+      const result = await runtime.commitDiagramArtifactToDatabase({
+        handle,
+        format,
+        sourceKind: 'current',
+        sourceText,
+      });
+      showToast(result.success ? result.message : `Save failed: ${result.message}`);
+    } catch (err) {
+      showToast(`Database error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }, [runtime, graph, showToast]);
 
   return (
     <div data-testid="panel-preview" className="w-full h-full flex flex-col bg-neutral-950 relative overflow-hidden">
@@ -95,6 +152,7 @@ export const PreviewPanel: React.FC<IDockviewPanelProps> = () => {
         showExportMenu={showExportMenu}
         onToggleExportMenu={() => setShowExportMenu((v) => !v)}
         onExport={handleExport}
+        onSaveToDatabase={handleSaveToDatabase}
         onToggleLogs={() => setShowLogsDrawer((v) => !v)}
         onTogglePreamble={() => setShowPreambleModal((v) => !v)}
       />

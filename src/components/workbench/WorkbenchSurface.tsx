@@ -10,6 +10,7 @@ import { SourcePanel } from './panels/SourcePanel';
 import { InspectorPanel } from './panels/InspectorPanel';
 import { PreviewPanel } from './panels/PreviewPanel';
 import { ConsolePanel } from './panels/ConsolePanel';
+import { UniversalCardViewerPanel } from './dockview/UniversalCardViewerPanel';
 import { CorpusExplorerDrawer } from './CorpusExplorerDrawer';
 import type { WorkbenchRuntime } from '../../services/createWorkbenchRuntime';
 
@@ -19,6 +20,7 @@ const components = {
   inspector: InspectorPanel,
   preview: PreviewPanel,
   console: ConsolePanel,
+  'card-viewer': UniversalCardViewerPanel,
 };
 
 // Custom tab component adding .editor-tab class for tab querying and semantic styling

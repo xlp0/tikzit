@@ -21,6 +21,7 @@ export interface ExplorerSectionListProps {
   onDuplicate: (handle: string) => void;
   onToggleArchive: (handle: string, archived: boolean) => void;
   onExport: (handle: string) => void;
+  onPreview?: (handle: string) => void;
 }
 
 export const ExplorerSectionList: React.FC<ExplorerSectionListProps> = ({
@@ -39,6 +40,7 @@ export const ExplorerSectionList: React.FC<ExplorerSectionListProps> = ({
   onDuplicate,
   onToggleArchive,
   onExport,
+  onPreview,
 }) => {
   const filtered = items.filter((item) =>
     !query || item.title.toLowerCase().includes(query.toLowerCase())
@@ -76,6 +78,7 @@ export const ExplorerSectionList: React.FC<ExplorerSectionListProps> = ({
               onDuplicate={onDuplicate}
               onToggleArchive={onToggleArchive}
               onExport={onExport}
+              onPreview={onPreview}
             />
           ))
         )}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import type { WorkbenchRuntime } from '../../services/createWorkbenchRuntime';
 
 const WorkbenchRuntimeContext = createContext<WorkbenchRuntime | null>(null);
@@ -12,6 +12,10 @@ export const WorkbenchRuntimeProvider: React.FC<WorkbenchRuntimeProviderProps> =
   runtime,
   children,
 }) => {
+  // Dev-console/debug handle for live VFS/corpus inspection.
+  useEffect(() => {
+    (window as unknown as { __TIKZIT_RUNTIME__?: WorkbenchRuntime }).__TIKZIT_RUNTIME__ = runtime;
+  }, [runtime]);
   return (
     <WorkbenchRuntimeContext.Provider value={runtime}>
       {children}
