@@ -43,7 +43,7 @@ npm run dev
 The web workbench is backed by a comprehensive automated test matrix orchestrated via the root `Makefile`:
 
 ```bash
-# Run Vitest unit, parser, CLM, VCS, and integration test suite (95 test files, 526 tests)
+# Run Vitest unit, parser, CLM, VCS, and integration test suite (93 test files, 505 tests)
 make test-web
 
 # Run isolated VCS, MCard Explorer, and cross-system conformance test suite (18 test files, 60 tests)
@@ -58,7 +58,7 @@ make check-independence
 # Verify dual-system protocol conformance across 12 canonical ZX diagrams
 make check-conformance
 
-# Audit Contract B testid baseline (211 literal selectors and 12 dynamic prefix families)
+# Audit Contract B testid baseline (212 literal selectors and 12 dynamic prefix families)
 node scripts/audit-testids.mjs --check
 
 # Run Playwright cross-browser test suite (Chromium, Firefox, WebKit)
@@ -93,12 +93,12 @@ tikzit/
 │   ├── gui/            # Native C++ Qt window, scene, and tool implementations (Reference)
 │   └── data/           # Native C++ graph and parser data structures (Reference)
 ├── docs/
-│   ├── sprints/        # Implementation sprint specifications (Sprints 00-29 Graduated/Complete)
+│   ├── sprints/        # Sprint specs (00–29 graduated; 30–34 active in sprints/_active/)
 │   ├── integration/    # Third-party host embedding guides (EMBEDDING-MCARD-VCS.md)
 │   ├── examples/       # 12-diagram ZX-calculus reference corpus with SVGs
 │   ├── architecture/   # Architecture specifications (Shared Dual-System Protocol)
 │   └── changelog/      # Weekly changelog archive (YYYY-Www.md)
-├── tests/              # Vitest unit, integration, and conformance suites (526 tests)
+├── tests/              # Vitest unit, integration, and conformance suites (505 tests)
 ├── e2e/                # Playwright end-to-end and browser inspection scenarios
 ├── scripts/            # Build, testid audit, isolation, independence, and conformance scripts
 ├── images/             # Canonical application icon and tool SVGs
