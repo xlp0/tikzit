@@ -13,7 +13,6 @@ Graduated sprints are organized into **category bins** — one directory per sub
 docs/sprints/
 ├── README.md                                     # This Master Index
 ├── _active/                                      # Current active sprint working drafts
-│   └── PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md
 ├── orchestration/                                # Master plans & architecture blueprints
 │   ├── 00-master-orchestration/                  # Master Plan & Architecture
 │   ├── 16-19-mcard-diagram-lifecycle-history-and-export/ # Sprints 16–19 Proposal & Architecture
@@ -22,7 +21,8 @@ docs/sprints/
 │   ├── 25-29-portable-mcard-storage-and-version-control/ # Sprints 25–29 Proposal & Architecture
 │   ├── 27-cordis-fiber-and-satori-protocol-adapters/ # Cordis Fiber Enclaves & Satori Codecs
 │   ├── 28-mcard-studio-plugin-and-cross-application-bridge/ # MCard UI Viewlets & Studio Plugin
-│   └── 30-34-universal-type-interpreter-and-multimodal-mcard-renderer/ # Sprints 30–34 Proposal
+│   ├── 30-34-universal-type-interpreter-and-multimodal-mcard-renderer/ # Sprints 30–34 Proposal
+│   └── 36-40-polynomial-interface-ui-and-spatiotemporal-compositionality/ # Sprints 36–40 Proposal
 ├── corpus/                                       # Reference corpora & sovereign storage
 │   ├── 00-zx-demo-svg-corpus/                    # [COMPLETED] 12 Canonical ZX SVGs & Gallery
 │   ├── 15-mcard-backed-corpus-explorer-and-sovereign-export/  # MCard Explorer & .db Export
@@ -126,7 +126,7 @@ docs/sprints/
 | **33** | shell | [`shell/33-universal-mcard-viewer-and-explorer-integration`](./shell/33-universal-mcard-viewer-and-explorer-integration/) | Universal Card Viewlet (`MCardViewer`) & Explorer Master Integration (`@clm/mcard-explorer/ui`) | ✅ **Completed (Graduated)** |
 | **34** | verification | [`verification/34-tikzit-dockview-integration-and-verification-matrix`](./verification/34-tikzit-dockview-integration-and-verification-matrix/) | TikZiT Dockview Integration, Cross-System Conformance & Verification Matrix | ✅ **Completed (Graduated)** |
 | **35** | interactions | [`interactions/35-multimodal-artifact-export-and-database-persistence`](./interactions/35-multimodal-artifact-export-and-database-persistence/) | Multimodal Artifact Export (`Export ▾` dropdown), Destination × Format Orthogonality & Sovereign Database Persistence | ✅ **Completed (Graduated)** |
-| **36–40** | orchestration | [`_active/PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md`](./_active/PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md) | Architecture Proposal: Polynomial Interface UI, Category-Theoretic Interaction & Spatiotemporal Compositionality | 🟢 **Active Blueprint** |
+| **36–40** | orchestration | [`orchestration/36-40-polynomial-interface-ui-and-spatiotemporal-compositionality`](./orchestration/36-40-polynomial-interface-ui-and-spatiotemporal-compositionality/) | Architecture Proposal: Polynomial Interface UI, Category-Theoretic Interaction & Spatiotemporal Compositionality | 🟢 **Graduated Blueprint** |
 | **36** | shell | [`shell/36-polynomial-interface-core-and-affordance-algebra`](./shell/36-polynomial-interface-core-and-affordance-algebra/) | Polynomial Interface Core, Affordance Algebra & Guardrail Combinators (`@clm/mcard-explorer/poly`) | ✅ **Completed (Graduated)** |
 | **37** | interactions | [`interactions/37-mcard-first-card-algebra-and-composition-surface`](./interactions/37-mcard-first-card-algebra-and-composition-surface/) | MCard-First Card Algebra, Typed Ports & Tensor/Coproduct Composition Surface (`@clm/mcard-explorer/cards`) | ✅ **Completed (Graduated)** |
 | **38** | shell | [`shell/38-operadic-zoom-and-multi-level-navigation`](./shell/38-operadic-zoom-and-multi-level-navigation/) | Operadic Zoom, Fibration Projections & Deep Link Navigation Stack (`@clm/mcard-explorer/zoom`) | ✅ **Completed (Graduated)** |
