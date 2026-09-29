@@ -93,7 +93,7 @@ tikzit/
 │   ├── gui/            # Native C++ Qt window, scene, and tool implementations (Reference)
 │   └── data/           # Native C++ graph and parser data structures (Reference)
 ├── docs/
-│   ├── sprints/        # Sprint specs (Sprints 00–35 Graduated; Sprints 36–40 Active in _active/)
+│   ├── sprints/        # Sprint specs (Sprints 00–36 Graduated; Sprints 37–40 Active in _active/)
 │   ├── integration/    # Third-party host embedding guides (EMBEDDING-MCARD-VCS.md)
 │   ├── examples/       # 12-diagram ZX-calculus reference corpus with SVGs
 │   ├── architecture/   # Architecture specifications (Shared Dual-System Protocol)

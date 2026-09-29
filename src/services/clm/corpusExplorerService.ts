@@ -9,7 +9,7 @@ import type {
 import type { CorpusIndexRecord } from './corpusPersistence';
 import type { GraphAST } from '../../core/domain/types';
 import { ExplorerActionRegistry } from '../../packages/mcard-explorer';
-import { MCardExplorerEngine } from '../../packages/mcard-explorer/core/MCardExplorerEngine';
+import { MCardExplorerEngine } from '../../packages/mcard-explorer/core';
 import { getExplorerQueryFacade, getExplorerActionRegistry } from './vcsAdapterInstance';
 import {
   DiagramIndexService,

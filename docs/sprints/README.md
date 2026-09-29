@@ -45,7 +45,8 @@ docs/sprints/
 │   ├── 02-astro-shell-and-cordis-runtime/        # Astro 7 Shell, Dockview, Cordis & CLM State
 │   ├── 17b-prominent-draft-save-affordance/      # Prominent Draft-to-MCard Save Affordance
 │   ├── 22-god-component-decomposition-via-baldwin-splitting/ # Baldwin Splitting on UI God Components
-│   └── 33-universal-mcard-viewer-and-explorer-integration/ # Universal Card Viewlet & Master Integration
+│   ├── 33-universal-mcard-viewer-and-explorer-integration/ # Universal Card Viewlet & Master Integration
+│   └── 36-polynomial-interface-core-and-affordance-algebra/ # Polynomial Interface Core & Affordance Algebra
 ├── canvas/                                       # Canvas rendering engine & visual fidelity
 │   ├── 03-threejs-webgl-canvas-engine/           # Three.js Canvas & Infinite Grid Shader
 │   └── 10-canvas-visual-parity-and-self-loops/   # Canvas Stage Visual Parity & Teardrop Loops
@@ -127,7 +128,7 @@ docs/sprints/
 | **34** | verification | [`verification/34-tikzit-dockview-integration-and-verification-matrix`](./verification/34-tikzit-dockview-integration-and-verification-matrix/) | TikZiT Dockview Integration, Cross-System Conformance & Verification Matrix | ✅ **Completed (Graduated)** |
 | **35** | interactions | [`interactions/35-multimodal-artifact-export-and-database-persistence`](./interactions/35-multimodal-artifact-export-and-database-persistence/) | Multimodal Artifact Export (`Export ▾` dropdown), Destination × Format Orthogonality & Sovereign Database Persistence | ✅ **Completed (Graduated)** |
 | **36–40** | orchestration | [`_active/PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md`](./_active/PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md) | Architecture Proposal: Polynomial Interface UI, Category-Theoretic Interaction & Spatiotemporal Compositionality | 🟢 **Active Blueprint** |
-| **36** | shell / interactions | [`_active/SPRINT-36-POLYNOMIAL-INTERFACE-CORE-AND-AFFORDANCE-ALGEBRA.md`](./_active/SPRINT-36-POLYNOMIAL-INTERFACE-CORE-AND-AFFORDANCE-ALGEBRA.md) | Polynomial Interface Core, Affordance Algebra & Guardrail Combinators (`@clm/mcard-explorer/poly`) | 📋 **Drafted / Active** |
+| **36** | shell | [`shell/36-polynomial-interface-core-and-affordance-algebra`](./shell/36-polynomial-interface-core-and-affordance-algebra/) | Polynomial Interface Core, Affordance Algebra & Guardrail Combinators (`@clm/mcard-explorer/poly`) | ✅ **Completed (Graduated)** |
 | **37** | interactions | [`_active/SPRINT-37-MCARD-FIRST-CARD-ALGEBRA-AND-COMPOSITION-SURFACE.md`](./_active/SPRINT-37-MCARD-FIRST-CARD-ALGEBRA-AND-COMPOSITION-SURFACE.md) | MCard-First Card Algebra, Typed Ports & Tensor/Coproduct Composition Surface | 📋 **Drafted / Active** |
 | **38** | shell | [`_active/SPRINT-38-OPERADIC-ZOOM-AND-MULTI-LEVEL-NAVIGATION.md`](./_active/SPRINT-38-OPERADIC-ZOOM-AND-MULTI-LEVEL-NAVIGATION.md) | Operadic Zoom, Fibration Projections & Deep Link Navigation Stack | 📋 **Drafted / Active** |
 | **39** | sync | [`_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md`](./_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md) | Cofree Interaction Tree, Revertible Effect Journal & Day-Convolution Panels | 📋 **Drafted / Active** |

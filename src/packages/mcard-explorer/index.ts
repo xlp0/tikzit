@@ -52,3 +52,8 @@ export type { MCardExportDropdownProps } from './ui/MCardExportDropdown';
 // Pluggable Polyglot Renderer Registry & Viewlets
 export * from './renderers';
 
+// Polynomial Interface Core & Affordance Algebra (Sprint 36)
+export * from './poly';
+export * from './core';
+
+

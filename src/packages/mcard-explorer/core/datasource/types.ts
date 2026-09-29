@@ -1,4 +1,5 @@
 /**
+ * @layer L4 interface/membrane
  * Explorer Data Source & Content Provider Port Interfaces (ADR D42)
  *
  * Defines the host-agnostic ports owned by @clm/mcard-explorer.
