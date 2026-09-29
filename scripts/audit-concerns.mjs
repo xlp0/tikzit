@@ -43,7 +43,28 @@ const THRESHOLDS = [
   { file: 'src/packages/mcard-explorer/ui/MCardExplorer.tsx', max: 120 },
 
   // Studio adapter
-  { file: 'src/packages/mcard-explorer/renderers/forwardBrowsingAdapter.ts', max: 60 }
+  { file: 'src/packages/mcard-explorer/renderers/forwardBrowsingAdapter.ts', max: 60 },
+
+  // Sprint 37: cards subsystem
+  { file: 'src/packages/mcard-explorer/cards/ports.ts', max: 140 },
+  { file: 'src/packages/mcard-explorer/cards/legality.ts', max: 110 },
+  { file: 'src/packages/mcard-explorer/cards/composition.ts', max: 170 },
+  { file: 'src/packages/mcard-explorer/cards/handles.ts', max: 150 },
+  { file: 'src/packages/mcard-explorer/cards/projectBadges.ts', max: 60 },
+  { file: 'src/packages/mcard-explorer/cards/adapters/studioPortDescriptor.ts', max: 60 },
+  { file: 'src/packages/mcard-explorer/cards/providers/tikz.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/cards/providers/tex.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/cards/providers/image.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/cards/providers/pdf.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/cards/providers/markdown.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/cards/providers/sqlite.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/cards/providers/pcard.ts', max: 90 },
+
+  // Sprint 37: UI viewlets & hooks
+  { file: 'src/packages/mcard-explorer/ui/CardRow.tsx', max: 110 },
+  { file: 'src/packages/mcard-explorer/ui/PositionGroupList.tsx', max: 90 },
+  { file: 'src/packages/mcard-explorer/ui/usePortDrag.ts', max: 90 },
+  { file: 'src/packages/mcard-explorer/ui/CardCompositionSurface.tsx', max: 220 }
 ];
 
 let violations = 0;

@@ -22,6 +22,8 @@ export interface Position {
   readonly surface: 'tree' | 'list' | 'grid' | 'composition' | 'zoom' | 'timeline';
   /** Nesting context (Sprint 38 zoom path; empty at root). */
   readonly zoomPath?: readonly string[];
+  /** Display title if available (fallback to handle). */
+  readonly title?: string;
   /** Selection context. */
   readonly selected?: boolean;
   readonly active?: boolean;

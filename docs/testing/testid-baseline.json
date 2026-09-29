@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-09-29T12:46:05.082Z",
-  "literalCount": 296,
-  "dynamicPrefixCount": 18,
+  "generatedAt": "2026-09-29T13:08:58.079Z",
+  "literalCount": 300,
+  "dynamicPrefixCount": 24,
   "literals": [
     "action-archive",
     "action-duplicate",
@@ -113,6 +113,8 @@
     "collection-scope-info",
     "compare-diff-view",
     "compare-stat-deltas",
+    "composition-commit",
+    "composition-surface",
     "console-mcard-cid",
     "corpus-persistence-state",
     "corpus-search-input",
@@ -219,6 +221,8 @@
     "pdf-headless-fallback",
     "pdf-iframe-preview",
     "pdf-meta-badge",
+    "position-group-empty",
+    "position-group-list",
     "preamble-modal",
     "preview-empty-message",
     "preview-export-menu",
@@ -306,7 +310,9 @@
     "badge-",
     "btn-viewer-action-",
     "btn-viewer-action-export-",
+    "card-row-",
     "commit-node-",
+    "composition-tile-",
     "corpus-entry-",
     "direction-",
     "entry-actions-",
@@ -314,11 +320,15 @@
     "export-disk-",
     "facet-chip-",
     "folder-",
+    "input-rename-",
     "mcard-entry-",
     "mcard-row-",
+    "port-",
+    "port-target-",
     "toggle-markdown-",
     "tool-",
     "tree-item-",
-    "version-row-"
+    "version-row-",
+    "wire-"
   ]
 }

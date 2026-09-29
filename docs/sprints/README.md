@@ -55,7 +55,8 @@ docs/sprints/
 │   ├── 05b-editable-canvas-interaction/          # Canvas Tool Activation & Editing Fixes
 │   ├── 31-pluggable-polyglot-renderer-registry-and-viewlets/ # Pluggable Polyglot Renderer Registry
 │   ├── 32-clm-higher-universe-card-renderers/    # Higher-Universe Card Renderers
-│   └── 35-multimodal-artifact-export-and-database-persistence/ # Multimodal Export & DB Persistence
+│   ├── 35-multimodal-artifact-export-and-database-persistence/ # Multimodal Export & DB Persistence
+│   └── 37-mcard-first-card-algebra-and-composition-surface/ # MCard-First Card Algebra & Composition Surface
 ├── styles/                                       # Stylesheet engine, palette & inspector
 │   ├── 05-style-palette-and-inspector/           # TikZ Stylesheet Engine & Inspector
 │   └── 11-desktop-style-palette-and-action-bar/  # Desktop Style Palette & Action Bar
@@ -129,7 +130,7 @@ docs/sprints/
 | **35** | interactions | [`interactions/35-multimodal-artifact-export-and-database-persistence`](./interactions/35-multimodal-artifact-export-and-database-persistence/) | Multimodal Artifact Export (`Export ▾` dropdown), Destination × Format Orthogonality & Sovereign Database Persistence | ✅ **Completed (Graduated)** |
 | **36–40** | orchestration | [`_active/PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md`](./_active/PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md) | Architecture Proposal: Polynomial Interface UI, Category-Theoretic Interaction & Spatiotemporal Compositionality | 🟢 **Active Blueprint** |
 | **36** | shell | [`shell/36-polynomial-interface-core-and-affordance-algebra`](./shell/36-polynomial-interface-core-and-affordance-algebra/) | Polynomial Interface Core, Affordance Algebra & Guardrail Combinators (`@clm/mcard-explorer/poly`) | ✅ **Completed (Graduated)** |
-| **37** | interactions | [`_active/SPRINT-37-MCARD-FIRST-CARD-ALGEBRA-AND-COMPOSITION-SURFACE.md`](./_active/SPRINT-37-MCARD-FIRST-CARD-ALGEBRA-AND-COMPOSITION-SURFACE.md) | MCard-First Card Algebra, Typed Ports & Tensor/Coproduct Composition Surface | 📋 **Drafted / Active** |
+| **37** | interactions | [`interactions/37-mcard-first-card-algebra-and-composition-surface`](./interactions/37-mcard-first-card-algebra-and-composition-surface/) | MCard-First Card Algebra, Typed Ports & Tensor/Coproduct Composition Surface (`@clm/mcard-explorer/cards`) | ✅ **Completed (Graduated)** |
 | **38** | shell | [`_active/SPRINT-38-OPERADIC-ZOOM-AND-MULTI-LEVEL-NAVIGATION.md`](./_active/SPRINT-38-OPERADIC-ZOOM-AND-MULTI-LEVEL-NAVIGATION.md) | Operadic Zoom, Fibration Projections & Deep Link Navigation Stack | 📋 **Drafted / Active** |
 | **39** | sync | [`_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md`](./_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md) | Cofree Interaction Tree, Revertible Effect Journal & Day-Convolution Panels | 📋 **Drafted / Active** |
 | **40** | verification | [`_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md`](./_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md) | Polynomial Conformance Verification, Law Suites & Host Drawer Realignment | 📋 **Drafted / Active** |

@@ -56,4 +56,7 @@ export * from './renderers';
 export * from './poly';
 export * from './core';
 
+// MCard-First Card Algebra & Composition Surface (Sprint 37)
+export * from './cards';
+
 

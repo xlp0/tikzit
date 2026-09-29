@@ -290,67 +290,67 @@ Each provider is its own file — the studio's `vfs*` split is the precedent —
 
 ## 3. Definition of Done (DoD) Criteria
 
-- [ ] **37-DOD-01**: **Typed Card Ports Interface** (`src/packages/mcard-explorer/cards/ports.ts`, $\le 140$ LOC).
+- [x] **37-DOD-01**: **Typed Card Ports Interface** (`src/packages/mcard-explorer/cards/ports.ts`, $\le 140$ LOC).
   - **Observable Rule:** Exports `PortType`, `CardPort`, `CardInterface`, `CardPortProvider`, `CardPortInput`; all kernel imports are root-only (`'clm-kernel'`); type check compiles cleanly.
   - **Verification Command:** `npx tsc --noEmit && ! grep -rn "from 'clm-kernel/" src/packages/mcard-explorer/cards/ports.ts`
-- [ ] **37-DOD-02**: **Seven Specialized Port Providers** (`src/packages/mcard-explorer/cards/providers/*.ts`, $\le 90$ LOC each).
+- [x] **37-DOD-02**: **Seven Specialized Port Providers** (`src/packages/mcard-explorer/cards/providers/*.ts`, $\le 90$ LOC each).
   - **Observable Rule:** All 7 providers (`tikz.ts`, `tex.ts`, `image.ts`, `pdf.ts`, `markdown.ts`, `sqlite.ts`, `pcard.ts`) implemented and registered; an unmodelled card type yields an empty port array without throwing.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/cards/ports.test.ts`
-- [ ] **37-DOD-03**: **Port Legality & Discrimination Engine** (`src/packages/mcard-explorer/cards/legality.ts`, $\le 110$ LOC).
+- [x] **37-DOD-03**: **Port Legality & Discrimination Engine** (`src/packages/mcard-explorer/cards/legality.ts`, $\le 110$ LOC).
   - **Observable Rule:** Implements `portsCompatible(source, target)`; returns discriminated `PortMatch` results (`mime-mismatch`, `universe-incompatible`, `arity-conflict`, `direction-conflict`); all 4 reasons covered by tests.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/cards/legality.test.ts`
-- [ ] **37-DOD-04**: **Composition Operators** (`src/packages/mcard-explorer/cards/composition.ts`, $\le 170$ LOC).
+- [x] **37-DOD-04**: **Composition Operators** (`src/packages/mcard-explorer/cards/composition.ts`, $\le 170$ LOC).
   - **Observable Rule:** Implements `tensor` ($\otimes$), `substitute` ($\triangleleft$), `coproduct` ($+$); returns `CompositionPlan` with `wires`, `unbound`, and computed `legality`. A rejected composition returns `{ legality: { ok: false, reasons: [...] } }` and **never throws**.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/cards/composition.test.ts`
-- [ ] **37-DOD-05**: **MCard Monad & Kleisli Handle Operations** (`src/packages/mcard-explorer/cards/handles.ts`, $\le 150$ LOC).
+- [x] **37-DOD-05**: **MCard Monad & Kleisli Handle Operations** (`src/packages/mcard-explorer/cards/handles.ts`, $\le 150$ LOC).
   - **Observable Rule:** Implements `cardCreate` ($\eta$), `cardGet` ($\mu$ dedupe), `cardGetByHash`, `cardDerive`, `cardInvoke` (Kleisli arrow), `cardFork`, `cardHistory` against ports; `cardInvoke` returns a valid dereferenceable MCard handle.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/cards/handles.test.ts`
-- [ ] **37-DOD-06**: **Elimination of Closed `ExplorerItem` Union**.
+- [x] **37-DOD-06**: **Elimination of Closed `ExplorerItem` Union**.
   - **Observable Rule:** `ExplorerItem` union is deleted; `projectBadges(position)` replaces the closed union; same row component renders markdown, PDF, and `zx:artifacts:*` positions with zero type-specific `switch` branching.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/CardRow.test.tsx && ! grep -rn "type ExplorerItem" src/packages/mcard-explorer/`
-- [ ] **37-DOD-07**: **Prop Slimming & PositionGroupList** (`src/packages/mcard-explorer/ui/PositionGroupList.tsx`, $\le 90$ LOC).
+- [x] **37-DOD-07**: **Prop Slimming & PositionGroupList** (`src/packages/mcard-explorer/ui/PositionGroupList.tsx`, $\le 90$ LOC).
   - **Observable Rule:** `CardRowProps` has $\le 4$ members (grep-asserted); `ExplorerSectionList.tsx` is deleted; `PositionGroupList.tsx` has zero callback pass-through (uses local row state and resolved directions).
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/PositionGroupList.test.tsx`
-- [ ] **37-DOD-08**: **Card Composition Surface Component** (`src/packages/mcard-explorer/ui/CardCompositionSurface.tsx`, $\le 220$ LOC).
+- [x] **37-DOD-08**: **Card Composition Surface Component** (`src/packages/mcard-explorer/ui/CardCompositionSurface.tsx`, $\le 220$ LOC).
   - **Observable Rule:** Renders cards as composition tiles and ports; resolves drop targets via `portsCompatible`; commits plan via single direction; Contract B testids `composition-surface`, `composition-tile-*`, `port-*`, `composition-commit` registered.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/CardCompositionSurface.test.tsx`
-- [ ] **37-DOD-09**: **Guardrail Negative Absence Suite ($\ge 8$ Cases)**.
+- [x] **37-DOD-09**: **Guardrail Negative Absence Suite ($\ge 8$ Cases)**.
   - **Observable Rule:** Attempting to wire incompatible ports (markdown $\to$ TikZ source; PNG $\to$ PCard token; `one`-arity fed by `many`) yields zero legal drop directions; asserted by absence of the drop target highlight in DOM (`queryByTestId('port-target-...') === null`).
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/cards/legality.test.ts -t "guardrail absence"`
-- [ ] **37-DOD-10**: **Contract B Baseline Preservation**.
+- [x] **37-DOD-10**: **Contract B Baseline Preservation**.
   - **Observable Rule:** All 295 baseline literals + 17 dynamic prefix families pass check; dynamic `badge-${type}` family retained for diagram positions via `projectBadges`.
   - **Verification Command:** `node scripts/audit-testids.mjs --check`
-- [ ] **37-DOD-11**: **Contract E Isolation & Zero-VCS Gate (ADR D42)**.
+- [x] **37-DOD-11**: **Contract E Isolation & Zero-VCS Gate (ADR D42)**.
   - **Observable Rule:** `TARGET_DIRECTORIES` in `check-vcs-isolation.mjs` includes `mcard-explorer/cards`; reports 0 DOM globals, 0 host imports, and **zero** imports of `@clm/mcard-vcs` concrete classes.
   - **Verification Command:** `node scripts/check-vcs-isolation.mjs && ! grep -rn "from '@clm/mcard-vcs/" src/packages/mcard-explorer/cards/`
-- [ ] **37-DOD-12**: **Cards Package Unit Test Suite**.
+- [x] **37-DOD-12**: **Cards Package Unit Test Suite**.
   - **Observable Rule:** 100% pass across `tests/unit/mcard-explorer/cards/{ports,legality,composition,handles}.test.ts`: seven-provider coverage, four `PortMatch` discrimination paths, tensor/substitute/coproduct laws, Kleisli invariant.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/cards`
-- [ ] **37-DOD-13**: **Full Vitest Suite & TypeScript Compilation**.
+- [x] **37-DOD-13**: **Full Vitest Suite & TypeScript Compilation**.
   - **Observable Rule:** 100% pass with 0 regressions against the 670 baseline tests; `tsc --noEmit` exits with status 0.
   - **Verification Command:** `npx vitest run && npx tsc --noEmit`
-- [ ] **37-DOD-14**: **Single-Concern Module Audit (ADR D53)**.
+- [x] **37-DOD-14**: **Single-Concern Module Audit (ADR D53)**.
   - **Observable Rule:** Every module in `cards/` is $\le 150$ LOC; LOC deltas for decomposed files recorded in graduation evidence ledger.
   - **Verification Command:** `node scripts/audit-concerns.mjs`
-- [ ] **37-DOD-15**: **Kernel Layer Declarations & Purity (ADR D57)**.
+- [x] **37-DOD-15**: **Kernel Layer Declarations & Purity (ADR D57)**.
   - **Observable Rule:** Every `cards/` module carries `@layer L4` header; kernel imports are root-only; providers never parse or hash in-line (must delegate to kernel ports or codecs).
   - **Verification Command:** `grep -rn "@layer L4" src/packages/mcard-explorer/cards/`
-- [ ] **37-DOD-16**: **Extensible Provider Architecture (ADR D54)**.
+- [x] **37-DOD-16**: **Extensible Provider Architecture (ADR D54)**.
   - **Observable Rule:** Registering an 8th card type provider in tests requires adding one file under `cards/providers/` and registering it, modifying zero existing provider files.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/cards/ports.test.ts -t "extensibility"`
-- [ ] **37-DOD-17**: **Studio `studioMCardFs` Port Conformance**.
+- [x] **37-DOD-17**: **Studio `studioMCardFs` Port Conformance**.
   - **Observable Rule:** `CardStorePort` and `CardVcsPort` are implemented against a test double conforming to `mcard-studio`'s VFS facade signatures (`vfsHandles`, `vfsVersions`, `vfsMutations`).
   - **Verification Command:** `npx vitest run tests/conformance/studio-parity.test.ts -t "studioMCardFs"`
-- [ ] **37-DOD-18**: **Studio Port Descriptor Parity (ADR D34)**.
+- [x] **37-DOD-18**: **Studio Port Descriptor Parity (ADR D34)**.
   - **Observable Rule:** `adapters/studioPortDescriptor.ts` ($\le 60$ LOC) maps `CardPort` to studio descriptor `{ id, kind, mime, universe, label, required }` with exact field parity.
   - **Verification Command:** `npx vitest run tests/conformance/studio-parity.test.ts -t "toStudioPortDescriptor"`
-- [ ] **37-DOD-19**: **Drag-and-Drop Hook Seam (`usePortDrag`)**.
+- [x] **37-DOD-19**: **Drag-and-Drop Hook Seam (`usePortDrag`)**.
   - **Observable Rule:** Composition surface consumes drag state via `usePortDrag` hook seam (`draggedPort`, `dragOverPort`, `resolveDropTargets`, `commitDrop`); `resolveDropTargets` returns strictly legal targets only.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/usePortDrag.test.ts`
-- [ ] **37-DOD-20**: **Façade Discipline (ADR D54)**.
+- [x] **37-DOD-20**: **Façade Discipline (ADR D54)**.
   - **Observable Rule:** `cards/index.ts` is the exclusive public export; no external module imports `cards/providers/*` or `cards/adapters/*` directly (grep-asserted).
   - **Verification Command:** `! grep -rn "from '.*mcard-explorer/cards/\(providers\|adapters\)" src/`
-- [ ] **37-DOD-21**: **Kenotic Host Boundary (ADR D55)**.
+- [x] **37-DOD-21**: **Kenotic Host Boundary (ADR D55)**.
   - **Observable Rule:** Zero `cordis`, `cordisClient`, or host-store imports in `cards/`; `CardRuntimePort` is passed as dependency argument.
   - **Verification Command:** `! grep -rn "cordis" src/packages/mcard-explorer/cards/`
 

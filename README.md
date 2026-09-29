@@ -43,7 +43,7 @@ npm run dev
 The web workbench is backed by a comprehensive automated test matrix orchestrated via the root `Makefile`:
 
 ```bash
-# Run Vitest unit, parser, CLM, VCS, and integration test suite (109 test files, 670 tests)
+# Run Vitest unit, parser, CLM, VCS, and integration test suite (128 test files, 731 tests)
 make test-web
 
 # Run isolated VCS, MCard Explorer, and cross-system conformance test suite (18 test files, 60 tests)
@@ -93,7 +93,7 @@ tikzit/
 │   ├── gui/            # Native C++ Qt window, scene, and tool implementations (Reference)
 │   └── data/           # Native C++ graph and parser data structures (Reference)
 ├── docs/
-│   ├── sprints/        # Sprint specs (Sprints 00–36 Graduated; Sprints 37–40 Active in _active/)
+│   ├── sprints/        # Sprint specs (Sprints 00–37 Graduated; Sprints 38–40 Active in _active/)
 │   ├── integration/    # Third-party host embedding guides (EMBEDDING-MCARD-VCS.md)
 │   ├── examples/       # 12-diagram ZX-calculus reference corpus with SVGs
 │   ├── architecture/   # Architecture specifications (Shared Dual-System Protocol)

@@ -100,3 +100,74 @@ function extractShape(nodes: (ExplorerTreeNode | StudioTreeNode)[]): any {
     children: n.children ? extractShape(n.children) : undefined
   }));
 }
+
+describe('toStudioPortDescriptor (ADR D34 / ADR D54)', () => {
+  it('toStudioPortDescriptor maps CardPort to studio descriptor with exact field parity (37-DOD-18)', async () => {
+    const { toStudioPortDescriptor } = await import('../../src/packages/mcard-explorer/cards/adapters/studioPortDescriptor');
+    const port = {
+      id: 'out:render',
+      direction: 'out' as const,
+      type: { mime: 'image/svg+xml', universe: 'U0' },
+      label: 'Render SVG',
+      required: false
+    };
+
+    const studioDesc = toStudioPortDescriptor(port);
+    expect(studioDesc).toEqual({
+      id: 'out:render',
+      kind: 'out',
+      mime: 'image/svg+xml',
+      universe: 'U0',
+      label: 'Render SVG',
+      required: false
+    });
+  });
+});
+
+describe('studioMCardFs Port Conformance (ADR D54 / 37-DOD-17)', () => {
+  it('studioMCardFs test double implements CardStorePort and CardVcsPort with studio signatures', async () => {
+    const { cardCreate, cardGetByHash, cardHistory } = await import('../../src/packages/mcard-explorer/cards/handles');
+
+    // Studio VFS facade test double matching mcard-studio vfsHandles, vfsVersions, vfsMutations
+    class StudioMCardFsDouble {
+      public handles = new Map<string, { content: Uint8Array; meta?: any }>();
+      public hashes = new Map<string, Uint8Array>();
+      public history = new Map<string, { hash: string; changedAt: string; message?: string }[]>();
+
+      // CardStorePort
+      public async set(handle: string, content: Uint8Array, meta?: Record<string, unknown>) {
+        const hash = `blake3:${handle}`;
+        this.handles.set(handle, { content, meta });
+        this.hashes.set(hash, content);
+        const hist = this.history.get(handle) || [];
+        hist.unshift({ hash, changedAt: new Date().toISOString(), message: 'Studio commit' });
+        this.history.set(handle, hist);
+        return { hash };
+      }
+
+      public async getByHash(hash: string) {
+        const content = this.hashes.get(hash);
+        if (!content) return null;
+        return { content, mimeType: 'application/octet-stream' };
+      }
+
+      // CardVcsPort
+      public async getHistory(handle: string) {
+        return this.history.get(handle) || [];
+      }
+    }
+
+    const fs = new StudioMCardFsDouble();
+    const content = new TextEncoder().encode('sovereign card content');
+
+    const created = await cardCreate(fs, 'studio:card:1', content, { author: 'did:key:123' });
+    expect(created.hash).toBe('blake3:studio:card:1');
+
+    const readBack = await cardGetByHash(fs, created.hash);
+    expect(readBack?.content).toEqual(content);
+
+    const history = await cardHistory(fs, 'studio:card:1');
+    expect(history).toHaveLength(1);
+    expect(history[0].message).toBe('Studio commit');
+  });
+});
