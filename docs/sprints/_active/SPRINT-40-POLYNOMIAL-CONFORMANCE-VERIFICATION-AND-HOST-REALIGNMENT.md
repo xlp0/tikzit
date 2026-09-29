@@ -164,26 +164,66 @@ The layered approach becomes a build gate rather than documentation.
 
 ## 3. Definition of Done (DoD) Criteria
 
-- [ ] **40-DOD-01**: All six law suites in §2.1 exist and pass, including the kernel-backed monad dedupe assertion and the property-based lens laws.
-- [ ] **40-DOD-02**: `guardrail-absence.test.ts` covers **≥ 12** of the cases in §2.2 (the table lists 14) and asserts absence — no `disabled` attributes, no thrown errors.
-- [ ] **40-DOD-03**: `scripts/check-explorer-deps.mjs` is authored, wired into `make check-*`, and fails on a deliberately injected violation (self-test).
-- [ ] **40-DOD-04**: `scripts/audit-concerns.mjs` is authored and reports zero undeclared modules > 150 LOC across `mcard-explorer/**` and `src/components/workbench/explorer/**`.
-- [ ] **40-DOD-05**: `check-vcs-isolation.mjs` `TARGET_DIRECTORIES` includes `mcard-vcs/type` and `mcard-explorer/{core,poly,cards,zoom,time,renderers/registry}`; audit clean.
-- [ ] **40-DOD-06**: `DrawerViewSwitcher.tsx` (≤ 80), `DiagramListView.tsx` (≤ 130), `DrawerBanners.tsx` (≤ 90), `DrawerPersistenceFooter.tsx` (≤ 60) are authored; `CorpusExplorerDrawer.tsx` is ≤ 120 LOC and contains composition only.
-- [ ] **40-DOD-07**: `MCardExplorerEngine.ts`, `ExplorerSectionList.tsx`, and `MCardTree.tsx` are deleted; no residual imports remain (grep-asserted).
-- [ ] **40-DOD-08**: Contract B — `node scripts/audit-testids.mjs --check` passes; all 295 literal selectors and 17 dynamic families intact, including the 21 drawer selectors enumerated in §2.4.
-- [ ] **40-DOD-09**: Contract D/E — every module ≤ 250 LOC; all headless packages report 0 DOM globals and 0 host imports.
-- [ ] **40-DOD-10**: Performance — 1,000-card synthetic corpus renders with virtualisation; direction resolution memoised with a registry `version` counter; both verified by measurement recorded in the evidence ledger.
-- [ ] **40-DOD-11**: `tests/conformance/polynomial-*.test.ts` and `revertible-effect-residue.test.ts` run in the default suite (not a separate opt-in), so law violations fail CI.
-- [ ] **40-DOD-12**: mcard-studio porting matrix (§2.6) is documented in the graduated bin README with the port interfaces named; `CardStructureProvider`, `CardRuntimePort`, `NavigationProvider`, `CoeffectHost`, and `bindHostEffects` are exported from the package façades.
-- [ ] **40-DOD-13**: Full Vitest suite green with **0 regressions** against the 670-test baseline, plus all new suites; `tsc --noEmit` clean; Playwright E2E green.
-- [ ] **40-DOD-14**: Graduation evidence ledger records: LOC deltas for every decomposed module, the guardrail case count, zero-residue results, the 1,000-card performance numbers, the layer-audit output, and the mcard-studio porting checklist.
-- [ ] **40-DOD-15**: The four-commit series (36–40) graduates into bins — `interactions` (36, 37), `shell` (38, 39), `verification` (40) — with bin READMEs and updated `docs/sprints/README.md` + changelog.
-- [ ] **40-DOD-16**: **Layer gate (ADR D57)** — `scripts/check-layer-imports.mjs` is authored, wired into `make check-*`, and fails on each of the five rules in §2.5 via self-tests (declared stratum missing, deep kernel specifier, `layer5` subpath, wrong-stratum consumption, absorbed L0–L3 logic). Audit is clean across `mcard-explorer/{poly,cards,zoom,time,ui,core}`.
-- [ ] **40-DOD-17**: **Studio parity suite (ADRs D54–D56)** — `tests/conformance/studio-parity.test.ts` asserts every row of §2.6 that is testable in this repository: tree semantics, `toCardViewletDefinition`/`toStudioPortDescriptor`/`toStudioTreeNode` field parity, `NavigationProvider` address round-trip, journal teardown ≡ `useCordisFiber` semantics, and zero `cordis` imports in package modules.
-- [ ] **40-DOD-18**: **Façade discipline** — `check-explorer-deps.mjs` also asserts sibling imports resolve to `index.ts` façades only, and fails on a deliberately injected cross-concern internal import (self-test).
-- [ ] **40-DOD-19**: **Studio porting checklist** — the bin README enumerates the studio-side deliverables (host adapters, `StructureProvider` registrations for studio-only card types, `DisposableList` convergence wrapper, optional `executionLog` ⇄ `InteractionTree` annotation), each naming the studio file it touches. No package change is required for any of them.
-- [ ] **40-DOD-20**: **Layered-architecture summary** — the bin README includes the §4.2 stratum table as shipped reality (module → declared layer → consumed kernel symbols), so a reader can verify the layered approach from documentation alone.
+- [ ] **40-DOD-01**: **Six Formal Polynomial Law Suites** (§2.1).
+  - **Observable Rule:** All 6 law suites exist and pass: Lens laws (GetPut, PutGet, PutPut), Monad laws ($\eta$ unit, $\mu$ associativity, dedupe), Operad composition laws, Cofree comonad laws, Reversible effect laws ($e \cdot e^{-1} \simeq \text{id}$), Coeffect Day convolution associativity.
+  - **Verification Command:** `npx vitest run tests/conformance/polynomial-*.test.ts tests/conformance/revertible-effect-residue.test.ts`
+- [ ] **40-DOD-02**: **Comprehensive Guardrail Absence Proofs ($\ge 12$ Cases)**.
+  - **Observable Rule:** `guardrail-absence.test.ts` covers $\ge 12$ distinct negative cases; asserts absence of DOM affordance (`expect(queryByTestId(...)).toBeNull()`), zero `disabled` attributes, zero unhandled throws.
+  - **Verification Command:** `npx vitest run tests/conformance/guardrail-absence.test.ts`
+- [ ] **40-DOD-03**: **Explorer Dependency & Isolation Gate Script**.
+  - **Observable Rule:** `scripts/check-explorer-deps.mjs` authored; self-test command `node scripts/check-explorer-deps.mjs --test-violation` fails with exit code 1; standard run exits with status 0.
+  - **Verification Command:** `node scripts/check-explorer-deps.mjs`
+- [ ] **40-DOD-04**: **Concern Auditor Script (ADR D53)**.
+  - **Observable Rule:** `scripts/audit-concerns.mjs` authored; scans `mcard-explorer/**` and `explorer/**`; reports zero undeclared modules $> 150$ LOC; exits with status 0.
+  - **Verification Command:** `node scripts/audit-concerns.mjs`
+- [ ] **40-DOD-05**: **Contract E Extended Isolation Gate**.
+  - **Observable Rule:** `scripts/check-vcs-isolation.mjs` verifies `mcard-vcs/type` and `mcard-explorer/{core,poly,cards,zoom,time,renderers/registry}`; exits with 0 errors, 0 DOM globals, 0 host imports.
+  - **Verification Command:** `node scripts/check-vcs-isolation.mjs`
+- [ ] **40-DOD-06**: **CorpusExplorerDrawer Decomposition into 4 Modules**.
+  - **Observable Rule:** Authored: `DrawerViewSwitcher.tsx` ($\le 80$ LOC), `DiagramListView.tsx` ($\le 130$ LOC), `DrawerBanners.tsx` ($\le 90$ LOC), `DrawerPersistenceFooter.tsx` ($\le 60$ LOC). `CorpusExplorerDrawer.tsx` reduced to composition-only root $\le 120$ LOC.
+  - **Verification Command:** `wc -l src/components/workbench/explorer/{DrawerViewSwitcher,DiagramListView,DrawerBanners,DrawerPersistenceFooter}.tsx src/components/workbench/CorpusExplorerDrawer.tsx`
+- [ ] **40-DOD-07**: **Shim Deletion & Import Scrub**.
+  - **Observable Rule:** `MCardExplorerEngine.ts`, `ExplorerSectionList.tsx`, and `MCardTree.tsx` files deleted; grep confirms 0 residual imports across entire codebase.
+  - **Verification Command:** `test ! -f src/packages/mcard-explorer/core/MCardExplorerEngine.ts && ! grep -rn "MCardExplorerEngine" src/`
+- [ ] **40-DOD-08**: **Contract B E2E Selector Stability Audit**.
+  - **Observable Rule:** `node scripts/audit-testids.mjs --check` passes with 0 missing selectors across all 295 literals and 17 dynamic families, including all 21 drawer testids enumerated in §2.4.
+  - **Verification Command:** `node scripts/audit-testids.mjs --check`
+- [ ] **40-DOD-09**: **Contract D & E Global Compliance Gate**.
+  - **Observable Rule:** Every module in repository complies with $\le 250$ LOC ceiling; all headless packages report zero DOM globals.
+  - **Verification Command:** `node scripts/check-vcs-isolation.mjs && npm run lint`
+- [ ] **40-DOD-10**: **1,000-Card Synthetic Corpus Virtualization & Performance**.
+  - **Observable Rule:** 1,000-card synthetic corpus renders with DOM node count bounded by viewport ($\le 50$ DOM rows); direction resolution memoized with registry version counter; frame rate $> 55$ FPS.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/virtualizationPerformance.test.tsx`
+- [ ] **40-DOD-11**: **Default Conformance Pipeline Integration**.
+  - **Observable Rule:** Polynomial conformance suites run as part of standard `npm test` / `vitest run` without special environment flags; failure blocks CI.
+  - **Verification Command:** `npx vitest run tests/conformance/`
+- [ ] **40-DOD-12**: **Studio Porting Matrix & Exported Seams**.
+  - **Observable Rule:** Bin README documents porting matrix; `CardStructureProvider`, `CardRuntimePort`, `NavigationProvider`, `CoeffectHost`, and `bindHostEffects` exported from root package façades.
+  - **Verification Command:** `npx tsc --noEmit`
+- [ ] **40-DOD-13**: **Full Regression & E2E Verification**.
+  - **Observable Rule:** 100% green across all vitest suites with 0 regressions against 670 baseline; `tsc --noEmit` clean; Playwright E2E passes.
+  - **Verification Command:** `npx vitest run && npx tsc --noEmit && make test-e2e`
+- [ ] **40-DOD-14**: **Graduation Evidence Ledger Documentation**.
+  - **Observable Rule:** Bin README includes evidence ledger: module LOC deltas, 14 guardrail test results, zero-residue measurements, 1,000-card performance figures, layer-audit logs, studio porting checklist.
+  - **Verification Command:** `test -f docs/sprints/verification/40-polynomial-conformance/README.md`
+- [ ] **40-DOD-15**: **Graduation Bins Organization**.
+  - **Observable Rule:** Sprints 36–40 moved to subsystem bins: `interactions/` (36, 37), `shell/` (38, 39), `verification/` (40); `docs/sprints/README.md` and weekly changelog updated.
+  - **Verification Command:** `test -d docs/sprints/interactions && test -d docs/sprints/shell && test -d docs/sprints/verification`
+- [ ] **40-DOD-16**: **Kernel Layer Gate Script (ADR D57)**.
+  - **Observable Rule:** `scripts/check-layer-imports.mjs` authored; self-tests verify rejection of 5 rules (missing stratum, deep path, `./layer5`, wrong stratum, absorbed L0-L3 logic); passes across all explorer modules.
+  - **Verification Command:** `node scripts/check-layer-imports.mjs --self-test && node scripts/check-layer-imports.mjs`
+- [ ] **40-DOD-17**: **Studio Parity Conformance Suite (ADRs D54–D56)**.
+  - **Observable Rule:** `tests/conformance/studio-parity.test.ts` passes all parity assertions: tree semantics, descriptor field parity, address round-trip, journal teardown ≡ `useCordisFiber`, zero `cordis` package imports.
+  - **Verification Command:** `npx vitest run tests/conformance/studio-parity.test.ts`
+- [ ] **40-DOD-18**: **Façade Boundary Enforcement in Dependency Checker**.
+  - **Observable Rule:** `scripts/check-explorer-deps.mjs` asserts all cross-module imports target `index.ts` façades; self-test with injected internal import exits 1.
+  - **Verification Command:** `node scripts/check-explorer-deps.mjs`
+- [ ] **40-DOD-19**: **Studio Porting Deliverables Checklist**.
+  - **Observable Rule:** Bin README enumerates concrete studio-side files to touch (`vfsCordis.ts`, `useCordisFiber.ts`, `artifactTree.ts`, `views/fileTree/`), asserting zero package modifications required.
+  - **Verification Command:** `grep -rn "mcard-studio" docs/sprints/verification/40-polynomial-conformance/README.md`
+- [ ] **40-DOD-20**: **Layered Architecture Summary Documentation**.
+  - **Observable Rule:** Shipped stratum table (module $\to$ declared layer $\to$ consumed kernel symbols) published in bin README; matches reality in code.
+  - **Verification Command:** `grep -rn "Stratum Table" docs/sprints/verification/40-polynomial-conformance/README.md`
 
 ---
 

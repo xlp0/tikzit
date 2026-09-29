@@ -80,7 +80,7 @@ When work on a sprint in `_active/` is finished and verified against its definit
 | Series | Bin | Relevance to this series |
 | :--- | :--- | :--- |
 | Sprints 30–34 | `orchestration` · `corpus` · `interactions` · `shell` · `verification` | Type judgment, renderer registry, `MCardViewer`, Dockview integration — the surfaces this series makes compositional |
-| Sprint 35 | `interactions` | `Export ▾` dropdown, destination × format orthogonality, `registerViewerActions` bootstrap — the direction set this series re-derives through the registry |
+| Sprint 35 (Active) | `interactions` · `shell` | `Export ▾` dropdown, destination × format orthogonality, sovereign VFS persistence — the multimodal foundation this series re-derives through the registry |
 | Sprints 25–29 | `corpus` · `sync` · `orchestration` · `verification` | `@clm/mcard-vcs` / `@clm/mcard-explorer` split, `OperadicMCardVfs`, `ExplorerQueryFacade` — the ports this series consumes |
 
 ---

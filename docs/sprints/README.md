@@ -13,11 +13,21 @@ Graduated sprints are organized into **category bins** — one directory per sub
 docs/sprints/
 ├── README.md                                     # This Master Index
 ├── _active/                                      # Current active sprint working drafts
+│   ├── PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md
+│   ├── SPRINT-36-POLYNOMIAL-INTERFACE-CORE-AND-AFFORDANCE-ALGEBRA.md
+│   ├── SPRINT-37-MCARD-FIRST-CARD-ALGEBRA-AND-COMPOSITION-SURFACE.md
+│   ├── SPRINT-38-OPERADIC-ZOOM-AND-MULTI-LEVEL-NAVIGATION.md
+│   ├── SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md
+│   └── SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md
 ├── orchestration/                                # Master plans & architecture blueprints
 │   ├── 00-master-orchestration/                  # Master Plan & Architecture
 │   ├── 16-19-mcard-diagram-lifecycle-history-and-export/ # Sprints 16–19 Proposal & Architecture
 │   ├── 20-24-algebraic-modularity-clm-and-build-unification/ # Sprints 20–24 Proposal & Architecture
-│   └── 20-dual-system-makefile-and-shared-protocol/ # Unified Makefile & Shared Dual-System Protocol
+│   ├── 20-dual-system-makefile-and-shared-protocol/ # Unified Makefile & Shared Dual-System Protocol
+│   ├── 25-29-portable-mcard-storage-and-version-control/ # Sprints 25–29 Proposal & Architecture
+│   ├── 27-cordis-fiber-and-satori-protocol-adapters/ # Cordis Fiber Enclaves & Satori Codecs
+│   ├── 28-mcard-studio-plugin-and-cross-application-bridge/ # MCard UI Viewlets & Studio Plugin
+│   └── 30-34-universal-type-interpreter-and-multimodal-mcard-renderer/ # Sprints 30–34 Proposal
 ├── corpus/                                       # Reference corpora & sovereign storage
 │   ├── 00-zx-demo-svg-corpus/                    # [COMPLETED] 12 Canonical ZX SVGs & Gallery
 │   ├── 15-mcard-backed-corpus-explorer-and-sovereign-export/  # MCard Explorer & .db Export
@@ -25,20 +35,26 @@ docs/sprints/
 │   ├── 16b-diagram-library-and-session-durability/ # Diagram Library Management & Session Durability
 │   ├── 17-mcard-version-history-and-restore/     # MCard Version History & Restore
 │   ├── 19-complete-mcard-collection-export/      # Complete MCard Collection Export
-│   └── 23-clm-tri-database-and-service-decoupling/ # TriDatabase Decoupling & Export Extraction
+│   ├── 23-clm-tri-database-and-service-decoupling/ # TriDatabase Decoupling & Export Extraction
+│   ├── 25-isolated-mcard-storage-kernel-and-vfs/ # Isolated MCard Storage Kernel & VFS
+│   └── 30-universal-type-judgment-and-stratified-type-lattice/ # Type Judgment & Stratified Lattice
 ├── parser/                                       # TikZ grammar & domain model
 │   ├── 01-core-domain-and-ast-parser/            # TypeScript AST Parser & Domain Model
 │   └── 24-parser-combinator-and-protocol-conformance/ # Grammar Combinators & Conformance Runner
 ├── shell/                                        # Application shell & service runtime
 │   ├── 02-astro-shell-and-cordis-runtime/        # Astro 7 Shell, Dockview, Cordis & CLM State
 │   ├── 17b-prominent-draft-save-affordance/      # Prominent Draft-to-MCard Save Affordance
-│   └── 22-god-component-decomposition-via-baldwin-splitting/ # Baldwin Splitting on UI God Components
+│   ├── 22-god-component-decomposition-via-baldwin-splitting/ # Baldwin Splitting on UI God Components
+│   └── 33-universal-mcard-viewer-and-explorer-integration/ # Universal Card Viewlet & Master Integration
 ├── canvas/                                       # Canvas rendering engine & visual fidelity
 │   ├── 03-threejs-webgl-canvas-engine/           # Three.js Canvas & Infinite Grid Shader
 │   └── 10-canvas-visual-parity-and-self-loops/   # Canvas Stage Visual Parity & Teardrop Loops
 ├── interactions/                                 # Tools, gestures & editing interactions
 │   ├── 04-interactive-gestures-and-animejs/      # Interactive Tools & Anime.js Springs
-│   └── 05b-editable-canvas-interaction/          # Canvas Tool Activation & Editing Fixes
+│   ├── 05b-editable-canvas-interaction/          # Canvas Tool Activation & Editing Fixes
+│   ├── 31-pluggable-polyglot-renderer-registry-and-viewlets/ # Pluggable Polyglot Renderer Registry
+│   ├── 32-clm-higher-universe-card-renderers/    # Higher-Universe Card Renderers
+│   └── 35-multimodal-artifact-export-and-database-persistence/ # Multimodal Export & DB Persistence
 ├── styles/                                       # Stylesheet engine, palette & inspector
 │   ├── 05-style-palette-and-inspector/           # TikZ Stylesheet Engine & Inspector
 │   └── 11-desktop-style-palette-and-action-bar/  # Desktop Style Palette & Action Bar
@@ -48,10 +64,13 @@ docs/sprints/
 │   └── 18-individual-diagram-export/             # Multi-Format Individual Diagram Export
 ├── sync/                                         # State synchronization & persistence
 │   ├── 07-state-sync-and-mcard-storage/          # Bidirectional Sync & MCard Persistence
-│   └── 21-process-algebra-and-petri-net-lifecycle/ # Petri Net Lifecycle & CSP Sync Channel
+│   ├── 21-process-algebra-and-petri-net-lifecycle/ # Petri Net Lifecycle & CSP Sync Channel
+│   └── 26-content-addressed-version-control-and-merkle-lineage/ # Merkle DAG VCS & Explorer Facade
 ├── verification/                                 # Test suites, benchmarks & deployment
 │   ├── 08-verification-and-deployment/           # Playwright E2E, Benchmarks & PWA Deploy
-│   └── 12-visual-regression-and-final-parity/    # Visual Regression Testing & Master Sign-Off
+│   ├── 12-visual-regression-and-final-parity/    # Visual Regression Testing & Master Sign-Off
+│   ├── 29-tikzit-host-integration-and-verification-matrix/ # Host Adaptation & Conformance
+│   └── 34-tikzit-dockview-integration-and-verification-matrix/ # Dockview Integration & Verification
 └── desktop-parity/                               # Desktop C++ chrome & asset parity
     ├── 09-desktop-assets-and-chrome-harmonization/  # Desktop Assets, macOS Chrome & Tool Border
     └── 13-canvas-centric-toolbar-and-chrome-refinement/  # Canvas-Centric Toolbar & Chrome Refinement
@@ -62,7 +81,7 @@ docs/sprints/
 ## 2. Sprint Status Matrix
 
 | Sprint | Bin | Directory | Focus & Tech Stack | Status |
-| :---: | :--- | :--- | :--- | :---: |
+| :---: | :--- | :--- | :--- | :--- | :---: |
 | **00** | orchestration | [`orchestration/00-master-orchestration`](./orchestration/00-master-orchestration/) | Master Technical Architecture, Nanostores Flux & Cordis Mesh | 🟢 **Active Blueprint** |
 | **00-A** | corpus | [`corpus/00-zx-demo-svg-corpus`](./corpus/00-zx-demo-svg-corpus/) | Canonical ZX-Diagram Reference Corpus & Standalone SVG Suite | ✅ **Completed** |
 | **01** | parser | [`parser/01-core-domain-and-ast-parser`](./parser/01-core-domain-and-ast-parser/) | TypeScript TikZ AST Parser, Grammar Lexer & CLM Kernel Domain | ✅ **Completed** |
@@ -107,6 +126,12 @@ docs/sprints/
 | **33** | shell | [`shell/33-universal-mcard-viewer-and-explorer-integration`](./shell/33-universal-mcard-viewer-and-explorer-integration/) | Universal Card Viewlet (`MCardViewer`) & Explorer Master Integration (`@clm/mcard-explorer/ui`) | ✅ **Completed (Graduated)** |
 | **34** | verification | [`verification/34-tikzit-dockview-integration-and-verification-matrix`](./verification/34-tikzit-dockview-integration-and-verification-matrix/) | TikZiT Dockview Integration, Cross-System Conformance & Verification Matrix | ✅ **Completed (Graduated)** |
 | **35** | interactions | [`interactions/35-multimodal-artifact-export-and-database-persistence`](./interactions/35-multimodal-artifact-export-and-database-persistence/) | Multimodal Artifact Export (`Export ▾` dropdown), Destination × Format Orthogonality & Sovereign Database Persistence | ✅ **Completed (Graduated)** |
+| **36–40** | orchestration | [`_active/PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md`](./_active/PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md) | Architecture Proposal: Polynomial Interface UI, Category-Theoretic Interaction & Spatiotemporal Compositionality | 🟢 **Active Blueprint** |
+| **36** | shell / interactions | [`_active/SPRINT-36-POLYNOMIAL-INTERFACE-CORE-AND-AFFORDANCE-ALGEBRA.md`](./_active/SPRINT-36-POLYNOMIAL-INTERFACE-CORE-AND-AFFORDANCE-ALGEBRA.md) | Polynomial Interface Core, Affordance Algebra & Guardrail Combinators (`@clm/mcard-explorer/poly`) | 📋 **Drafted / Active** |
+| **37** | interactions | [`_active/SPRINT-37-MCARD-FIRST-CARD-ALGEBRA-AND-COMPOSITION-SURFACE.md`](./_active/SPRINT-37-MCARD-FIRST-CARD-ALGEBRA-AND-COMPOSITION-SURFACE.md) | MCard-First Card Algebra, Typed Ports & Tensor/Coproduct Composition Surface | 📋 **Drafted / Active** |
+| **38** | shell | [`_active/SPRINT-38-OPERADIC-ZOOM-AND-MULTI-LEVEL-NAVIGATION.md`](./_active/SPRINT-38-OPERADIC-ZOOM-AND-MULTI-LEVEL-NAVIGATION.md) | Operadic Zoom, Fibration Projections & Deep Link Navigation Stack | 📋 **Drafted / Active** |
+| **39** | sync | [`_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md`](./_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md) | Cofree Interaction Tree, Revertible Effect Journal & Day-Convolution Panels | 📋 **Drafted / Active** |
+| **40** | verification | [`_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md`](./_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md) | Polynomial Conformance Verification, Law Suites & Host Drawer Realignment | 📋 **Drafted / Active** |
 
 ---
 

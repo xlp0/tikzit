@@ -220,27 +220,69 @@ Both are registered by default; the studio may add `studio.remote`-style provide
 
 ## 3. Definition of Done (DoD) Criteria
 
-- [ ] **38-DOD-01**: `zoom/types.ts` (≤ 120 LOC) exports `StructureNode`, `ZoomLevel`, `ZoomPath`, `ZoomCrumb`; kernel imports are root-only.
-- [ ] **38-DOD-02**: All eight providers in §2.2 are implemented (≤ 90 LOC each) with a registry and `appliesTo` predicates. `SqliteStructureProvider` exposes contained cards as real handles (kernel `parsePortableSqlite`), verified against a fixture `.db`.
-- [ ] **38-DOD-03**: `SatoriStructureProvider` surfaces nested `<card>` references as zoomable nodes (kernel `parseSatoriXml`), verified against `tests/fixtures/multimodal-media/turn.satori.xml`.
-- [ ] **38-DOD-04**: `PcardStructureProvider` projects places/transitions/arcs from kernel `PetriNetTopology` with markings — **no bespoke Petri parsing** in `zoom/` (grep-asserted).
-- [ ] **38-DOD-05**: `zoom/stack.ts` (≤ 160 LOC) implements `resolveZoomDirections`, `enter`, `exit`, `to`, `nodes`, `breadcrumb`. `exit()` at root is a no-op (no throw). Depth bound and cycle guard enforced, with tests for both.
-- [ ] **38-DOD-06**: **Guardrail** — a card type with no applicable provider resolves an **empty** zoom fiber: the zoom affordance is absent from the DOM (asserted by absence), and no error state is rendered.
-- [ ] **38-DOD-07**: `zoom/boundary.ts` (≤ 130 LOC) implements `validateBoundary` with the three rules in §2.4; a boundary violation yields **no commit direction** plus an accessible explanation surfaced through the existing `live-announcer`.
-- [ ] **38-DOD-08**: `ui/PositionTree.tsx` replaces `MCardTree.tsx`, renders namespace **and** containment levels with `data-node-kind`, and gives folders a resolved direction set (no hardcoded click handler); `MCardTree.tsx` is deleted.
-- [ ] **38-DOD-09**: `ui/ZoomBreadcrumb.tsx` (≤ 90 LOC) renders `breadcrumb()` with `zoom.to` directions; testids `zoom-breadcrumb`, `zoom-crumb-*` registered.
-- [ ] **38-DOD-10**: Contract B — 295 literal selectors + 17 dynamic families preserved; `mcard-tree-view`, `folder-*`, `tree-item-*` retained (or migrated with specs updated **in-commit**, per Contract B's rule); new zoom selectors registered.
-- [ ] **38-DOD-11**: Contract E — `mcard-explorer/zoom` added to `check-vcs-isolation.mjs`; 0 DOM globals, 0 host imports, zero `mcard-vcs` concretes.
-- [ ] **38-DOD-12**: `tests/unit/mcard-explorer/zoom/{providers,stack,boundary}.test.ts` pass: per-provider projections from fixtures, depth/cycle bounds, boundary accept/reject cases, breadcrumb navigation.
-- [ ] **38-DOD-13**: Full Vitest suite green with **0 regressions** against the 670-test baseline; `tsc --noEmit` clean.
-- [ ] **38-DOD-14**: Concern audit — all new modules ≤ 150 LOC or documented; `MCardTree.tsx` (84 LOC) removal and `PositionTree` replacement recorded in the graduation evidence ledger.
-- [ ] **38-DOD-15**: **Layer declarations (ADR D57)** — every `zoom/` module carries a `@layer L4` header naming the kernel symbols it consumes; imports are root-export only. **No provider parses a format the kernel owns** (`parsePortableSqlite` for `.db`, `parseSatoriXml` for Satori, Petri defs for PCard) — grep-asserted, and a test asserts each provider delegates to the kernel codec.
-- [ ] **38-DOD-16**: **One file per provider (ADR D54)** — the eight providers live in `zoom/providers/*.ts` (≤ 90 LOC each) behind a registry; registering a ninth provider touches no existing file (verified by test).
-- [ ] **38-DOD-17**: **`toStudioTreeNode` parity** — `zoom/adapters/studioTreeNode.ts` (≤ 60 LOC) converts `StructureNode[]` into the studio's `TreeNode` shape (`name`, `fullPath`, `isDir`, `file`, `children`) with a field-parity test, so `mcard-studio` renders containment with its existing `FileTreeNode`.
-- [ ] **38-DOD-18**: **Default `NavigationProvider`s (ADR D56)** — `core.namespace` and `core.containment` are registered by default; `encodeAddress`/`decodeAddress` round-trip for both a card position (`#/card/<handle>`) and a structure node (`#/card/<handle>/<nodeId>`) is asserted; a position restored from an address renders the same viewport mode as one reached by clicking.
-- [ ] **38-DOD-19**: **Façade discipline (ADR D54)** — `zoom/index.ts` is the only importable surface; `ui/` consumes the `zoom/` façade only (grep-asserted).
-- [ ] **38-DOD-20**: **Kenotic boundary (ADR D55)** — zero `cordis`, `cordisClient`, or host-store imports in `zoom/`; content arrives exclusively via `CardContentProvider` (grep-asserted).
-- [ ] **38-DOD-21**: **Studio extension path documented** — the porting checklist names the studio files to register extra providers for (`Spatial3dViewlet`, `WebappZenViewlet`, `MeshTopologyViewlet`, `MerkleProofViewlet`, `PayloadCasViewlet` card types) without package changes.
+- [ ] **38-DOD-01**: **Zoom & Structure Types** (`src/packages/mcard-explorer/zoom/types.ts`, $\le 120$ LOC).
+  - **Observable Rule:** Exports `StructureNode`, `ZoomLevel`, `ZoomPath`, `ZoomCrumb`; kernel imports root-only (`'clm-kernel'`); type check compiles cleanly.
+  - **Verification Command:** `npx tsc --noEmit && ! grep -rn "from 'clm-kernel/" src/packages/mcard-explorer/zoom/types.ts`
+- [ ] **38-DOD-02**: **Eight Structure Providers** (`src/packages/mcard-explorer/zoom/providers/*.ts`, $\le 90$ LOC each).
+  - **Observable Rule:** Implements 8 providers (`sqlite.ts`, `satori.ts`, `pcard.ts`, `zx.ts`, `tikz.ts`, `markdown.ts`, `json.ts`, `namespace.ts`) with registry; `SqliteStructureProvider` extracts contained cards as real handles from fixture `.db` via `parsePortableSqlite`.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom/providers.test.ts -t "SqliteStructureProvider"`
+- [ ] **38-DOD-03**: **Satori Conversational Structure Provider**.
+  - **Observable Rule:** Surfaces nested `<card>` elements from `tests/fixtures/multimodal-media/turn.satori.xml` as zoomable child positions via kernel `parseSatoriXml`.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom/providers.test.ts -t "SatoriStructureProvider"`
+- [ ] **38-DOD-04**: **PCard Petri Net Topology Structure Provider**.
+  - **Observable Rule:** Projects places, transitions, and arcs directly from kernel `PetriNetTopology`; zero bespoke Petri parsing regexes in `zoom/` (grep-asserted).
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom/providers.test.ts -t "PcardStructureProvider" && ! grep -rn "places.*transitions" src/packages/mcard-explorer/zoom/`
+- [ ] **38-DOD-05**: **Zoom Navigation Stack Engine** (`src/packages/mcard-explorer/zoom/stack.ts`, $\le 160$ LOC).
+  - **Observable Rule:** Implements `resolveZoomDirections`, `enter`, `exit`, `to`, `nodes`, `breadcrumb`. `exit()` at root level is an idempotent no-op (never throws). Enforces max depth bound ($\le 8$) and cycle prevention with isolated unit tests.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom/stack.test.ts`
+- [ ] **38-DOD-06**: **Guardrail Absence for Leaf Cards**.
+  - **Observable Rule:** A card type with no applicable structure provider resolves an empty zoom fiber: zoom affordance is absent from DOM (`queryByTestId('btn-zoom-enter') === null`); no disabled button or error banner rendered.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom/stack.test.ts -t "guardrail absence"`
+- [ ] **38-DOD-07**: **Boundary Consistency Validation** (`src/packages/mcard-explorer/zoom/boundary.ts`, $\le 130$ LOC).
+  - **Observable Rule:** Implements `validateBoundary(outerCard, innerMutation)`; boundary conflict yields `commitDirection === undefined` (no commit affordance) and dispatches accessible explanation to `data-testid="live-announcer"`.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom/boundary.test.ts`
+- [ ] **38-DOD-08**: **Containment & Namespace Tree (`PositionTree.tsx`)**.
+  - **Observable Rule:** `src/packages/mcard-explorer/ui/PositionTree.tsx` replaces `MCardTree.tsx`; renders namespace and containment levels with `data-node-kind` attribute; folder click triggers resolved zoom direction instead of hardcoded click handler; `MCardTree.tsx` deleted.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/PositionTree.test.tsx && test ! -f src/packages/mcard-explorer/ui/MCardTree.tsx`
+- [ ] **38-DOD-09**: **Zoom Breadcrumb Viewlet** (`src/packages/mcard-explorer/ui/ZoomBreadcrumb.tsx`, $\le 90$ LOC).
+  - **Observable Rule:** Renders `data-testid="zoom-breadcrumb"` with clickable crumb links `data-testid="zoom-crumb-${idx}"`; clicking crumb dispatches `zoom.to` direction; root crumb restores level 0.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/ZoomBreadcrumb.test.tsx`
+- [ ] **38-DOD-10**: **Contract B Baseline Preservation**.
+  - **Observable Rule:** All 295 baseline literal selectors + 17 dynamic prefix families pass check; `tree-item-*` and `folder-*` dynamic families preserved; new zoom selectors recorded.
+  - **Verification Command:** `node scripts/audit-testids.mjs --check`
+- [ ] **38-DOD-11**: **Contract E Zero-DOM Isolation Gate**.
+  - **Observable Rule:** `TARGET_DIRECTORIES` in `check-vcs-isolation.mjs` includes `mcard-explorer/zoom`; reports 0 DOM globals, 0 host imports, zero `mcard-vcs` concrete imports.
+  - **Verification Command:** `node scripts/check-vcs-isolation.mjs`
+- [ ] **38-DOD-12**: **Zoom Package Unit Test Suite**.
+  - **Observable Rule:** 100% pass across `tests/unit/mcard-explorer/zoom/{providers,stack,boundary}.test.ts`: fixture parsing, depth/cycle guards, breadcrumb clicks, and boundary rejection.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom`
+- [ ] **38-DOD-13**: **Full Vitest Suite & TypeScript Compilation**.
+  - **Observable Rule:** 100% pass with 0 regressions against the 670 passing baseline tests; `tsc --noEmit` exits with status 0.
+  - **Verification Command:** `npx vitest run && npx tsc --noEmit`
+- [ ] **38-DOD-14**: **Concern Audit & Migration Ledger (ADR D53)**.
+  - **Observable Rule:** All modules in `zoom/` $\le 150$ LOC; deletion of `MCardTree.tsx` (84 LOC) and addition of `PositionTree.tsx` recorded in evidence ledger.
+  - **Verification Command:** `node scripts/audit-concerns.mjs`
+- [ ] **38-DOD-15**: **Kernel Codec Delegation & Layer Declarations (ADR D57)**.
+  - **Observable Rule:** Every `zoom/` file carries `@layer L4` header; providers delegate parsing exclusively to kernel codecs (`parsePortableSqlite`, `parseSatoriXml`, etc.); grep asserts no duplicate parser implementations.
+  - **Verification Command:** `grep -rn "@layer L4" src/packages/mcard-explorer/zoom/`
+- [ ] **38-DOD-16**: **Extensible Structure Provider Architecture (ADR D54)**.
+  - **Observable Rule:** Registering a 9th structure provider in tests requires adding one file in `zoom/providers/` and registering it, modifying zero existing provider files.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom/providers.test.ts -t "extensibility"`
+- [ ] **38-DOD-17**: **Studio Tree Node Parity (ADR D54)**.
+  - **Observable Rule:** `zoom/adapters/studioTreeNode.ts` ($\le 60$ LOC) maps `StructureNode[]` into studio `TreeNode` shape (`name`, `fullPath`, `isDir`, `file`, `children`) with exact field parity.
+  - **Verification Command:** `npx vitest run tests/conformance/studio-parity.test.ts -t "toStudioTreeNode"`
+- [ ] **38-DOD-18**: **Default Navigation Providers & Deep Links (ADR D56)**.
+  - **Observable Rule:** `core.namespace` and `core.containment` providers registered by default; URL hash round-trip asserted for `#/card/<handle>` (card position) and `#/card/<handle>/<nodeId>` (contained node position).
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/zoom/navigation.test.ts`
+- [ ] **38-DOD-19**: **Façade Discipline (ADR D54)**.
+  - **Observable Rule:** `zoom/index.ts` is the exclusive public export; `src/packages/mcard-explorer/ui/` consumes only the façade (grep-asserted).
+  - **Verification Command:** `! grep -rn "from '.*mcard-explorer/zoom/providers" src/packages/mcard-explorer/ui/`
+- [ ] **38-DOD-20**: **Kenotic Host Boundary (ADR D55)**.
+  - **Observable Rule:** Zero `cordis`, `cordisClient`, or host-store imports in `zoom/`; content arrives exclusively via `CardContentProvider` argument.
+  - **Verification Command:** `! grep -rn "cordis" src/packages/mcard-explorer/zoom/`
+- [ ] **38-DOD-21**: **Studio Extension Path Documentation**.
+  - **Observable Rule:** Bin documentation names the exact studio viewlet registration points (`Spatial3dViewlet`, `WebappZenViewlet`, `MeshTopologyViewlet`, `MerkleProofViewlet`, `PayloadCasViewlet`) requiring zero package modifications.
+  - **Verification Command:** `test -f docs/sprints/_active/SPRINT-38-OPERADIC-ZOOM-AND-MULTI-LEVEL-NAVIGATION.md`
 
 ---
 

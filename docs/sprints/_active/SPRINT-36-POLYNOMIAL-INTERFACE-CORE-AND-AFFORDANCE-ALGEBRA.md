@@ -313,26 +313,66 @@ The port is **defined** here (so `Position` has an addressable identity from the
 
 ## 3. Definition of Done (DoD) Criteria
 
-- [ ] **36-DOD-01**: `src/packages/mcard-explorer/poly/types.ts` (≤ 140 LOC) exports `Position`, `Direction`, `DirectionResult`, `PolyInterface`. All kernel imports come from the `'clm-kernel'` root (no deep `dist/` paths).
-- [ ] **36-DOD-02**: `poly/guardrails.ts` (≤ 100 LOC) exports `allOf`, `anyOf`, `never`, and the position predicates listed in §2.2; each is unit-tested in isolation.
-- [ ] **36-DOD-03**: `poly/registry.ts` (≤ 130 LOC) exports `PolyInterfaceRegistry` with `register` (returns disposer), `resolveDirections`, `resolve`, `listAll`. A throwing `legality` predicate is treated as **illegal** (fail-closed), verified by test.
-- [ ] **36-DOD-04**: `poly/census.ts` (≤ 80 LOC) wraps kernel `PolynomialFunctor` for fiber censuses only; `fiberDegree([]) === 0` verified. No other kernel polynomial use exists in the package (grep-asserted).
-- [ ] **36-DOD-05**: `core/ExplorerStateStore.ts` (≤ 120), `core/TreeProjection.ts` (≤ 130), `core/FacetResolver.ts` (≤ 110), `core/SelectionModel.ts` (≤ 110), `core/ExplorerEngine.ts` (≤ 120) are authored; `MCardExplorerEngine.ts` is a deprecated re-export shim.
-- [ ] **36-DOD-06**: **Typed facets** — `FacetResolver` maps each `FacetDefinition` to `ExplorerSearchFilter` fields (`universe` / `category` / `mimeType` / `pattern`) and the engine passes them to `ExplorerDataSource.search()`. A test asserts the data source receives `{ universe: 'U1' }` for the `process` facet. **No `String.prototype.includes` facet filtering remains** in `mcard-explorer` (grep-asserted).
-- [ ] **36-DOD-07**: `ui/ExplorerToolbar.tsx` (≤ 110), `ui/FacetStrip.tsx` (≤ 100), `ui/ExplorerListPane.tsx` (≤ 130), `ui/ExplorerPreviewPane.tsx` (≤ 100), `ui/ExplorerKeyboardScope.tsx` (≤ 110) are authored; `ui/MCardExplorer.tsx` is ≤ 120 LOC and contains composition only.
-- [ ] **36-DOD-08**: **No hardcoded action lists** in `mcard-explorer/ui` — `ExplorerListPane` renders exactly `registry.resolveDirections(position)`; grep finds no literal action-id arrays in views.
-- [ ] **36-DOD-09**: Contract B — all 295 literal selectors + 17 dynamic prefix families preserved (`node scripts/audit-testids.mjs --check`); new selectors `facet-chip-${id}` (typed) and `direction-${id}` registered in the baseline deliberately.
-- [ ] **36-DOD-10**: Contract E — `scripts/check-vcs-isolation.mjs` `TARGET_DIRECTORIES` extended with `mcard-explorer/poly` and `mcard-explorer/core`; 0 DOM globals, 0 host imports, type-only React.
-- [ ] **36-DOD-11**: `tests/unit/mcard-explorer/poly/{guardrails,registry,census}.test.ts` pass: legality combinators, fail-closed resolution, deterministic ordering, fiber degree 0 ⇔ empty fiber.
-- [ ] **36-DOD-12**: `tests/unit/mcard-explorer/core/{FacetResolver,TreeProjection,SelectionModel}.test.ts` pass, including the typed-facet → filter mapping and tree projection from positions.
-- [ ] **36-DOD-13**: Full Vitest suite green with **0 regressions** against the 670-test baseline; `tsc --noEmit` clean.
-- [ ] **36-DOD-14**: Concern audit — every new module ≤ 150 LOC except where §2.5 documents a second concern; `MCardExplorer.tsx` and `MCardExplorerEngine.ts` LOC deltas recorded in the graduation evidence ledger.
-- [ ] **36-DOD-15**: **Layer declarations (ADR D57)** — every module in `poly/` and `core/` carries a `@layer L4` header declaring the kernel symbols it consumes; all kernel imports are root-export only (`clm-kernel`), with **zero** `clm-kernel/layer*`, `clm-kernel/dist/*`, or `./layer5` specifiers (grep-asserted; gate formalised in Sprint 40).
-- [ ] **36-DOD-16**: **Studio tree parity (ADR D54)** — `TreeProjection` reproduces `mcard-studio`'s `buildArtifactTree` semantics (path split, directories-first then case-insensitive alphabetical) and is validated by `tests/conformance/studio-parity.test.ts` against the same input set; `filterArtifacts`'s substring behaviour is **not** copied (typed facets replace it, ADR D49).
-- [ ] **36-DOD-17**: **Direction-group compatibility (ADR D54)** — the registry accepts `group` values matching the studio's `ForwardTarget['reason']` vocabulary (`forward.consumes`, `forward.same-runtime`, `forward.transition`), and `renderers/adapters/forwardBrowsingAdapter.ts` (≤ 60 LOC) converts a studio-shaped `ForwardTarget[]` into `Direction[]`, verified by test.
-- [ ] **36-DOD-18**: **Façade discipline (ADR D54)** — `poly/index.ts` and `core/index.ts` re-export the public surface; no sibling package imports a `poly/` or `core/` internal module (grep-asserted).
-- [ ] **36-DOD-19**: **Kenotic boundary (ADR D55)** — zero `cordis`, `cordisClient`, or host-store imports inside `mcard-explorer/poly` and `mcard-explorer/core`; host context is accepted as an argument where needed (grep-asserted).
-- [ ] **36-DOD-20**: `NavigationProvider` port (§2.9, ≤ 110 LOC) is defined and exported from the `poly/` façade with `encodeAddress`/`decodeAddress` round-trip tests; no host implementation is required in this sprint.
+- [ ] **36-DOD-01**: **Polynomial Core Types** (`src/packages/mcard-explorer/poly/types.ts`, $\le 140$ LOC).
+  - **Observable Rule:** Exports `Position`, `Direction`, `DirectionResult`, `PolyInterface`, `InterfaceLens`. All kernel imports come exclusively from the `'clm-kernel'` root export (zero deep `dist/` or `layer*` subpaths).
+  - **Verification Command:** `npx tsc --noEmit && ! grep -rn "from 'clm-kernel/" src/packages/mcard-explorer/poly/types.ts`
+- [ ] **36-DOD-02**: **Affordance Guardrail Combinators** (`src/packages/mcard-explorer/poly/guardrails.ts`, $\le 100$ LOC).
+  - **Observable Rule:** Exports `allOf`, `anyOf`, `never`, and position predicates (`isSource`, `isArtifact`, `isCollection`, `isProcess`, `hasMime`); `never(p)` always returns `false`; `allOf` short-circuits on first false; unit-tested in isolation.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly/guardrails.test.ts`
+- [ ] **36-DOD-03**: **Fail-Closed Affordance Registry** (`src/packages/mcard-explorer/poly/registry.ts`, $\le 130$ LOC).
+  - **Observable Rule:** Exports `PolyInterfaceRegistry` with `register` (returns working disposer function), `resolveDirections`, `resolve`, `listAll`. A throwing `legality` predicate fail-closes to `false` (direction omitted, never throws to caller).
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly/registry.test.ts`
+- [ ] **36-DOD-04**: **Numeric Fiber Census Adapter** (`src/packages/mcard-explorer/poly/census.ts`, $\le 80$ LOC).
+  - **Observable Rule:** Wraps kernel `PolynomialFunctor` for fiber censuses; `fiberDegree([]) === 0` asserted. No other kernel `PolynomialFunctor` imports exist anywhere in `@clm/mcard-explorer` (grep-asserted).
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly/census.test.ts && ! grep -rn "PolynomialFunctor" src/packages/mcard-explorer/core/ src/packages/mcard-explorer/ui/`
+- [ ] **36-DOD-05**: **Engine Decomposition into 5 Single-Concern Modules**.
+  - **Observable Rule:** Modules authored: `core/ExplorerStateStore.ts` ($\le 120$ LOC), `core/TreeProjection.ts` ($\le 130$ LOC), `core/FacetResolver.ts` ($\le 110$ LOC), `core/SelectionModel.ts` ($\le 110$ LOC), `core/ExplorerEngine.ts` ($\le 120$ LOC). `MCardExplorerEngine.ts` retained as deprecated re-export shim ($\le 40$ LOC).
+  - **Verification Command:** `wc -l src/packages/mcard-explorer/core/{ExplorerStateStore,TreeProjection,FacetResolver,SelectionModel,ExplorerEngine}.ts`
+- [ ] **36-DOD-06**: **Typed Facets with SQL-Level Filtering**.
+  - **Observable Rule:** `FacetResolver` maps `FacetDefinition` to `ExplorerSearchFilter` fields (`universe`, `category`, `mimeType`, `pattern`). Passing facet `{ id: 'process' }` passes `{ universe: 'U1' }` to `ExplorerDataSource.search()`. Zero `String.prototype.includes` string-matching remains in `mcard-explorer` (grep-asserted).
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/core/FacetResolver.test.ts && ! grep -rn "\.includes(" src/packages/mcard-explorer/core/FacetResolver.ts`
+- [ ] **36-DOD-07**: **UI Decomposition into 5 Focused Viewlets**.
+  - **Observable Rule:** Modules authored: `ui/ExplorerToolbar.tsx` ($\le 110$ LOC), `ui/FacetStrip.tsx` ($\le 100$ LOC), `ui/ExplorerListPane.tsx` ($\le 130$ LOC), `ui/ExplorerPreviewPane.tsx` ($\le 100$ LOC), `ui/ExplorerKeyboardScope.tsx` ($\le 110$ LOC). `ui/MCardExplorer.tsx` reduced to pure composition root ($\le 120$ LOC).
+  - **Verification Command:** `wc -l src/packages/mcard-explorer/ui/{ExplorerToolbar,FacetStrip,ExplorerListPane,ExplorerPreviewPane,ExplorerKeyboardScope,MCardExplorer}.tsx`
+- [ ] **36-DOD-08**: **Resolved Directions Only (Zero Hardcoded Action Arrays)**.
+  - **Observable Rule:** `ExplorerListPane` renders directions returned exclusively by `registry.resolveDirections(position)`. Illegal directions are completely absent from the DOM (`queryByTestId('direction-...') === null`), never disabled. Zero hardcoded action-id arrays in views (grep-asserted).
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/ExplorerListPane.test.tsx`
+- [ ] **36-DOD-09**: **Contract B Selector Audit & Dynamic Family Registration**.
+  - **Observable Rule:** `node scripts/audit-testids.mjs --check` passes with 0 missing selectors across all 295 baseline literals + 17 dynamic prefix families; new selectors `facet-chip-${id}` and `direction-${id}` are registered.
+  - **Verification Command:** `node scripts/audit-testids.mjs --check`
+- [ ] **36-DOD-10**: **Contract E Zero-DOM Isolation Gate**.
+  - **Observable Rule:** `scripts/check-vcs-isolation.mjs` targets extended with `mcard-explorer/poly` and `mcard-explorer/core`. Reports 0 DOM globals (`window`, `document`), 0 host imports, type-only React.
+  - **Verification Command:** `node scripts/check-vcs-isolation.mjs`
+- [ ] **36-DOD-11**: **Poly Algebra Unit Test Suite**.
+  - **Observable Rule:** 100% pass across `tests/unit/mcard-explorer/poly/{guardrails,registry,census}.test.ts`: combinator laws, fail-closed resolution, deterministic priority ordering, and degree 0 equivalence.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly`
+- [ ] **36-DOD-12**: **Core Engine Unit Test Suite**.
+  - **Observable Rule:** 100% pass across `tests/unit/mcard-explorer/core/{FacetResolver,TreeProjection,SelectionModel,ExplorerEngine}.test.ts`: typed facet to SQL filter mapping, multi-selection, and tree projection.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/core`
+- [ ] **36-DOD-13**: **Vitest Regression Suite & Type Check**.
+  - **Observable Rule:** 100% pass with 0 regressions against the 670 passing test baseline; `tsc --noEmit` exits with status 0.
+  - **Verification Command:** `npx vitest run && npx tsc --noEmit`
+- [ ] **36-DOD-14**: **Concern Audit & LOC Thresholds (ADR D53)**.
+  - **Observable Rule:** Every new module in `poly/` and `core/` is $\le 150$ LOC; LOC deltas for `MCardExplorer.tsx` and `MCardExplorerEngine.ts` recorded in graduation evidence ledger.
+  - **Verification Command:** `node scripts/audit-concerns.mjs`
+- [ ] **36-DOD-15**: **Kernel Layer Declarations (ADR D57)**.
+  - **Observable Rule:** Every file in `poly/` and `core/` carries `@layer L4` header; kernel imports use `'clm-kernel'` root export only with zero deep paths (`dist/`, `layer*`, `./layer5`).
+  - **Verification Command:** `grep -rn "@layer L4" src/packages/mcard-explorer/{poly,core}/`
+- [ ] **36-DOD-16**: **Studio Tree Parity (ADR D54)**.
+  - **Observable Rule:** `TreeProjection` produces directory-first, case-insensitive alphabetical sorting identical to `mcard-studio`'s `buildArtifactTree`, verified by `tests/conformance/studio-parity.test.ts`.
+  - **Verification Command:** `npx vitest run tests/conformance/studio-parity.test.ts -t "TreeProjection"`
+- [ ] **36-DOD-17**: **Direction-Group Compatibility (ADR D54)**.
+  - **Observable Rule:** `forwardBrowsingAdapter.ts` ($\le 60$ LOC) maps studio `ForwardTarget['reason']` vocabulary (`forward.consumes`, `forward.same-runtime`, `forward.transition`) to `Direction[]`; tested against sample targets.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/renderers/forwardBrowsingAdapter.test.ts`
+- [ ] **36-DOD-18**: **Façade Discipline (ADR D54)**.
+  - **Observable Rule:** `poly/index.ts` and `core/index.ts` are the exclusive public import boundaries; no sibling package imports internal modules directly (grep-asserted).
+  - **Verification Command:** `! grep -rn "from '.*mcard-explorer/\(poly\|core\)/[a-zA-Z]" src/components/ src/services/`
+- [ ] **36-DOD-19**: **Kenotic Host Boundary (ADR D55)**.
+  - **Observable Rule:** Zero `cordis`, `cordisClient`, or host-store imports inside `mcard-explorer/poly` and `mcard-explorer/core`; host context passed as parameter only.
+  - **Verification Command:** `! grep -rn "cordis" src/packages/mcard-explorer/{poly,core}/`
+- [ ] **36-DOD-20**: **NavigationProvider Port Definition (ADR D56)**.
+  - **Observable Rule:** `NavigationProvider` port interface exported from `poly/types.ts` ($\le 110$ LOC); `encodeAddress`/`decodeAddress` round-trip test asserts identity for card handle addresses.
+  - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly/navigation.test.ts`
 
 ---
 
