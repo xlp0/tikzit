@@ -7,7 +7,11 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@clm/mcard-vcs": ["./src/packages/mcard-vcs/index.ts"],
+      "@clm/mcard-vcs/*": ["./src/packages/mcard-vcs/*"],
+      "@clm/mcard-explorer": ["./src/packages/mcard-explorer/index.ts"],
+      "@clm/mcard-explorer/*": ["./src/packages/mcard-explorer/*"]
     },
     "types": ["vite/client", "vitest/globals"],
     "strict": true,

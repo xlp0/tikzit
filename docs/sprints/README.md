@@ -94,6 +94,12 @@ docs/sprints/
 | **22** | shell | [`shell/22-god-component-decomposition-via-baldwin-splitting`](./shell/22-god-component-decomposition-via-baldwin-splitting/) | UI God-Component Decomposition, Baldwin Splitting & Generated Selector Audit | ✅ **Completed** |
 | **23** | corpus | [`corpus/23-clm-tri-database-and-service-decoupling`](./corpus/23-clm-tri-database-and-service-decoupling/) | CLM TriDatabase Service Decoupling, Headless Lineage & Legacy Store Boundary | ✅ **Completed** |
 | **24** | parser | [`parser/24-parser-combinator-and-protocol-conformance`](./parser/24-parser-combinator-and-protocol-conformance/) | Parser Combinator Decomposition & TS/C++ Cross-Engine Conformance | ✅ **Completed** |
+| **25–29** | orchestration | [`_active/PROPOSAL-25-29-PORTABLE-MCARD-STORAGE-AND-VERSION-CONTROL.md`](./_active/PROPOSAL-25-29-PORTABLE-MCARD-STORAGE-AND-VERSION-CONTROL.md) | Architecture Proposal: Portable MCard Storage, Merkle VCS & Reusable Explorer Subsystem (`@clm/mcard-vcs` & `@clm/mcard-explorer`) | 🟢 **Accepted Blueprint** |
+| **25** | corpus | [`_active/SPRINT-25-ISOLATED-MCARD-STORAGE-KERNEL-AND-VFS.md`](./_active/SPRINT-25-ISOLATED-MCARD-STORAGE-KERNEL-AND-VFS.md) | Headless TriDatabase Engine, Pluggable VFS & Zero-DOM Isolation | ✅ **Completed** |
+| **26** | sync | [`_active/SPRINT-26-CONTENT-ADDRESSED-VERSION-CONTROL-AND-MERKLE-LINEAGE.md`](./_active/SPRINT-26-CONTENT-ADDRESSED-VERSION-CONTROL-AND-MERKLE-LINEAGE.md) | Content-Addressed Merkle DAG Version Control, Branching & Headless Explorer Facade | ✅ **Completed** |
+| **27** | orchestration | [`_active/SPRINT-27-CORDIS-FIBER-AND-SATORI-PROTOCOL-ADAPTERS.md`](./_active/SPRINT-27-CORDIS-FIBER-AND-SATORI-PROTOCOL-ADAPTERS.md) | Cordis Fiber Enclaves (`mcard.explorer`), Satori `<mcard-explorer>` Codecs & Turn Pipeline | ✅ **Completed** |
+| **28** | orchestration | [`_active/SPRINT-28-MCARD-STUDIO-PLUGIN-AND-CROSS-APPLICATION-BRIDGE.md`](./_active/SPRINT-28-MCARD-STUDIO-PLUGIN-AND-CROSS-APPLICATION-BRIDGE.md) | Reusable `@clm/mcard-explorer` UI Viewlets, Action Registry, `mcard-studio` Plugin & Upstream RFC | ✅ **Completed** |
+| **29** | verification | [`_active/SPRINT-29-TIKZIT-HOST-INTEGRATION-AND-VERIFICATION-MATRIX.md`](./_active/SPRINT-29-TIKZIT-HOST-INTEGRATION-AND-VERIFICATION-MATRIX.md) | TikZiT Host Adaptation, `CorpusExplorerDrawer` Refactor, Zero Regression & Conformance Matrix | ✅ **Completed** |
 
 ---
 

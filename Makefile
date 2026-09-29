@@ -15,7 +15,7 @@ QMAKE ?= qmake
 UNITTESTS ?= $(BUILD_DIR_TEST)/UnitTests.app/Contents/MacOS/UnitTests
 
 .PHONY: all build build-web build-cpp build-qmake build-test-cpp \
-        test test-web test-cpp test-e2e verify-corpus clean clean-web clean-cpp lint check-independence check-conformance
+        test test-web test-cpp test-e2e test-vcs verify-corpus clean clean-web clean-cpp lint check-independence check-conformance check-vcs-isolation
 
 all: build test
 
@@ -60,6 +60,13 @@ test-cpp: build-test-cpp
 
 test-e2e:
 	npm run test:e2e
+
+test-vcs:
+	npx vitest run tests/unit/mcard-vcs/ tests/unit/mcard-explorer/ tests/conformance/
+
+check-vcs-isolation:
+	@echo "Checking zero-DOM AST purity and hermetic isolation in @clm/mcard-vcs and @clm/mcard-explorer..."
+	@node scripts/check-vcs-isolation.mjs
 
 verify-corpus:
 	npm run verify:corpus

@@ -8,6 +8,9 @@ import type {
 } from './documentCommitService';
 import type { CorpusIndexRecord } from './corpusPersistence';
 import type { GraphAST } from '../../core/domain/types';
+import { ExplorerActionRegistry } from '../../packages/mcard-explorer';
+import { MCardExplorerEngine } from '../../packages/mcard-explorer/core/MCardExplorerEngine';
+import { getExplorerQueryFacade, getExplorerActionRegistry } from './vcsAdapterInstance';
 import {
   DiagramIndexService,
   type CorpusManifestEntry,
@@ -201,4 +204,22 @@ export class CorpusExplorerService extends Service {
   get lastIssues(): CorpusIndexIssue[] {
     return [...this.issues];
   }
+
+  getExplorerEngine(): MCardExplorerEngine {
+    return new MCardExplorerEngine(getExplorerQueryFacade(), getExplorerActionRegistry());
+  }
+
+  getActionRegistry(): ExplorerActionRegistry {
+    return getExplorerActionRegistry();
+  }
+}
+
+export function useCorpusExplorerAdapter(runtime?: any): {
+  engine: MCardExplorerEngine;
+  actionRegistry: ExplorerActionRegistry;
+} {
+  const facade = getExplorerQueryFacade();
+  const actionRegistry = getExplorerActionRegistry();
+  const engine = new MCardExplorerEngine(facade, actionRegistry);
+  return { engine, actionRegistry };
 }

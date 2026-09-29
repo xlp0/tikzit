@@ -16,6 +16,10 @@ The web workbench brings the complete TikZiT diagramming experience into modern 
 - **Deterministic AST Parser & Combinators**: Pure TypeScript tokenizer, recursive-descent grammar combinators (`nodeCombinator`, `edgeCombinator`, `styleCombinator`, `propertyCombinator`, `pathCombinator`), and emitter ensuring byte-level fidelity with native TikZiT PGF/TikZ files.
 - **Three.js WebGL Canvas**: Infinite smooth pan/zoom canvas, procedural coordinate grid shader, high-contrast dashed junction circles, and Bézier curves.
 - **Dockview Spatial Workbench**: Fully customizable multi-dock workspace with draggable, collapsable panels for the canvas, source code editor, live TeX preview, style palette, and property inspector.
+- **Operadic MCard Virtual File System (`@clm/mcard-vcs`)**: Headless, zero-DOM storage subsystem grounded in `clm-kernel`'s `MCardFileSystem`. Formal bidirectional Conversational Lenses ($S \dashv G$), dispatch/callback event bus, pluggable storage backends (in-memory WASM SQLite, IndexedDB, Node.js filesystem), and nested ACID savepoints with automatic rollback.
+- **Content-Addressed Merkle DAG Version Control**: Mealy machine VCS engine ($O = \delta(s, i)$), BLAKE3 content-addressed DAG commits and trees, CAS branch references (`refs/heads/*`), Lowest Common Ancestor (LCA) traversal, multi-modal line/graph AST diffing, deterministic 3-way merge, and headless serializable Explorer query facade.
+- **Inverted Cordis Fibers & Satori Turn Pipeline**: Cordis Fibers (`mcard.storage`, `mcard.vcs`, `mcard.explorer`) with strict LIFO `DisposableList` teardown, Satori XML/JSON AST codecs (`<card>`, `<version-dag>`, `<diff-view>`, `<mcard-explorer>`), and a 5-phase conversational turn orchestrator.
+- **Reusable MCard Explorer Subsystem (`@clm/mcard-explorer`)**: Headless state engine (`MCardExplorerEngine`), pluggable `ExplorerActionRegistry`, host-agnostic presentation viewlets (`MCardExplorer`, `MCardTree`, `MCardSearchBar`, `MCardEntryRow`), canonical `mcard-studio` PTR plugin manifest (`createMCardVcsPlugin`), and cross-system conformance suites.
 - **Petri Net Document Lifecycle & CSP Sync**: Formal marked Petri Net state machine (`DocumentProcess.ts`) guaranteeing token conservation and dirty-buffer protection during async persistence, coordinated via bounded CSP asynchronous channels (`SyncChannel.ts`).
 - **Unified Diagram Lifecycle & Version History**: User diagram creation (`zx:diagrams:UUID`), prominent Draft save affordance, session durability across reloads, and version history popover with non-destructive restore, preview, and comparison.
 - **Comprehensive Multi-Format Export**: Verbatim TikZ/TeX export, rendered vector SVG, raster PNG (1x, 2x, 4x), PDF generation via `pdf-lib`, and standalone sovereign SQLite `.db` collection export with complete lineage closure and `mcard-studio` round-trip verification.
@@ -39,14 +43,23 @@ npm run dev
 The web workbench is backed by a comprehensive automated test matrix orchestrated via the root `Makefile`:
 
 ```bash
-# Run Vitest unit, parser, CLM, and integration test suite (77 test files, 466 tests)
+# Run Vitest unit, parser, CLM, VCS, and integration test suite (95 test files, 526 tests)
 make test-web
+
+# Run isolated VCS, MCard Explorer, and cross-system conformance test suite (18 test files, 60 tests)
+make test-vcs
+
+# Verify zero DOM globals and zero host imports in @clm/mcard-vcs and @clm/mcard-explorer/core
+make check-vcs-isolation
 
 # Run automated browser independence verification (5 checks, 0 native C++ bindings)
 make check-independence
 
 # Verify dual-system protocol conformance across 12 canonical ZX diagrams
 make check-conformance
+
+# Audit Contract B testid baseline (211 literal selectors and 12 dynamic prefix families)
+node scripts/audit-testids.mjs --check
 
 # Run Playwright cross-browser test suite (Chromium, Firefox, WebKit)
 make test-e2e
@@ -69,6 +82,9 @@ make build-web
 tikzit/
 ├── Makefile            # Unified developer Makefile (web and native desktop)
 ├── src/
+│   ├── packages/       # Universal headless subsystems
+│   │   ├── mcard-vcs/      # Operadic VFS, Merkle VCS, Cordis fibers, Satori codecs, PTR plugin
+│   │   └── mcard-explorer/ # Reusable MCard Explorer engine, action registry, and UI viewlets
 │   ├── core/           # TypeScript TikZ AST parser, grammar combinators, and lexer
 │   ├── canvas/         # Three.js WebGL canvas engine, shaders, and renderers
 │   ├── components/     # Dockview spatial workbench, style palette, preview, inspectors
@@ -77,13 +93,14 @@ tikzit/
 │   ├── gui/            # Native C++ Qt window, scene, and tool implementations (Reference)
 │   └── data/           # Native C++ graph and parser data structures (Reference)
 ├── docs/
-│   ├── sprints/        # Implementation sprint specifications (Sprints 00-24 Graduated)
+│   ├── sprints/        # Implementation sprint specifications (Sprints 00-29 Graduated/Complete)
+│   ├── integration/    # Third-party host embedding guides (EMBEDDING-MCARD-VCS.md)
 │   ├── examples/       # 12-diagram ZX-calculus reference corpus with SVGs
 │   ├── architecture/   # Architecture specifications (Shared Dual-System Protocol)
 │   └── changelog/      # Weekly changelog archive (YYYY-Www.md)
-├── tests/              # Vitest unit, integration, and headless test suites (466 tests)
+├── tests/              # Vitest unit, integration, and conformance suites (526 tests)
 ├── e2e/                # Playwright end-to-end and browser inspection scenarios
-├── scripts/            # Build, testid audit, independence, and conformance verification scripts
+├── scripts/            # Build, testid audit, isolation, independence, and conformance scripts
 ├── images/             # Canonical application icon and tool SVGs
 ├── CMakeLists.txt      # CMake build configuration for native Qt application
 ├── tikzit.pro          # qmake project file for native Qt application

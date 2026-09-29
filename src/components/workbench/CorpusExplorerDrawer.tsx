@@ -1,9 +1,7 @@
 /**
- * src/components/workbench/CorpusExplorerDrawer.tsx - Sprint 22
- * Decomposed CorpusExplorerDrawer container (< 180 LOC) composing:
- * - ExplorerSearchBar
- * - ExplorerSectionList
- * - ExplorerEntryRow
+ * src/components/workbench/CorpusExplorerDrawer.tsx - Sprint 29
+ * Refactored CorpusExplorerDrawer container mounting explorer components.
+ * Target: <= 150 LOC. Satisfies Contract D (ceiling 180 LOC) & Contract B.
  */
 import React, { useEffect, useState, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
@@ -14,21 +12,22 @@ import { ExplorerSearchBar } from './explorer/ExplorerSearchBar';
 import { ExplorerSectionList } from './explorer/ExplorerSectionList';
 import type { ExplorerItem } from './explorer/ExplorerEntryRow';
 
-interface CorpusExplorerDrawerProps {
+export interface CorpusExplorerDrawerProps {
   runtime: WorkbenchRuntime;
   activeHandle: string;
-  isCollapsed: boolean;
-  width: number;
+  isCollapsed?: boolean;
+  width?: number;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
-  runtime,
-  activeHandle,
-  isCollapsed,
-  width,
+  runtime, activeHandle, isCollapsed = false, width, isOpen, onClose
 }) => {
+  if (isOpen !== undefined && !isOpen) return null;
+  if (isCollapsed) return null;
+
   const corpusQuery = useStore(runtime.stores.$corpusQuery);
-  const corpusEntries = useStore(runtime.stores.$corpusEntries);
   const corpusView = useStore(runtime.stores.$corpusView);
   const sessionRecovery = useStore(runtime.stores.$sessionRecovery);
 
@@ -39,21 +38,15 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
   const [editTitle, setEditTitle] = useState('');
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
 
+  useEffect(() => defaultWorkspaceManager.subscribe((s) => setOpenDocs([...s.openDocs])), []);
   useEffect(() => {
-    return defaultWorkspaceManager.subscribe((state) => {
-      setOpenDocs([...state.openDocs]);
-    });
-  }, []);
-
-  useEffect(() => {
-    const timeout = window.setTimeout(() => setDebouncedQuery(corpusQuery), 100);
-    return () => window.clearTimeout(timeout);
+    const t = window.setTimeout(() => setDebouncedQuery(corpusQuery), 100);
+    return () => window.clearTimeout(t);
   }, [corpusQuery]);
-
   useEffect(() => {
-    const handleClickOutside = () => setOpenMenuHandle(null);
-    window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
+    const handleClose = () => setOpenMenuHandle(null);
+    window.addEventListener('click', handleClose);
+    return () => window.removeEventListener('click', handleClose);
   }, []);
 
   const showArchived = sessionRecovery.showArchived;
@@ -62,56 +55,31 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
     runtime.corpusExplorer.listCorpusEntries({ includeArchived: true }).entries.map((e) => e.handle)
   );
 
-  const drafts: ExplorerItem[] = useMemo(() => {
-    return openDocs
-      .filter((doc) => !allCorpusHandles.has(doc.id) && isDiagramHandle(doc.id) && doc.id.startsWith('zx:diagrams:'))
-      .map((doc) => ({
-        handle: doc.id,
-        title: doc.title,
-        type: 'draft' as const,
-        badge: 'Draft' as const,
-        nodeCount: doc.ast?.nodes?.length ?? 0,
-        edgeCount: doc.ast?.edges?.length ?? 0,
-        updatedAt: doc.updatedAt,
-        createdAt: doc.createdAt,
-        archived: false,
-        isImported: false,
-        version: 0,
-      }));
-  }, [openDocs, allCorpusHandles]);
+  const drafts: ExplorerItem[] = useMemo(() => openDocs
+    .filter((doc) => !allCorpusHandles.has(doc.id) && isDiagramHandle(doc.id) && doc.id.startsWith('zx:diagrams:'))
+    .map((doc) => ({
+      handle: doc.id, title: doc.title, type: 'draft' as const, badge: 'Draft' as const,
+      nodeCount: doc.ast?.nodes?.length ?? 0, edgeCount: doc.ast?.edges?.length ?? 0,
+      updatedAt: doc.updatedAt, createdAt: doc.createdAt, archived: false, isImported: false, version: 0,
+    })), [openDocs, allCorpusHandles]);
 
-  const committedItems: ExplorerItem[] = useMemo(() => {
-    return listing.entries.map((entry) => {
-      const isExample = entry.handle.startsWith('zx:examples:');
-      let version = 1;
-      try {
-        const history = runtime.mcardCollection.history(entry.handle);
-        if (history.length > 0) version = history.length;
-      } catch {
-        version = 1;
-      }
-      return {
-        handle: entry.handle,
-        title: entry.title,
-        type: isExample ? ('example' as const) : ('diagram' as const),
-        badge: isExample ? ('Example' as const) : ('Diagram' as const),
-        nodeCount: entry.nodeCount,
-        edgeCount: entry.edgeCount,
-        updatedAt: entry.updatedAt,
-        createdAt: entry.createdAt ?? entry.updatedAt,
-        archived: Boolean(entry.archived),
-        isImported: Boolean(entry.isImported),
-        version,
-      };
-    });
-  }, [listing, runtime]);
+  const committedItems: ExplorerItem[] = useMemo(() => listing.entries.map((entry) => {
+    const isExample = entry.handle.startsWith('zx:examples:');
+    let version = 1;
+    try {
+      const hist = runtime.mcardCollection.history(entry.handle);
+      if (hist.length > 0) version = hist.length;
+    } catch { version = 1; }
+    return {
+      handle: entry.handle, title: entry.title, type: isExample ? ('example' as const) : ('diagram' as const),
+      badge: isExample ? ('Example' as const) : ('Diagram' as const), nodeCount: entry.nodeCount,
+      edgeCount: entry.edgeCount, updatedAt: entry.updatedAt, createdAt: entry.createdAt ?? entry.updatedAt,
+      archived: Boolean(entry.archived), isImported: Boolean(entry.isImported), version,
+    };
+  }), [listing, runtime]);
 
   const allItems = useMemo(() => [...drafts, ...committedItems], [drafts, committedItems]);
   const userDiagramsCount = committedItems.filter((i) => i.type === 'diagram').length + drafts.length;
-
-  const handleSelect = (handle: string) => {
-    runtime.openCorpusEntry(handle);
-  };
 
   const handleRenameCommit = async (handle: string) => {
     if (!editTitle.trim()) { setEditingHandle(null); return; }
@@ -120,10 +88,12 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
     setEditingHandle(null);
   };
 
-  if (isCollapsed) return null;
-
   return (
-    <aside style={{ width }} className="h-full bg-neutral-900 border-r border-neutral-800 flex flex-col select-none relative">
+    <aside
+      style={{ width }}
+      className="corpus-explorer-drawer h-full bg-neutral-900 border-r border-neutral-800 flex flex-col select-none relative"
+      data-testid="drawer-corpus-explorer"
+    >
       <div data-testid="live-announcer" aria-live="polite" className="sr-only">{liveAnnouncement}</div>
 
       {sessionRecovery.recoveredCount > 0 && (
@@ -152,20 +122,20 @@ export const CorpusExplorerDrawer: React.FC<CorpusExplorerDrawerProps> = ({
         onExportCollection={() => runtime.openExportCollectionDialog()}
       />
 
-      {userDiagramsCount === 0 && !debouncedQuery ? (
+      {userDiagramsCount === 0 && !debouncedQuery && (
         <div data-testid="empty-diagrams-card" className="p-4 m-2 bg-neutral-950/60 rounded border border-neutral-800 text-center text-xs text-neutral-400">
           <p className="mb-2">No user diagrams created yet.</p>
           <button data-testid="btn-empty-state-new-diagram" onClick={() => runtime.createDiagram()} className="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded font-medium text-xs">
             Create First Diagram
           </button>
         </div>
-      ) : null}
+      )}
 
       <ExplorerSectionList
         items={allItems}
         query={debouncedQuery}
         activeHandle={activeHandle}
-        onSelect={handleSelect}
+        onSelect={(h) => runtime.openCorpusEntry(h)}
         openMenuHandle={openMenuHandle}
         onToggleMenu={(h, e) => { e.stopPropagation(); setOpenMenuHandle(openMenuHandle === h ? null : h); }}
         editingHandle={editingHandle}
