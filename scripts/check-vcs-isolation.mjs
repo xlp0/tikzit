@@ -26,6 +26,7 @@ const TARGET_DIRECTORIES = [
   path.join(projectRoot, 'src', 'packages', 'mcard-vcs', 'satori'),
   path.join(projectRoot, 'src', 'packages', 'mcard-vcs', 'type'),
   path.join(projectRoot, 'src', 'packages', 'mcard-explorer', 'poly'),
+  path.join(projectRoot, 'src', 'packages', 'mcard-explorer', 'time'),
   path.join(projectRoot, 'src', 'packages', 'mcard-explorer', 'core'),
   path.join(projectRoot, 'src', 'packages', 'mcard-explorer', 'cards'),
   path.join(projectRoot, 'src', 'packages', 'mcard-explorer', 'zoom'),

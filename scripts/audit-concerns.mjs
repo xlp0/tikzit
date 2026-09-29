@@ -85,7 +85,28 @@ const THRESHOLDS = [
 
   // Sprint 38: UI viewlets
   { file: 'src/packages/mcard-explorer/ui/PositionTree.tsx', max: 140 },
-  { file: 'src/packages/mcard-explorer/ui/ZoomBreadcrumb.tsx', max: 90 }
+  { file: 'src/packages/mcard-explorer/ui/ZoomBreadcrumb.tsx', max: 90 },
+
+  // Sprint 39: time subsystem
+  { file: 'src/packages/mcard-explorer/time/types.ts', max: 80 },
+  { file: 'src/packages/mcard-explorer/time/InteractionTree.ts', max: 180 },
+  { file: 'src/packages/mcard-explorer/time/journal.ts', max: 150 },
+  { file: 'src/packages/mcard-explorer/time/replay.ts', max: 120 },
+  { file: 'src/packages/mcard-explorer/time/timeline.ts', max: 110 },
+  { file: 'src/packages/mcard-explorer/time/hostEffectContext.ts', max: 80 },
+  { file: 'src/packages/mcard-explorer/time/index.ts', max: 50 },
+
+  // Sprint 39: poly additions
+  { file: 'src/packages/mcard-explorer/poly/coeffects.ts', max: 150 },
+  { file: 'src/packages/mcard-explorer/poly/dayConvolution.ts', max: 90 },
+
+  // Sprint 39: UI viewlets & decomposed viewer
+  { file: 'src/packages/mcard-explorer/ui/TimelineScrubber.tsx', max: 140 },
+  { file: 'src/packages/mcard-explorer/ui/JournalIndicator.tsx', max: 80 },
+  { file: 'src/packages/mcard-explorer/ui/ViewerHeader.tsx', max: 90 },
+  { file: 'src/packages/mcard-explorer/ui/ViewportHost.tsx', max: 120 },
+  { file: 'src/packages/mcard-explorer/ui/ViewerShell.tsx', max: 100 },
+  { file: 'src/packages/mcard-explorer/ui/MCardViewer.tsx', max: 90 }
 ];
 
 let violations = 0;

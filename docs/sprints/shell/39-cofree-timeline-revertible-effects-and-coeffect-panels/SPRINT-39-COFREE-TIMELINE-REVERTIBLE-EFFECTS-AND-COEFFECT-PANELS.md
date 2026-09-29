@@ -265,73 +265,73 @@ export function bindHostEffects(ctx: HostEffectContext, journal: OperationJourna
 
 ## 3. Definition of Done (DoD) Criteria
 
-- [ ] **39-DOD-01**: **Cofree Interaction Tree Engine** (`src/packages/mcard-explorer/time/InteractionTree.ts`, $\le 180$ LOC).
+- [x] **39-DOD-01**: **Cofree Interaction Tree Engine** (`src/packages/mcard-explorer/time/InteractionTree.ts`, $\le 180$ LOC).
   - **Observable Rule:** Implements `record`, `path`, `rewind`, `branchFrom`, `attachLineage`, `alternatives`, `toJSON`/`fromJSON`. Rewinding preserves future timeline as a sibling branch (branch count increases by 1, future not discarded).
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/time/InteractionTree.test.ts`
-- [ ] **39-DOD-02**: **Historical Fiber Alternatives Resolution**.
+- [x] **39-DOD-02**: **Historical Fiber Alternatives Resolution**.
   - **Observable Rule:** `alternatives(nodeId)` re-resolves the affordance fiber at historical position; a direction legal *then* but illegal *now* is still reported in alternatives (interaction history immutable to present state).
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/time/InteractionTree.test.ts -t "historical alternatives"`
-- [ ] **39-DOD-03**: **Revertible Effect Journal Engine** (`src/packages/mcard-explorer/time/journal.ts`, $\le 150$ LOC).
+- [x] **39-DOD-03**: **Revertible Effect Journal Engine** (`src/packages/mcard-explorer/time/journal.ts`, $\le 150$ LOC).
   - **Observable Rule:** Implements `run`, `undo`, `rollbackTo`, `mark`, `isClean`, `entries` composing kernel `DisposableList`. An effect whose `apply` throws records nothing in journal (atomicity verified).
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/time/journal.test.ts`
-- [ ] **39-DOD-04**: **Zero-Residue Gate ($\ge 6$ Representative Effects)**.
+- [x] **39-DOD-04**: **Zero-Residue Gate ($\ge 6$ Representative Effects)**.
   - **Observable Rule:** After `rollbackTo(mark)`, host declared slices are deep-equal (`toStrictEqual`) to initial snapshot at `mark`; asserted across select, facet change, zoom enter, view-mode change, wire, and commit.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/time/journal.test.ts -t "zero residue"`
-- [ ] **39-DOD-05**: **Replay Purity & Side-Effect Absence** (`src/packages/mcard-explorer/time/replay.ts`, $\le 120$ LOC).
+- [x] **39-DOD-05**: **Replay Purity & Side-Effect Absence** (`src/packages/mcard-explorer/time/replay.ts`, $\le 120$ LOC).
   - **Observable Rule:** `replayTo(nodeId)` over a tree containing export directions triggers exactly **zero** calls to `saveArtifact`, file pickers, or network operations (spy-asserted); reconstructs interface state only.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/time/replay.test.ts -t "replay purity"`
-- [ ] **39-DOD-06**: **Session Recovery & Memory Bound**.
+- [x] **39-DOD-06**: **Session Recovery & Memory Bound**.
   - **Observable Rule:** Reconstructs interaction tree and active cursor from JSON; structural sharing keeps 200-node tree within memory bounds and round-trips in $\le 5$ms.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/time/sessionRecovery.test.ts`
-- [ ] **39-DOD-07**: **Coeffect Declarations & Narrow Subscriptions** (`src/packages/mcard-explorer/poly/coeffects.ts`, $\le 150$ LOC).
+- [x] **39-DOD-07**: **Coeffect Declarations & Narrow Subscriptions** (`src/packages/mcard-explorer/poly/coeffects.ts`, $\le 150$ LOC).
   - **Observable Rule:** Implements `CoeffectDeclaration`, `CoeffectHost.bind`/`publish`/`subscriptions`. Publishing a slice notifies **only** panels declaring that slice (asserted by counting `onChange` invocations across three bound panels).
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly/coeffects.test.ts`
-- [ ] **39-DOD-08**: **Day Convolution Panel Decoupling** (`src/packages/mcard-explorer/poly/dayConvolution.ts`, $\le 90$ LOC).
+- [x] **39-DOD-08**: **Day Convolution Panel Decoupling** (`src/packages/mcard-explorer/poly/dayConvolution.ts`, $\le 90$ LOC).
   - **Observable Rule:** `composePanelStates` updates panel state without triggering sibling panel re-renders (spy counter on sibling render === 0).
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly/dayConvolution.test.ts`
-- [ ] **39-DOD-09**: **Global Store Migration to Narrow Slices**.
+- [x] **39-DOD-09**: **Global Store Migration to Narrow Slices**.
   - **Observable Rule:** `$corpusQuery`, `$corpusView`, `$previewCardHandle` replaced with slice subscriptions; unrelated panel re-render count drops to 0 during facet update.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly/coeffectIsolation.test.ts`
-- [ ] **39-DOD-10**: **UI Decomposition of Viewer & Timeline**.
+- [x] **39-DOD-10**: **UI Decomposition of Viewer & Timeline**.
   - **Observable Rule:** Modules authored: `ui/TimelineScrubber.tsx` ($\le 140$ LOC), `ui/ViewerShell.tsx` ($\le 100$ LOC), `ui/ViewerHeader.tsx` ($\le 90$ LOC), `ui/ViewportHost.tsx` ($\le 120$ LOC), `ui/JournalIndicator.tsx` ($\le 80$ LOC). `MCardViewer.tsx` drops to $\le 90$ LOC composition root.
   - **Verification Command:** `wc -l src/packages/mcard-explorer/ui/{TimelineScrubber,ViewerShell,ViewerHeader,ViewportHost,JournalIndicator,MCardViewer}.tsx`
-- [ ] **39-DOD-11**: **Timeline Contract B Registration**.
+- [x] **39-DOD-11**: **Timeline Contract B Registration**.
   - **Observable Rule:** `node scripts/audit-testids.mjs --check` passes with 295 literals + 17 dynamic families; new testids `timeline-scrubber`, `timeline-node-*`, `timeline-branch`, `timeline-alternatives`, `journal-indicator`, `btn-journal-undo` registered.
   - **Verification Command:** `node scripts/audit-testids.mjs --check`
-- [ ] **39-DOD-12**: **Keyboard Shortcut Absence & Precedence**.
+- [x] **39-DOD-12**: **Keyboard Shortcut Absence & Precedence**.
   - **Observable Rule:** `Ctrl/Cmd+Z` maps to journal undo and is completely absent from DOM when journal is clean; `Backspace` maps to zoom exit with precedence tested.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/ui/keyboardShortcuts.test.ts`
-- [ ] **39-DOD-13**: **Contract E Zero-DOM Isolation Gate**.
+- [x] **39-DOD-13**: **Contract E Zero-DOM Isolation Gate**.
   - **Observable Rule:** `TARGET_DIRECTORIES` in `check-vcs-isolation.mjs` includes `mcard-explorer/time` and extended `poly/` targets; 0 DOM globals, 0 host imports.
   - **Verification Command:** `node scripts/check-vcs-isolation.mjs`
-- [ ] **39-DOD-14**: **Time & Coeffects Unit Test Suite**.
+- [x] **39-DOD-14**: **Time & Coeffects Unit Test Suite**.
   - **Observable Rule:** 100% pass across `tests/unit/mcard-explorer/time/{InteractionTree,journal,replay}.test.ts` and `tests/unit/mcard-explorer/poly/coeffects.test.ts`.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/time tests/unit/mcard-explorer/poly/coeffects.test.ts`
-- [ ] **39-DOD-15**: **Full Vitest Regression Suite & Type Check**.
+- [x] **39-DOD-15**: **Full Vitest Regression Suite & Type Check**.
   - **Observable Rule:** 100% pass with 0 regressions against 670 baseline; `tsc --noEmit` clean.
   - **Verification Command:** `npx vitest run && npx tsc --noEmit`
-- [ ] **39-DOD-16**: **Single-Concern Module Audit**.
+- [x] **39-DOD-16**: **Single-Concern Module Audit**.
   - **Observable Rule:** All modules in `time/` $\le 150$ LOC; `MCardViewer.tsx` (160 $\to \le 90$ LOC) recorded in evidence ledger.
   - **Verification Command:** `node scripts/audit-concerns.mjs`
-- [ ] **39-DOD-17**: **Kernel Layer Declarations & Disposal Composition**.
+- [x] **39-DOD-17**: **Kernel Layer Declarations & Disposal Composition**.
   - **Observable Rule:** Every `time/` module carries `@layer L4` header; `OperationJournal` composes kernel `DisposableList` and `SavepointGuard` without inventing a separate disposal mechanism.
   - **Verification Command:** `grep -rn "@layer L4" src/packages/mcard-explorer/time/`
-- [ ] **39-DOD-18**: **HostEffectContext Port & Cordis Host Adapter**.
+- [x] **39-DOD-18**: **HostEffectContext Port & Cordis Host Adapter**.
   - **Observable Rule:** Package exports pure `bindHostEffects` and `HostEffectContext` port; host adapter `src/services/clm/coeffectCordisAdapter.ts` maps Cordis; zero `cordis` imports inside `time/` or `poly/` (grep-asserted).
   - **Verification Command:** `! grep -rn "from 'cordis'" src/packages/mcard-explorer/{time,poly}/`
-- [ ] **39-DOD-19**: **Nanostores Atom Slice Binding**.
+- [x] **39-DOD-19**: **Nanostores Atom Slice Binding**.
   - **Observable Rule:** `CoeffectHost.bind` maps declared slices to Nanostores atom subscriptions; no component subscribes to entire store; tested with 3 overlapping panels.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/poly/nanostoresSlice.test.ts`
-- [ ] **39-DOD-20**: **Teardown Parity with `useCordisFiber`**.
+- [x] **39-DOD-20**: **Teardown Parity with `useCordisFiber`**.
   - **Observable Rule:** Conformance test drives fake `HostEffectContext` for journal rollback and unmount, asserting zero leaked event listeners and zero residual slice state.
   - **Verification Command:** `npx vitest run tests/conformance/studio-parity.test.ts -t "teardown parity"`
-- [ ] **39-DOD-21**: **Kernel DisposableList Convergence Documentation**.
+- [x] **39-DOD-21**: **Kernel DisposableList Convergence Documentation**.
   - **Observable Rule:** Porting checklist documents studio `DisposableList` convergence as a wrapper over kernel export preserving path inversion semantics ($p \cdot (-p) \simeq \text{refl}$, $H_T \to 0$).
   - **Verification Command:** `grep -rn "DisposableList" docs/sprints/_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md`
-- [ ] **39-DOD-22**: **Timeline Deep Linking & URL Navigation**.
+- [x] **39-DOD-22**: **Timeline Deep Linking & URL Navigation**.
   - **Observable Rule:** Scrubber change calls `encodeAddress` to update URL hash; cold reload with hash reconstructs identical timeline cursor and viewport mode.
   - **Verification Command:** `npx vitest run tests/unit/mcard-explorer/time/timelineNavigation.test.ts`
-- [ ] **39-DOD-23**: **Façade Discipline (ADR D54)**.
+- [x] **39-DOD-23**: **Façade Discipline (ADR D54)**.
   - **Observable Rule:** `time/index.ts` is exclusive public export; `src/packages/mcard-explorer/ui/` consumes only façades (grep-asserted).
   - **Verification Command:** `! grep -rn "from '.*mcard-explorer/time/[a-zA-Z]" src/packages/mcard-explorer/ui/`
 

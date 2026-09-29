@@ -64,4 +64,17 @@ export * from './cards';
 // Operadic Zoom & Multi-Level Navigation (Sprint 38)
 export * from './zoom';
 
+// Cofree Timeline, Revertible Effects & Coeffect Panels (Sprint 39)
+export * from './time';
+export { TimelineScrubber } from './ui/TimelineScrubber';
+export type { TimelineScrubberProps } from './ui/TimelineScrubber';
+export { JournalIndicator } from './ui/JournalIndicator';
+export type { JournalIndicatorProps } from './ui/JournalIndicator';
+export { ViewerHeader } from './ui/ViewerHeader';
+export type { ViewerHeaderProps } from './ui/ViewerHeader';
+export { ViewportHost } from './ui/ViewportHost';
+export type { ViewportHostProps } from './ui/ViewportHost';
+export { ViewerShell } from './ui/ViewerShell';
+export type { ViewerShellProps } from './ui/ViewerShell';
+
 

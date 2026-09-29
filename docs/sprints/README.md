@@ -14,9 +14,6 @@ docs/sprints/
 ├── README.md                                     # This Master Index
 ├── _active/                                      # Current active sprint working drafts
 │   ├── PROPOSAL-36-40-POLYNOMIAL-INTERFACE-UI-AND-SPATIOTEMPORAL-COMPOSITIONALITY.md
-│   ├── SPRINT-36-POLYNOMIAL-INTERFACE-CORE-AND-AFFORDANCE-ALGEBRA.md
-│   ├── SPRINT-37-MCARD-FIRST-CARD-ALGEBRA-AND-COMPOSITION-SURFACE.md
-│   ├── SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md
 │   └── SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md
 ├── orchestration/                                # Master plans & architecture blueprints
 │   ├── 00-master-orchestration/                  # Master Plan & Architecture
@@ -46,7 +43,8 @@ docs/sprints/
 │   ├── 22-god-component-decomposition-via-baldwin-splitting/ # Baldwin Splitting on UI God Components
 │   ├── 33-universal-mcard-viewer-and-explorer-integration/ # Universal Card Viewlet & Master Integration
 │   ├── 36-polynomial-interface-core-and-affordance-algebra/ # Polynomial Interface Core & Affordance Algebra
-│   └── 38-operadic-zoom-and-multi-level-navigation/ # Operadic Zoom & Multi-Level Navigation
+│   ├── 38-operadic-zoom-and-multi-level-navigation/ # Operadic Zoom & Multi-Level Navigation
+│   └── 39-cofree-timeline-revertible-effects-and-coeffect-panels/ # Cofree Timeline, Revertible Effects & Coeffect Panels
 ├── canvas/                                       # Canvas rendering engine & visual fidelity
 │   ├── 03-threejs-webgl-canvas-engine/           # Three.js Canvas & Infinite Grid Shader
 │   └── 10-canvas-visual-parity-and-self-loops/   # Canvas Stage Visual Parity & Teardrop Loops
@@ -132,8 +130,8 @@ docs/sprints/
 | **36** | shell | [`shell/36-polynomial-interface-core-and-affordance-algebra`](./shell/36-polynomial-interface-core-and-affordance-algebra/) | Polynomial Interface Core, Affordance Algebra & Guardrail Combinators (`@clm/mcard-explorer/poly`) | ✅ **Completed (Graduated)** |
 | **37** | interactions | [`interactions/37-mcard-first-card-algebra-and-composition-surface`](./interactions/37-mcard-first-card-algebra-and-composition-surface/) | MCard-First Card Algebra, Typed Ports & Tensor/Coproduct Composition Surface (`@clm/mcard-explorer/cards`) | ✅ **Completed (Graduated)** |
 | **38** | shell | [`shell/38-operadic-zoom-and-multi-level-navigation`](./shell/38-operadic-zoom-and-multi-level-navigation/) | Operadic Zoom, Fibration Projections & Deep Link Navigation Stack (`@clm/mcard-explorer/zoom`) | ✅ **Completed (Graduated)** |
-| **39** | sync | [`_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md`](./_active/SPRINT-39-COFREE-TIMELINE-REVERTIBLE-EFFECTS-AND-COEFFECT-PANELS.md) | Cofree Interaction Tree, Revertible Effect Journal & Day-Convolution Panels | 🚀 **In Progress / Active** |
-| **40** | verification | [`_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md`](./_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md) | Polynomial Conformance Verification, Law Suites & Host Drawer Realignment | 📋 **Drafted / Active** |
+| **39** | shell | [`shell/39-cofree-timeline-revertible-effects-and-coeffect-panels`](./shell/39-cofree-timeline-revertible-effects-and-coeffect-panels/) | Cofree Interaction Tree, Revertible Effect Journal & Day-Convolution Panels (`@clm/mcard-explorer/time`) | ✅ **Completed (Graduated)** |
+| **40** | verification | [`_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md`](./_active/SPRINT-40-POLYNOMIAL-CONFORMANCE-VERIFICATION-AND-HOST-REALIGNMENT.md) | Polynomial Conformance Verification, Law Suites & Host Drawer Realignment | 🚀 **In Progress / Active** |
 
 ---
 

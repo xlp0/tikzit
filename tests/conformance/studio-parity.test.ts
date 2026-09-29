@@ -237,3 +237,44 @@ describe('toStudioTreeNode (ADR D54 / 38-DOD-17)', () => {
   });
 });
 
+describe('Studio Lifecycle Parity (ADR D54 / 39-DOD-20)', () => {
+  it('teardown parity: unmounting explorer disposes journal effects and unregisters coeffects with zero leaks', async () => {
+    const { Context } = await import('cordis');
+    const { OperationJournal, bindHostEffects } = await import('../../src/packages/mcard-explorer/time');
+    const { createCordisHostEffectContext, CordisCoeffectHost } = await import('../../src/services/clm/coeffectCordisAdapter');
+
+    const rootCtx = new Context();
+    const fiberCtx = rootCtx.isolate('fiber:explorer' as any);
+    const hostEffectCtx = createCordisHostEffectContext(fiberCtx);
+
+    const journal = new OperationJournal();
+    const coeffectHost = new CordisCoeffectHost(fiberCtx);
+
+    const state = { count: 0, text: 'initial' };
+
+    // Bind host effects within fiber scope
+    const unbind = bindHostEffects(hostEffectCtx, journal, coeffectHost);
+
+    // Apply mutations through journal inside fiber
+    await journal.push({
+      label: 'Modify state',
+      apply: () => { state.count = 42; state.text = 'modified'; },
+      revert: () => { state.count = 0; state.text = 'initial'; }
+    });
+
+    expect(state.count).toBe(42);
+    expect(state.text).toBe('modified');
+    expect((fiberCtx as any)['explorer.journal']).toBeDefined();
+    expect((fiberCtx as any)['explorer.coeffects']).toBeDefined();
+
+    // Simulate unmounting the explorer fiber (useCordisFiber teardown)
+    unbind();
+
+    // Verify all journal effects roll back and coeffects unregister
+    expect(state.count).toBe(0);
+    expect(state.text).toBe('initial');
+    expect((fiberCtx as any)['explorer.journal']).toBeUndefined();
+    expect((fiberCtx as any)['explorer.coeffects']).toBeUndefined();
+  });
+});
+
