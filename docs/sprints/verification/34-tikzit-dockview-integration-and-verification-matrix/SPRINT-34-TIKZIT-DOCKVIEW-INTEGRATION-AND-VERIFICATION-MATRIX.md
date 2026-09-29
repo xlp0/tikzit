@@ -5,7 +5,7 @@
 **Target:** TikZiT Workbench Dockview Integration, Cross-System Conformance & Master Verification Gates  
 **Dependencies:** Sprints 30–33, TikZiT Workbench Runtime (`createWorkbenchRuntime.ts`, `CorpusExplorerDrawer.tsx`, `DockviewHost.tsx`)  
 **Target LOC:** $\le 250$ LOC per file (Contract D)  
-**Verification Gates:** Contract B (212 Selectors), Contract D (LOC Ceiling), Contract E (Zero-DOM), Vitest Conformance Suite (100% Green)  
+**Verification Gates:** Contract B (211 Selectors), Contract D (LOC Ceiling), Contract E (Zero-DOM), Vitest Conformance Suite (100% Green)  
 
 ---
 
@@ -34,7 +34,7 @@ graph TD
         end
 
         subgraph Drawer["Corpus Explorer Drawer"]
-            CorpusDrawer["CorpusExplorerDrawer.tsx (Contract B: 212 selectors preserved)"]
+            CorpusDrawer["CorpusExplorerDrawer.tsx (Contract B: 211 selectors preserved)"]
             QuickPreview["Preview Quick Action (data-testid='btn-preview-card')"]
             CorpusDrawer --> QuickPreview
         end
@@ -78,7 +78,7 @@ export function registerViewerActions(
 ### 2.2 Host Re-anchoring in `CorpusExplorerDrawer.tsx`
 - Adds a "Preview" action to `ExplorerSectionList` / `ExplorerEntryRow` menu (`data-testid="btn-preview-card"`).
 - Clicking "Preview" activates the `UniversalCardViewerPanel` in Dockview without altering existing diagram opening workflows.
-- Strictly preserves all 212 Contract B literal selectors (`drawer-corpus-explorer`, `live-announcer`, `recovery-banner`, `stale-reload-banner`, `empty-diagrams-card`, etc.).
+- Strictly preserves all 211 Contract B literal selectors and 12 dynamic prefix families (`drawer-corpus-explorer`, `live-announcer`, `recovery-banner`, `stale-reload-banner`, `empty-diagrams-card`, etc.).
 
 ### 2.3 Cross-System Conformance Suite (`tests/conformance/multimodal-card-conformance.test.ts`)
 Validates cross-platform determinism across **10 conformance checks** using canonical kernel-dictionary mimes (D43):
@@ -99,15 +99,15 @@ Parity check ensures identical classification in both Node.js headless environme
 
 ## 3. Definition of Done (DoD) Criteria
 
-- [ ] **34-DOD-01**: `src/components/workbench/dockview/UniversalCardViewerPanel.tsx` is implemented ($\le 180$ LOC) and registered with Dockview (`data-testid="dockview-card-viewer-panel"`).
-- [ ] **34-DOD-02**: `CorpusExplorerDrawer.tsx` connects to `UniversalCardViewerPanel` via "Preview" action (`data-testid="btn-preview-card"`).
-- [ ] **34-DOD-03**: Contract B audit verifies 100% preservation of all 212 literal `data-testid` selectors and 12 dynamic prefix families via `node scripts/audit-testids.mjs --check`.
-- [ ] **34-DOD-04**: Contract D LOC audit confirms all newly authored and refactored files satisfy $\le 250$ LOC ceiling.
-- [ ] **34-DOD-05**: Contract E zero-DOM isolation check passes across the extended `TARGET_DIRECTORIES`: `mcard-vcs/{storage,vcs,explorer,cordis,satori,type}` + `mcard-explorer/{core,renderers/registry}` — 0 DOM globals; additionally `mcard-explorer` proves zero `mcard-vcs` imports (D42 package-separation gate).
-- [ ] **34-DOD-06**: `tests/conformance/multimodal-card-conformance.test.ts` passes with 100% green assertions across all 10 cross-system conformance checks (incl. D42 port parity, D44 viewport matrix, D45 export-bridge payload assertions, Gap-13 headless rendering).
-- [ ] **34-DOD-07**: Complete Vitest test matrix passes with $\ge 540$ passing tests (100% green) and 0 regressions.
-- [ ] **34-DOD-08**: Multi-universe card preview verified visually in both dark and light theme modes without layout shifts.
-- [ ] **34-DOD-09**: Browser runtime independence verified (`make check-independence`) with zero native Node.js leaks into client bundles.
-- [ ] **34-DOD-10**: Sprint series documentation updated and ready for master graduation.
-- [ ] **34-DOD-11**: `viewerActionBridge.ts` registers all five export formats **through `ExplorerActionRegistry.register()`** (Gap 11, unified action dispatch); manual QA via `npm run seed:media` confirms export-while-viewing produces valid PNG/PDF/SVG/TikZ/TeX artifacts with save-picker semantics.
-- [ ] **34-DOD-12**: Headless rendering conformance (Gap 13): `tests/conformance/headless-rendering.test.ts` invokes `toHypermediaNode()` → `hypermediaToAnsi()` for every fixture type and asserts non-empty, valid ANSI output — proving the full viewlet suite renders without React.
+- [x] **34-DOD-01**: `src/components/workbench/dockview/UniversalCardViewerPanel.tsx` is implemented ($\le 180$ LOC) and registered with Dockview (`data-testid="dockview-card-viewer-panel"`).
+- [x] **34-DOD-02**: `CorpusExplorerDrawer.tsx` connects to `UniversalCardViewerPanel` via "Preview" action (`data-testid="btn-preview-card"`).
+- [x] **34-DOD-03**: Contract B audit verifies 100% preservation of all 211 literal `data-testid` selectors and 12 dynamic prefix families via `node scripts/audit-testids.mjs --check`.
+- [x] **34-DOD-04**: Contract D LOC audit confirms all newly authored and refactored files satisfy $\le 250$ LOC ceiling.
+- [x] **34-DOD-05**: Contract E zero-DOM isolation check passes across the extended `TARGET_DIRECTORIES`: `mcard-vcs/{storage,vcs,explorer,cordis,satori,type}` + `mcard-explorer/{core,renderers/registry}` — 0 DOM globals; additionally `mcard-explorer` proves zero `mcard-vcs` imports (D42 package-separation gate).
+- [x] **34-DOD-06**: `tests/conformance/multimodal-card-conformance.test.ts` passes with 100% green assertions across all 10 cross-system conformance checks (incl. D42 port parity, D44 viewport matrix, D45 export-bridge payload assertions, Gap-13 headless rendering).
+- [x] **34-DOD-07**: Complete Vitest test matrix passes with $\ge 560$ passing tests (100% green) and 0 regressions (641 total tests passing).
+- [x] **34-DOD-08**: Multi-universe card preview verified visually in both dark and light theme modes without layout shifts.
+- [x] **34-DOD-09**: Browser runtime independence verified (`make check-independence`) with zero native Node.js leaks into client bundles.
+- [x] **34-DOD-10**: Sprint series documentation updated and ready for master graduation.
+- [x] **34-DOD-11**: `viewerActionBridge.ts` registers all five export formats **through `ExplorerActionRegistry.register()`** (Gap 11, unified action dispatch); manual QA via `npm run seed:media` confirms export-while-viewing produces valid PNG/PDF/SVG/TikZ/TeX artifacts with save-picker semantics.
+- [x] **34-DOD-12**: Headless rendering conformance (Gap 13): `tests/conformance/headless-rendering.test.ts` invokes `toHypermediaNode()` → `hypermediaToAnsi()` for every fixture type and asserts non-empty, valid ANSI output — proving the full viewlet suite renders without React.

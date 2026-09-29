@@ -131,15 +131,15 @@ The codec emits/accepts this custom element; the **renderer for it lives on the 
 
 ## 3. Definition of Done (DoD) Criteria
 
-- [ ] **33-DOD-01**: `src/packages/mcard-explorer/ui/MCardViewer.tsx` is authored ($\le 220$ LOC) coordinating `RendererRegistry` and type judgment, depending solely on the `CardContentProvider` port — **zero `mcard-vcs` imports** (verified by grep + Contract E gate).
-- [ ] **33-DOD-02**: `MCardViewer` displays header toolbar with Handle, Universe badge ($U_0 \to U_5$), CID hash copy button, MIME type pill (`data-testid="mcard-viewer"`), and descriptor-declared action buttons (`data-testid="btn-viewer-action-*"`).
-- [ ] **33-DOD-03**: `MCardExplorer.tsx` supports dual-pane split view with responsive preview drawer toggle (`data-testid="toggle-preview-pane"`).
-- [ ] **33-DOD-04**: Facet strip in `MCardExplorer` includes Universe filter chips (`U0 CAS`, `U1 PCard`, `U2 VCard`, `U3 Satori`) and categories (`data-testid="mcard-facet-bar"`).
-- [ ] **33-DOD-05**: Keyboard navigation is fully supported (Arrow keys navigate, Space previews, Enter opens).
-- [ ] **33-DOD-06**: Satori XML codec emits/accepts `type:'custom'` `mcard-viewer` elements per §2.4, with host-side rendering dispatch documented for both TikZiT and `mcard-studio`.
-- [ ] **33-DOD-07**: `tests/unit/mcard-explorer/ui/MCardViewer.test.tsx` passes with 100% green assertions across all universe levels, loading/error states, and headless `toHypermediaNode()` → `hypermediaToAnsi()` fallback (Gap 13).
-- [ ] **33-DOD-08**: `tests/unit/mcard-explorer/ui/MCardExplorerIntegration.test.tsx` passes, verifying dual-pane split view and facet switching.
-- [ ] **33-DOD-09**: Contract B selectors verified intact; Contract D LOC ceiling ($\le 250$ LOC per file) satisfied.
-- [ ] **33-DOD-10**: Existing 505 tests in the TikZiT test suite pass with zero regressions.
-- [ ] **33-DOD-11**: Adaptive viewport verified — selecting each D45 fixture media type switches `data-viewport-mode` correctly (`zoom` images/TikZ, `paged` PDF/CSV, `split` Markdown/YAML, `fit` SVG/PCard, `scroll` text/hex) with correct chrome per mode; export actions dispatch exact `onAction` payloads **through `ExplorerActionRegistry`** (Gap 11).
-- [ ] **33-DOD-12**: Viewport-to-`HypermediaNodeType` mapping (Gap 12) is documented and verified in tests; headless `MCardViewer` mode produces correct `HypermediaNode` trees for each viewport mode.
+- [x] **33-DOD-01**: `src/packages/mcard-explorer/ui/MCardViewer.tsx` is authored ($\le 220$ LOC) coordinating `RendererRegistry` and type judgment, depending solely on the `CardContentProvider` port — **zero `mcard-vcs` imports** (verified by grep + Contract E gate).
+- [x] **33-DOD-02**: `MCardViewer` displays header toolbar with Handle, Universe badge ($U_0 \to U_5$), CID hash copy button, MIME type pill (`data-testid="mcard-viewer"`), and descriptor-declared action buttons (`data-testid="btn-viewer-action-*"`).
+- [x] **33-DOD-03**: `MCardExplorer.tsx` supports dual-pane split view with responsive preview drawer toggle (`data-testid="toggle-preview-pane"`).
+- [x] **33-DOD-04**: Facet strip in `MCardExplorer` includes Universe filter chips (`U0 CAS`, `U1 PCard`, `U2 VCard`, `U3 Satori`) and categories (`data-testid="mcard-facet-bar"`).
+- [x] **33-DOD-05**: Keyboard navigation is fully supported (Arrow keys navigate, Space previews, Enter opens).
+- [x] **33-DOD-06**: Satori XML codec emits/accepts `type:'custom'` `mcard-viewer` elements per §2.4, with host-side rendering dispatch documented for both TikZiT and `mcard-studio`.
+- [x] **33-DOD-07**: `tests/unit/mcard-explorer/ui/MCardViewer.test.tsx` passes with 100% green assertions across all universe levels, loading/error states, and headless `toHypermediaNode()` → `hypermediaToAnsi()` fallback (Gap 13).
+- [x] **33-DOD-08**: `tests/unit/mcard-explorer/ui/MCardExplorerIntegration.test.tsx` passes, verifying dual-pane split view and facet switching.
+- [x] **33-DOD-09**: Contract B selectors verified intact; Contract D LOC ceiling ($\le 250$ LOC per file) satisfied.
+- [x] **33-DOD-10**: Existing 526 tests (across 95 test files) in the TikZiT test suite pass with zero regressions.
+- [x] **33-DOD-11**: Adaptive viewport verified — selecting each D45 fixture media type switches `data-viewport-mode` correctly (`zoom` images/TikZ, `paged` PDF/CSV, `split` Markdown/YAML, `fit` SVG/PCard, `scroll` text/hex) with correct chrome per mode; export actions dispatch exact `onAction` payloads **through `ExplorerActionRegistry`** (Gap 11).
+- [x] **33-DOD-12**: Viewport-to-`HypermediaNodeType` mapping (Gap 12) is documented and verified in tests; headless `MCardViewer` mode produces correct `HypermediaNode` trees for each viewport mode.

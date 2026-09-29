@@ -71,7 +71,7 @@ This proposal establishes **Sprints 30–34** to elevate `MCard Explorer` into a
 6. **TikZiT Dockview Integration & Cross-System Conformance**:
    - First-class `UniversalCardViewerPanel` mounted in TikZiT's Dockview workbench.
    - Cross-system conformance test suite ensuring 100% parity between TikZiT, `mcard-studio`, and headless CLI environments.
-   - Zero-regression audit guaranteeing 100% preservation of Contract B selectors (212 literals), Contract D LOC limits ($\le 250$ LOC), and Contract E zero-DOM isolation.
+   - Zero-regression audit guaranteeing 100% preservation of Contract B selectors (211 literals and 12 dynamic prefixes), Contract D LOC limits ($\le 250$ LOC), and Contract E zero-DOM isolation.
 
 ```mermaid
 graph TD
@@ -220,9 +220,9 @@ The kernel is organized as a strict stratified stack; this series must slot into
 ### 2.5 Mary (Business Analyst & Quality Auditor)
 > *"My focus remains total quality, zero regression, and contract compliance:
 >
-> 1. **Contract B Selector Preservation**: We have 212 verified literal `data-testid` selectors across TikZiT. All existing selectors (`drawer-corpus-explorer`, `mcard-explorer`, `mcard-tree`, `mcard-search-bar`, etc.) must remain 100% untouched. Any new viewlets must introduce well-scoped, prefixed testids (e.g. `data-testid="mcard-viewer"`, `data-testid="renderer-markdown"`, `data-testid="universe-chip-u1"`).
+> 1. **Contract B Selector Preservation**: We have 211 verified literal `data-testid` selectors and 12 dynamic prefix families across TikZiT. All existing selectors (`drawer-corpus-explorer`, `mcard-explorer`, `mcard-tree`, `mcard-search-bar`, etc.) must remain 100% untouched. Any new viewlets must introduce well-scoped, prefixed testids (e.g. `data-testid="mcard-viewer"`, `data-testid="renderer-markdown"`, `data-testid="universe-chip-u1"`).
 > 2. **Contract E Zero-DOM Boundary**: The type judgment service and core renderer resolution engine must not import `window`, `document`, or host React elements in headless tests.
-> 3. **Vitest Verification Suite**: We currently maintain 93 test files and 505 passing tests (kickoff-recorded baseline; Playwright: 405 runs / 27 spec files). Every sprint must introduce comprehensive unit tests with 100% green runs. At the conclusion of Sprint 34, all 505 baseline tests plus all new multimodal tests must pass without exception."*
+> 3. **Vitest Verification Suite**: We currently maintain 95 test files and 526 passing tests (kickoff-recorded baseline; Playwright: 405 runs / 27 spec files). Every sprint must introduce comprehensive unit tests with 100% green runs. At the conclusion of Sprint 34, all 526 baseline tests plus all new multimodal tests must pass without exception."*
 
 ---
 
@@ -323,20 +323,20 @@ The kernel is organized as a strict stratified stack; this series must slot into
 
 | Sprint | Subsystem Bin | Specification Document | Primary Focus & Deliverables | DoD Target |
 | :---: | :--- | :--- | :--- | :---: |
-| **30** | `corpus` | [`SPRINT-30-UNIVERSAL-TYPE-JUDGMENT-AND-STRATIFIED-TYPE-LATTICE.md`](./SPRINT-30-UNIVERSAL-TYPE-JUDGMENT-AND-STRATIFIED-TYPE-LATTICE.md) | Universal Type Judgment & Stratified Type Lattice Integration (`@clm/mcard-vcs/type`). Wrap `clm-kernel`'s `TypeInterpreter` & `typeLattice`; 5-phase pipeline; enrich `CardView` and `ExplorerCardSummaryDto`. | 30-DOD-01 – 30-DOD-10 |
-| **31** | `interactions` | [`SPRINT-31-PLUGGABLE-POLYGLOT-RENDERER-REGISTRY-AND-VIEWLETS.md`](./SPRINT-31-PLUGGABLE-POLYGLOT-RENDERER-REGISTRY-AND-VIEWLETS.md) | Pluggable Polyglot Renderer Registry & Base Viewlet Suite (`@clm/mcard-explorer/renderers`). Port `mcard-studio` descriptor model; build Text, Markdown, Data, Yaml, Csv, Image, BinaryHex viewlets ($\le 250$ LOC). | 31-DOD-01 – 31-DOD-10 |
-| **32** | `interactions` | [`SPRINT-32-CLM-HIGHER-UNIVERSE-CARD-RENDERERS.md`](./SPRINT-32-CLM-HIGHER-UNIVERSE-CARD-RENDERERS.md) | Higher-Universe Card Renderers: TikZ, PCard, VCard, Satori & SQLite (`@clm/mcard-explorer/renderers/clm`). Implement domain viewlets for $U_0$ TikZ/SQLite, $U_1$ PCard, $U_2$ VCard, $U_3$ Satori. | 32-DOD-01 – 32-DOD-10 |
-| **33** | `shell` | [`SPRINT-33-UNIVERSAL-MCARD-VIEWER-AND-EXPLORER-INTEGRATION.md`](./SPRINT-33-UNIVERSAL-MCARD-VIEWER-AND-EXPLORER-INTEGRATION.md) | Universal Card Viewlet (`MCardViewer`) & Explorer Master Integration (`@clm/mcard-explorer/ui`). Composite viewer, split-pane drawer in `MCardExplorer`, Universe facet filter chips ($U_0$–$U_5$), keyboard navigation. | 33-DOD-01 – 33-DOD-10 |
-| **34** | `verification` | [`SPRINT-34-TIKZIT-DOCKVIEW-INTEGRATION-AND-VERIFICATION-MATRIX.md`](./SPRINT-34-TIKZIT-DOCKVIEW-INTEGRATION-AND-VERIFICATION-MATRIX.md) | TikZiT Dockview Integration, Cross-System Conformance & Verification Matrix. Native `UniversalCardViewerPanel`, `CorpusExplorerDrawer` wiring, cross-system conformance suite, Contract B/D/E audits. | 34-DOD-01 – 34-DOD-10 |
+| **30** | `corpus` | [`SPRINT-30-UNIVERSAL-TYPE-JUDGMENT-AND-STRATIFIED-TYPE-LATTICE.md`](../../corpus/30-universal-type-judgment-and-stratified-type-lattice/SPRINT-30-UNIVERSAL-TYPE-JUDGMENT-AND-STRATIFIED-TYPE-LATTICE.md) | Universal Type Judgment & Stratified Type Lattice Integration (`@clm/mcard-vcs/type`). Wrap `clm-kernel`'s `TypeInterpreter` & `typeLattice`; 5-phase pipeline; enrich `CardView` and `ExplorerCardSummaryDto`. | 30-DOD-01 – 30-DOD-10 |
+| **31** | `interactions` | [`SPRINT-31-PLUGGABLE-POLYGLOT-RENDERER-REGISTRY-AND-VIEWLETS.md`](../../interactions/31-pluggable-polyglot-renderer-registry-and-viewlets/SPRINT-31-PLUGGABLE-POLYGLOT-RENDERER-REGISTRY-AND-VIEWLETS.md) | Pluggable Polyglot Renderer Registry & Base Viewlet Suite (`@clm/mcard-explorer/renderers`). Port `mcard-studio` descriptor model; build Text, Markdown, Data, Yaml, Csv, Image, BinaryHex viewlets ($\le 250$ LOC). | 31-DOD-01 – 31-DOD-10 |
+| **32** | `interactions` | [`SPRINT-32-CLM-HIGHER-UNIVERSE-CARD-RENDERERS.md`](../../interactions/32-clm-higher-universe-card-renderers/SPRINT-32-CLM-HIGHER-UNIVERSE-CARD-RENDERERS.md) | Higher-Universe Card Renderers: TikZ, PCard, VCard, Satori & SQLite (`@clm/mcard-explorer/renderers/clm`). Implement domain viewlets for $U_0$ TikZ/SQLite, $U_1$ PCard, $U_2$ VCard, $U_3$ Satori. | 32-DOD-01 – 32-DOD-10 |
+| **33** | `shell` | [`SPRINT-33-UNIVERSAL-MCARD-VIEWER-AND-EXPLORER-INTEGRATION.md`](../../shell/33-universal-mcard-viewer-and-explorer-integration/SPRINT-33-UNIVERSAL-MCARD-VIEWER-AND-EXPLORER-INTEGRATION.md) | Universal Card Viewlet (`MCardViewer`) & Explorer Master Integration (`@clm/mcard-explorer/ui`). Composite viewer, split-pane drawer in `MCardExplorer`, Universe facet filter chips ($U_0$–$U_5$), keyboard navigation. | 33-DOD-01 – 33-DOD-10 |
+| **34** | `verification` | [`SPRINT-34-TIKZIT-DOCKVIEW-INTEGRATION-AND-VERIFICATION-MATRIX.md`](../../verification/34-tikzit-dockview-integration-and-verification-matrix/SPRINT-34-TIKZIT-DOCKVIEW-INTEGRATION-AND-VERIFICATION-MATRIX.md) | TikZiT Dockview Integration, Cross-System Conformance & Verification Matrix. Native `UniversalCardViewerPanel`, `CorpusExplorerDrawer` wiring, cross-system conformance suite, Contract B/D/E audits. | 34-DOD-01 – 34-DOD-10 |
 
 ---
 
 ## 5. Definition of Done (DoD) Framework
 
 Every sprint in this series must strictly comply with the following 6 Core DoD Pillars:
-1. **Contract B Selector Preservation**: All 212 literal `data-testid` selectors and 12 dynamic prefix families verified intact via `node scripts/audit-testids.mjs --check` (kickoff-recorded baseline; regenerate and diff deliberately if the count moves).
+1. **Contract B Selector Preservation**: All 211 literal `data-testid` selectors and 12 dynamic prefix families verified intact via `node scripts/audit-testids.mjs --check` (kickoff-recorded baseline; regenerate and diff deliberately if the count moves).
 2. **Contract D Module Size Ceiling**: Every newly authored or refactored TypeScript/React file must not exceed 250 LOC.
 3. **Contract E Zero-DOM Isolation**: Headless modules must contain zero references to `window`, `document`, `HTMLElement`, `navigator`. **Scope note**: `scripts/check-vcs-isolation.mjs` currently scans `mcard-vcs/{storage,vcs,explorer,cordis,satori}` + `mcard-explorer/core` — Sprint 30 adds `mcard-vcs/type`, Sprint 31 adds `mcard-explorer/renderers/registry`, and the script's `TARGET_DIRECTORIES` must be extended accordingly (viewlets under `renderers/base|clm|ui` are React/DOM by design and are excluded from the DOM-globals scan but remain inside the *host-import* rule).
-4. **Full Automated Test Coverage**: Every component and service must have matching Vitest tests. Zero regressions allowed across existing 505 tests (kickoff-recorded baseline, 93 files).
+4. **Full Automated Test Coverage**: Every component and service must have matching Vitest tests. Zero regressions allowed across existing 526 tests (kickoff-recorded baseline, 95 files).
 5. **Architectural Coherence**: All cards must be treated uniformly as content-addressed MCards stratified across $U_0$–$U_5$ universe levels, with kernel-layer discipline per §1.3 (no layer-N code importing layer->N surfaces).
 6. **Cross-System Portability & Package Separation (D42)**: `@clm/mcard-explorer` and `@clm/mcard-vcs` must each be adoptable **independently** — explorer binds to `ExplorerDataSource`/`CardContentProvider` ports it defines itself; `mcard-vcs` provides one implementation; `mcard-studio` will provide another over `studioMCardFs`. No `mcard-explorer` file may import `mcard-vcs` concrete classes.
